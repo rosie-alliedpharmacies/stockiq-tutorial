@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StockIQ Tutorial</title>
+
+<style>
+:root{--teal:#0d9488;--teal-light:#14b8a6;--teal-dim:#0f766e;--bg:#f0faf9;--surface:#fff;--surface2:#e6f7f6;--border:#b2dfdb;--text:#1a2e2d;--muted:#5f8a87;--done:#10b981;--pill-r:999px;--radius:14px;--shadow:0 4px 24px rgba(13,148,136,.10);--shadow-lg:0 12px 48px rgba(13,148,136,.18);}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+header{width:100%;background:var(--teal);padding:0 2rem;display:flex;align-items:center;gap:1rem;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.15);}
+.header-pill{margin-left:auto;background:rgba(255,255,255,.15);color:#fff;font-size:.78rem;font-weight:600;padding:.3rem .9rem;border-radius:var(--pill-r);letter-spacing:.04em;text-transform:uppercase;}
+.shell{display:grid;grid-template-columns:260px 1fr;gap:2rem;max-width:1120px;width:100%;padding:2.5rem 1.5rem 4rem;}
+.sidebar{position:sticky;top:84px;align-self:start;}
+.sidebar-title{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
+.step-nav{display:flex;flex-direction:column;gap:.4rem;}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:10px;cursor:pointer;transition:background .2s,color .2s;font-size:.9rem;color:var(--muted);border:2px solid transparent;}
+.nav-item:hover{background:var(--surface2);color:var(--text);}
+.nav-item.active{background:var(--surface);color:var(--teal);border-color:var(--border);font-weight:600;box-shadow:var(--shadow);}
+.nav-item.completed{color:var(--done);}
+.nav-item.completed .nav-num{background:var(--done);color:#fff;}
+.nav-num{width:26px;height:26px;border-radius:50%;background:var(--border);color:var(--muted);font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nav-item.active .nav-num{background:var(--teal);color:#fff;}
+.sub-nav{display:flex;flex-direction:column;gap:.25rem;margin-left:1rem;margin-top:.25rem;padding-left:.75rem;border-left:2px solid var(--border);}
+.sub-nav-item{display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;border-radius:8px;cursor:pointer;font-size:.82rem;color:var(--muted);border:1.5px solid transparent;transition:background .2s,color .2s;}
+.sub-nav-item:hover{background:var(--surface2);color:var(--text);}
+.sub-nav-item.active{background:var(--surface);color:var(--teal);border-color:var(--border);font-weight:600;}
+.sub-nav-item.completed{color:var(--done);}
+.sub-nav-dot{width:18px;height:18px;border-radius:50%;background:var(--border);color:var(--muted);font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sub-nav-item.active .sub-nav-dot{background:var(--teal);color:#fff;}
+.sub-nav-item.completed .sub-nav-dot{background:var(--done);color:#fff;}
+.main{min-width:0;}
+.step-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);border:1px solid var(--border);overflow:hidden;animation:slideIn .35s cubic-bezier(.4,0,.2,1);}
+@keyframes slideIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.card-header{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-dim) 100%);padding:2rem 2.5rem 1.6rem;position:relative;overflow:hidden;}
+.card-header::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.07);}
+.card-header::before{content:'';position:absolute;right:60px;bottom:-60px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.05);}
+.step-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.18);color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .8rem;border-radius:var(--pill-r);margin-bottom:.9rem;letter-spacing:.06em;text-transform:uppercase;}
+.card-title{font-family:Georgia,'Times New Roman',serif;font-size:2rem;color:#fff;line-height:1.2;position:relative;z-index:1;}
+.card-subtitle{color:rgba(255,255,255,.75);margin-top:.5rem;font-size:.95rem;position:relative;z-index:1;}
+.card-body{padding:2rem 2.5rem 2.5rem;}
+.mockup{background:#0f1e1d;border-radius:10px;margin-bottom:2rem;overflow:hidden;border:1px solid #1a3332;box-shadow:0 8px 32px rgba(0,0,0,.25);}
+.mockup-bar{background:#162b2a;padding:.5rem 1rem;display:flex;align-items:center;gap:.4rem;}
+.mockup-dot{width:10px;height:10px;border-radius:50%;}
+.mockup-dot:nth-child(1){background:#ef4444;}
+.mockup-dot:nth-child(2){background:#f59e0b;}
+.mockup-dot:nth-child(3){background:#22c55e;}
+.mockup-url{margin-left:.6rem;background:#1e3534;border-radius:6px;padding:.2rem .8rem;color:#5f8a87;font-family:'DM Mono',monospace;font-size:.72rem;}
+.mockup-inner{position:relative;}
+.bug-btn{position:absolute;bottom:.5rem;right:.5rem;width:28px;height:28px;background:#0d9488;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer;z-index:10;}
+.login-mockup{display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.5rem 1rem;gap:.6rem;background:#1a2a3a;}
+.login-logo-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:.4rem;}
+.login-epos-label{color:#8a9bb0;font-size:.78rem;letter-spacing:.04em;margin-top:.2rem;}
+.login-card{width:100%;max-width:320px;background:rgba(255,255,255,.08);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;gap:.8rem;}
+.login-card-title{color:#fff;font-weight:700;font-size:1rem;text-align:center;}
+.login-card-sub{color:#8a9bb0;font-size:.75rem;text-align:center;margin-top:-.4rem;}
+.login-field-wrap{display:flex;flex-direction:column;gap:.25rem;}
+.login-field-label{color:#c0cfe0;font-size:.75rem;}
+.login-field{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:.6rem .9rem;color:#8a9bb0;font-size:.82rem;}
+.login-field.filled{color:#c0cfe0;}
+.login-btn{width:100%;background:#4a7ff5;color:#fff;border:none;border-radius:10px;padding:.75rem;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:.2rem;}
+.login-footer{color:#5a7a9a;font-size:.7rem;text-align:center;padding-bottom:.5rem;}
+.pin-wrap{display:flex;flex-direction:column;align-items:center;padding:1.2rem 1rem 1rem;background:#1a2a3a;gap:.7rem;}
+.pin-dots{display:flex;gap:.7rem;margin:.3rem 0;}
+.pin-dot{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.18);}
+.pin-dot.filled{background:#4a7ff5;border-color:#4a7ff5;}
+.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%;max-width:260px;}
+.pin-key{background:#2a3f57;border:none;border-radius:10px;color:#fff;font-size:1.2rem;font-weight:700;padding:.7rem;cursor:pointer;text-align:center;}
+.pin-key.clear{background:#7f1d1d;color:#f87171;}
+.pin-key.back{background:#78610a;color:#fbbf24;}
+.pin-footer{color:#5a7a9a;font-size:.7rem;text-align:center;padding-bottom:.3rem;}
+.instr-item.active-instr{border-color:var(--teal);background:var(--surface2);box-shadow:0 0 0 3px rgba(13,148,136,.12);}
+.instructions{list-style:none;display:flex;flex-direction:column;gap:.9rem;}
+.instr-item{display:flex;gap:1rem;align-items:flex-start;padding:1rem 1.2rem;background:var(--bg);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:border-color .2s,box-shadow .2s;}
+.instr-item:hover{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.08);}
+.instr-icon{width:36px;height:36px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;border:1px solid var(--border);}
+.instr-text strong{display:block;font-size:.9rem;margin-bottom:.2rem;color:var(--text);}
+.instr-text p{font-size:.84rem;color:var(--muted);line-height:1.5;}
+.tip-box{margin-top:1.5rem;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:1rem 1.2rem;display:flex;gap:.75rem;align-items:flex-start;}
+.tip-icon{font-size:1.2rem;flex-shrink:0;margin-top:.05rem;}
+.tip-box p{font-size:.85rem;color:#92400e;line-height:1.5;}
+.stub-box{text-align:center;padding:3rem 2rem;color:var(--muted);}
+.stub-box .stub-icon{font-size:2.5rem;margin-bottom:1rem;}
+.stub-box h3{font-family:Georgia,'Times New Roman',serif;font-size:1.4rem;color:var(--text);margin-bottom:.5rem;}
+.stub-box p{font-size:.9rem;line-height:1.6;}
+.nav-btns{display:flex;justify-content:space-between;align-items:center;margin-top:2rem;gap:1rem;}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;border-radius:var(--pill-r);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--muted);}
+.btn-outline:hover{border-color:var(--teal);color:var(--teal);background:var(--surface2);}
+.btn-primary{background:var(--teal);color:#fff;border-color:var(--teal);box-shadow:0 4px 16px rgba(13,148,136,.3);}
+.btn-primary:hover{background:var(--teal-dim);border-color:var(--teal-dim);transform:translateY(-1px);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}
+.complete-screen{text-align:center;padding:3rem 2rem;}
+.complete-badge{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--done),var(--teal));display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 1.5rem;box-shadow:0 8px 32px rgba(16,185,129,.3);animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.complete-screen h2{font-family:Georgia,'Times New Roman',serif;font-size:2rem;margin-bottom:.5rem;color:var(--text);}
+.complete-screen p{color:var(--muted);max-width:360px;margin:0 auto 2rem;line-height:1.6;}
+.restart-btn{background:transparent;border:2px solid var(--teal);color:var(--teal);padding:.7rem 2rem;border-radius:var(--pill-r);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s;}
+.restart-btn:hover{background:var(--teal);color:#fff;}
+.sidebar-toggle{display:none;}
+@media(max-width:700px){
+  .shell{grid-template-columns:1fr;padding:1rem .75rem 3rem;}
+  .card-title{font-size:1.4rem;}
+  .card-header{padding:1.4rem 1.4rem 1.2rem;}
+  .card-body{padding:1.2rem 1.4rem 1.6rem;}
+  .sidebar{position:static;width:100%;}
+  .sidebar-title{display:none;}
+  .sidebar-toggle{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--teal);box-shadow:var(--shadow);margin-bottom:.5rem;user-select:none;}
+  .sidebar-toggle .arr{transition:transform .25s;}
+  .sidebar-toggle.open .arr{transform:rotate(180deg);}
+  .step-nav{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);}
+  .step-nav.open{max-height:600px;}
+}
+</style>
+</head>
+<body>
+<header>
+<svg xmlns="http://www.w3.org/2000/svg" height="36" viewBox="6749 10033 16582 4921"><path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M896.761 433.683C913.753 431.465 936.429 439.866 949.052 451.211C963.396 464.19 971.962 482.361 972.844 501.686C973.926 522.269 966.562 539.558 953.066 554.69C945.726 548.056 937.901 541.454 930.403 534.963C936.147 527.287 940.46 519.758 941.614 510.064C944.16 488.673 927.985 465.9 905.998 463.833C894.185 462.722 884.948 466.195 875.898 473.584C872.348 476.88 869.213 481.124 866.953 485.399C861.619 495.346 860.447 507.003 863.696 517.813C866.63 527.195 873.086 535.075 881.708 539.798C885.681 541.934 889.943 543.5 894.093 545.745L894.684 546.069C894.284 553.488 890.611 566.974 888.703 574.736C883.135 573.158 877.246 571.575 872.013 569.205C817.636 544.586 817.957 461.226 874.292 439.065C882.573 435.808 888.033 434.707 896.761 433.683Z"/><path fill="#fff" transform="scale(23.7969 23.7969)" d="M516.882 472.191C545.251 469.888 570.178 490.871 572.748 519.216C575.318 547.562 554.571 572.685 526.251 575.522C497.551 578.397 472.016 557.311 469.412 528.585C466.807 499.859 488.133 474.524 516.882 472.191ZM523.969 549.134C531.564 547.298 537.296 544.368 541.443 537.338C548.319 525.682 543.957 507.633 531.826 501.161C527.737 498.966 523.074 498.075 518.464 498.609C502.981 501.945 494.278 514.729 498.001 530.209C499.515 536.526 503.457 541.992 508.973 545.423C513.331 548.081 518.877 549.307 523.969 549.134Z"/><path fill="#fff" transform="scale(23.7969 23.7969)" d="M342.852 436.232C361.262 435.972 378.619 441.048 390.119 456.121C383.691 462.75 377.064 469.439 370.912 476.305C360.936 467.285 346.665 457.87 333.067 467.519C331.308 468.767 329.302 472.143 329.338 474.397C329.464 488.659 350.492 490.88 362.707 494.519C394.699 504.05 405.266 539.472 380.735 563.356C370.427 573.391 351.865 575.41 336.88 574.393C317.683 572.156 305.653 565.337 292.589 551.267C297.285 545.66 308.285 535.916 314.2 529.939C314.877 530.633 315.558 531.324 316.243 532.01C324.921 540.7 332.691 546.068 345.286 546.05C351.931 546.04 362.708 542.219 361.746 534.062C360.07 519.844 339.941 518.299 329.375 514.255C322.18 511.501 315.539 509.324 309.555 504.332C293.851 491.662 293.537 465.8 306.326 450.97C315.372 440.481 329.604 437.156 342.852 436.232Z"/><path fill="#fff" transform="scale(23.7969 23.7969)" d="M686.922 430.316C696.102 430.278 705.283 430.329 714.462 430.47C713.575 458.518 714.869 486.38 714.219 514.233C720.135 509.273 726.167 502.406 731.453 496.643L751.848 474.537C763.139 474.46 774.429 474.293 785.717 474.036C784.029 476.3 782.189 478.391 780.27 480.459C769.36 492.214 759.218 504.772 748.241 516.445C756.556 528.695 765.049 540.825 773.716 552.829C778.462 559.85 783.579 566.844 788.408 573.981C776.947 573.808 765.484 573.748 754.021 573.8C745.745 562.483 735.525 546.162 727.748 534.212C723.187 538.625 718.717 543.639 714.495 548.374C714.201 556.8 714.188 565.507 714.074 573.957L686.529 573.974L686.922 430.316Z"/><path fill="#fff" transform="scale(23.7969 23.7969)" d="M630.264 472.204C649.479 471.842 664.156 478.455 675.425 494.264C667.27 499.053 659.856 503.988 652.759 510.273C647.867 504.423 642.578 499.001 634.52 498.593C621.25 497.92 610.949 509.244 610.589 521.788C610.391 529.183 613.204 536.342 618.384 541.623C630.597 553.865 644.591 548.496 655.129 537.636C658.504 540.39 661.856 543.172 665.185 545.982C667.609 548.224 671.688 551.288 674.349 553.316C668.6 564.304 653.525 572.723 641.508 574.405C627.245 576.374 612.781 572.653 601.239 564.047C572.968 542.569 577.23 494.629 608.603 478.529C616.153 474.655 621.891 473.296 630.264 472.204Z"/><path fill="#fff" transform="scale(23.7969 23.7969)" d="M411.864 447.934C420.91 447.889 429.956 447.926 439.001 448.044L439.076 474.525C446.337 474.358 454.569 474.721 462.016 474.711C461.799 483.426 461.793 492.145 462 500.86L439.026 500.849C438.964 511.391 438.777 522.016 438.97 532.551C439.264 548.537 447.131 548.996 460.436 548.211C460.067 554.614 460.115 560.997 460.096 567.41C460.138 569.649 460.347 572.211 460.475 574.475C457.994 574.779 455.497 574.934 452.998 574.941C413.326 575.253 410.841 554.564 411.385 521.414L411.565 500.843L397.557 500.824C397.562 495.181 397.298 479.917 398.262 475.345C399.93 474.039 409.168 474.48 411.828 474.493C411.364 467.06 412.066 456.032 411.864 447.934Z"/><path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M792.97 474.264C802.484 474.114 812 474.179 821.511 474.459L821.447 573.935C812.059 574.125 802.198 573.974 792.773 573.976C793.101 564.525 792.798 552.539 792.873 542.88C793.078 520.009 793.11 497.136 792.97 474.264Z"/><path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M906.25 525.624C911.235 527.989 922.548 538.783 927.371 542.832C934.872 549.128 943.988 556 951.054 562.61L940.806 566.092C945.227 578.331 951.667 591.942 956.712 604.232C951.336 602.948 945.977 601.592 940.637 600.163L935.169 599.215L921.84 616.249C916.945 604.319 912.334 590.796 908.121 578.568C904.249 579.535 900.4 580.589 896.575 581.729C900.041 563.395 902.954 544.14 906.25 525.624Z"/><path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M803.348 433.731C811.748 431.657 820.246 436.758 822.365 445.147C824.484 453.535 819.429 462.06 811.051 464.224C802.611 466.404 794.007 461.302 791.872 452.85C789.737 444.397 794.885 435.821 803.348 433.731Z"/></svg>
+<div class="header-pill">Tutorial Mode</div>
+</header>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="sidebar-title">Tutorial Steps</div>
+    <div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+      <span>Tutorial Steps</span><span class="arr">&#9660;</span>
+    </div>
+    <div class="step-nav" id="stepNav"></div>
+  </aside>
+  <main class="main" id="mainContent"></main>
+</div>
+<script>
+var activeSFPanel = null;
+
+function hl(on) { return on ? 'outline:3px solid #14b8a6;border-radius:7px;background:rgba(20,184,166,.06);' : ''; }
+function hlBtn(key) { return activeSFPanel === key ? 'box-shadow:0 0 0 3px #14b8a6;' : ''; }
+
+var SF_PANELS = [
+  { key: 'nhs',  label: 'NHS Services', icon: '&#x1F489;', color: '#1a3a6b', text: 'Recording NHS Services such as BP Checks, Flu Jabs (PF), CPCS, and NMS helps build a picture of trends over time - for example, which times of year certain services are busier, or which staff members are particularly good at offering and delivering a specific service. This data helps Head Office plan support and training accordingly.' },
+  { key: 'misc', label: 'Misc Items',   icon: '&#x1F6D2;', color: '#4a4a4a', text: 'The Misc Items button lets you manually add a price to any item that scans through with no price attached. This is useful for one-off products or items whose barcode is not yet set up in the system.' },
+  { key: 'safe', label: 'Safe',         icon: '&#x1F512;', color: '#2e7d32', text: 'The Safe button has two uses. First, if you have taken a lot of cash during the day and do not want to wait until cash up, you can use it to log a deposit from the till into the in-branch safe at any point during the day. Second, it can also be used to log when cash has been deposited from the in-branch safe into the bank.' }
+];
+
+function toggleSFPanel(key) {
+  activeSFPanel = activeSFPanel === key ? null : key;
+  render();
+}
+
+var LOGO = '<svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="6749 10033 16582 4921"><path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M896.761 433.683C913.753 431.465 936.429 439.866 949.052 451.211C963.396 464.19 971.962 482.361 972.844 501.686C973.926 522.269 966.562 539.558 953.066 554.69C945.726 548.056 937.901 541.454 930.403 534.963C936.147 527.287 940.46 519.758 941.614 510.064C944.16 488.673 927.985 465.9 905.998 463.833C894.185 462.722 884.948 466.195 875.898 473.584C872.348 476.88 869.213 481.124 866.953 485.399C861.619 495.346 860.447 507.003 863.696 517.813C866.63 527.195 873.086 535.075 881.708 539.798C885.681 541.934 889.943 543.5 894.093 545.745L894.684 546.069C894.284 553.488 890.611 566.974 888.703 574.736C883.135 573.158 877.246 571.575 872.013 569.205C817.636 544.586 817.957 461.226 874.292 439.065C882.573 435.808 888.033 434.707 896.761 433.683Z"/><path fill="#111737" transform="scale(23.7969 23.7969)" d="M516.882 472.191C545.251 469.888 570.178 490.871 572.748 519.216C575.318 547.562 554.571 572.685 526.251 575.522C497.551 578.397 472.016 557.311 469.412 528.585C466.807 499.859 488.133 474.524 516.882 472.191ZM523.969 549.134C531.564 547.298 537.296 544.368 541.443 537.338C548.319 525.682 543.957 507.633 531.826 501.161C527.737 498.966 523.074 498.075 518.464 498.609C502.981 501.945 494.278 514.729 498.001 530.209C499.515 536.526 503.457 541.992 508.973 545.423C513.331 548.081 518.877 549.307 523.969 549.134Z"/><path fill="#111737" transform="scale(23.7969 23.7969)" d="M342.852 436.232C361.262 435.972 378.619 441.048 390.119 456.121C383.691 462.75 377.064 469.439 370.912 476.305C360.936 467.285 346.665 457.87 333.067 467.519C331.308 468.767 329.302 472.143 329.338 474.397C329.464 488.659 350.492 490.88 362.707 494.519C394.699 504.05 405.266 539.472 380.735 563.356C370.427 573.391 351.865 575.41 336.88 574.393C317.683 572.156 305.653 565.337 292.589 551.267C297.285 545.66 308.285 535.916 314.2 529.939C314.877 530.633 315.558 531.324 316.243 532.01C324.921 540.7 332.691 546.068 345.286 546.05C351.931 546.04 362.708 542.219 361.746 534.062C360.07 519.844 339.941 518.299 329.375 514.255C322.18 511.501 315.539 509.324 309.555 504.332C293.851 491.662 293.537 465.8 306.326 450.97C315.372 440.481 329.604 437.156 342.852 436.232Z"/><path fill="#111737" transform="scale(23.7969 23.7969)" d="M686.922 430.316C696.102 430.278 705.283 430.329 714.462 430.47C713.575 458.518 714.869 486.38 714.219 514.233C720.135 509.273 726.167 502.406 731.453 496.643L751.848 474.537C763.139 474.46 774.429 474.293 785.717 474.036C784.029 476.3 782.189 478.391 780.27 480.459C769.36 492.214 759.218 504.772 748.241 516.445C756.556 528.695 765.049 540.825 773.716 552.829C778.462 559.85 783.579 566.844 788.408 573.981C776.947 573.808 765.484 573.748 754.021 573.8C745.745 562.483 735.525 546.162 727.748 534.212C723.187 538.625 718.717 543.639 714.495 548.374C714.201 556.8 714.188 565.507 714.074 573.957L686.529 573.974L686.922 430.316Z"/><path fill="#111737" transform="scale(23.7969 23.7969)" d="M630.264 472.204C649.479 471.842 664.156 478.455 675.425 494.264C667.27 499.053 659.856 503.988 652.759 510.273C647.867 504.423 642.578 499.001 634.52 498.593C621.25 497.92 610.949 509.244 610.589 521.788C610.391 529.183 613.204 536.342 618.384 541.623C630.597 553.865 644.591 548.496 655.129 537.636C658.504 540.39 661.856 543.172 665.185 545.982C667.609 548.224 671.688 551.288 674.349 553.316C668.6 564.304 653.525 572.723 641.508 574.405C627.245 576.374 612.781 572.653 601.239 564.047C572.968 542.569 577.23 494.629 608.603 478.529C616.153 474.655 621.891 473.296 630.264 472.204Z"/><path fill="#111737" transform="scale(23.7969 23.7969)" d="M411.864 447.934C420.91 447.889 429.956 447.926 439.001 448.044L439.076 474.525C446.337 474.358 454.569 474.721 462.016 474.711C461.799 483.426 461.793 492.145 462 500.86L439.026 500.849C438.964 511.391 438.777 522.016 438.97 532.551C439.264 548.537 447.131 548.996 460.436 548.211C460.067 554.614 460.115 560.997 460.096 567.41C460.138 569.649 460.347 572.211 460.475 574.475C457.994 574.779 455.497 574.934 452.998 574.941C413.326 575.253 410.841 554.564 411.385 521.414L411.565 500.843L397.557 500.824C397.562 495.181 397.298 479.917 398.262 475.345C399.93 474.039 409.168 474.48 411.828 474.493C411.364 467.06 412.066 456.032 411.864 447.934Z"/><path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M792.97 474.264C802.484 474.114 812 474.179 821.511 474.459L821.447 573.935C812.059 574.125 802.198 573.974 792.773 573.976C793.101 564.525 792.798 552.539 792.873 542.88C793.078 520.009 793.11 497.136 792.97 474.264Z"/><path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M906.25 525.624C911.235 527.989 922.548 538.783 927.371 542.832C934.872 549.128 943.988 556 951.054 562.61L940.806 566.092C945.227 578.331 951.667 591.942 956.712 604.232C951.336 602.948 945.977 601.592 940.637 600.163L935.169 599.215L921.84 616.249C916.945 604.319 912.334 590.796 908.121 578.568C904.249 579.535 900.4 580.589 896.575 581.729C900.041 563.395 902.954 544.14 906.25 525.624Z"/><path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M803.348 433.731C811.748 431.657 820.246 436.758 822.365 445.147C824.484 453.535 819.429 462.06 811.051 464.224C802.611 466.404 794.007 461.302 791.872 452.85C789.737 444.397 794.885 435.821 803.348 433.731Z"/></svg>';
+
+var BUG = '<div class="bug-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="13" rx="4" ry="5"/><circle cx="12" cy="7" r="2"/><line x1="10" y1="5.5" x2="8" y2="3.5"/><line x1="14" y1="5.5" x2="16" y2="3.5"/><line x1="8" y1="11" x2="5.5" y2="10"/><line x1="8" y1="13" x2="5.5" y2="13"/><line x1="8" y1="15" x2="5.5" y2="16"/><line x1="16" y1="11" x2="18.5" y2="10"/><line x1="16" y1="13" x2="18.5" y2="13"/><line x1="16" y1="15" x2="18.5" y2="16"/><line x1="12" y1="9" x2="12" y2="18"/></svg></div>';
+
+var BUG_HL = '<div class="bug-btn" style="box-shadow:0 0 0 4px #14b8a6,0 2px 8px rgba(0,0,0,.3);transform:scale(1.2);"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="13" rx="4" ry="5"/><circle cx="12" cy="7" r="2"/><line x1="10" y1="5.5" x2="8" y2="3.5"/><line x1="14" y1="5.5" x2="16" y2="3.5"/><line x1="8" y1="11" x2="5.5" y2="10"/><line x1="8" y1="13" x2="5.5" y2="13"/><line x1="8" y1="15" x2="5.5" y2="16"/><line x1="16" y1="11" x2="18.5" y2="10"/><line x1="16" y1="13" x2="18.5" y2="13"/><line x1="16" y1="15" x2="18.5" y2="16"/><line x1="12" y1="9" x2="12" y2="18"/></svg></div>';
+
+function hl(on) { return on ? 'outline:3px solid #14b8a6;border-radius:7px;background:rgba(20,184,166,.06);' : ''; }
+
+var SF_PANELS = [
+  { key: 'nhs', label: 'NHS Services', icon: '&#x1F489;', color: '#1a3a6b', text: 'Recording NHS Services such as BP Checks, Flu Jabs (PF), CPCS, and NMS helps build a picture of trends over time - for example, which times of year certain services are busier, or which staff members are particularly good at offering and delivering a specific service. This data helps Head Office plan support and training accordingly.' },
+  { key: 'misc', label: 'Misc Items', icon: '&#x1F6D2;', color: '#4a4a4a', text: 'The Misc Items button lets you manually add a price to any item that scans through with no price attached. This is useful for one-off products or items whose barcode is not yet set up in the system.' },
+  { key: 'safe', label: 'Safe', icon: '&#x1F512;', color: '#2e7d32', text: 'The Safe button has two uses. First, if you have taken a lot of cash during the day and do not want to wait until cash up, you can use it to log a deposit from the till into the in-branch safe at any point during the day. Second, it can also be used to log when cash has been deposited from the in-branch safe into the bank.' }
+];
+
+var activeSFPanel = null;
+
+function toggleSFPanel(key) {
+  activeSFPanel = activeSFPanel === key ? null : key;
+  switchMockup(curInstr);
+}
+
+function sidebarHtml(active) {
+  var items = [
+    ['till','till','<div style="font-size:.9rem;">&#x1F9FE;</div>Till'],
+    ['xz','xz','<div style="font-size:.9rem;">&#x1F4CB;</div>X/Z Read'],
+    ['labels','labels','<div style="font-size:.9rem;">&#x1F3F7;&#xFE0F;</div>Labels'],
+    ['dashboard','dashboard','<div style="font-size:.9rem;">&#x1F4CA;</div>Dashboard'],
+    ['accounts','accounts','<div style="font-size:.9rem;">&#x1F465;</div>Accounts'],
+    ['reports','reports','<div style="font-size:.9rem;">&#x1F4C8;</div>Reports'],
+    ['settings','settings','<div style="font-size:.9rem;">&#x2699;&#xFE0F;</div>Settings']
+  ];
+  var html = '<div style="background:#1e2235;display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.3rem;">';
+  html += '<div style="color:#fff;font-weight:900;font-size:.75rem;margin-bottom:.3rem;background:#2d3250;border-radius:6px;padding:.2rem .4rem;">SiQ</div>';
+  html += '<div style="background:#3a3f5c;border-radius:6px;padding:.3rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;">AP-46</div>';
+  for (var i = 0; i < items.length; i++) {
+    var key = items[i][0];
+    var isActive = key === active;
+    var badge = key === 'labels' ? '<span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;">99+</span>' : '';
+    html += '<div style="' + (isActive ? 'background:#4a6fa5;border-radius:6px;' : '') + 'padding:.4rem .5rem;color:' + (isActive ? '#fff' : '#8a9bb0') + ';font-size:.55rem;text-align:center;width:48px;position:relative;">' + items[i][2] + badge + '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function topNavHtml(active) {
+  var tabs = ['Dashboard','Accounts','Reports','Settings'];
+  var html = '<div style="background:#fff;border-radius:8px;padding:.35rem .6rem;display:flex;align-items:center;gap:.5rem;box-shadow:0 1px 3px rgba(0,0,0,.07);">';
+  html += '<span style="font-size:.75rem;font-weight:800;color:#1a2e2d;">StockIQ</span>';
+  html += '<span style="font-size:.52rem;color:#888;border:1px solid #ddd;border-radius:3px;padding:.05rem .25rem;">EPOS</span>';
+  html += '<div style="display:flex;gap:.3rem;margin-left:.3rem;">';
+  for (var i = 0; i < tabs.length; i++) {
+    var isActive = tabs[i] === active;
+    html += '<span style="' + (isActive ? 'background:#3b6fd4;color:#fff;border-radius:5px;' : 'color:#888;') + 'padding:.15rem .45rem;font-size:.55rem;font-weight:' + (isActive ? '600' : '400') + ';">' + tabs[i] + '</span>';
+  }
+  html += '</div><div style="margin-left:auto;font-size:.55rem;color:#555;">Sample Pharmacy</div></div>';
+  return html;
+}
+
+function wrapMockup(url, inner) {
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">' + url + '</div></div><div class="mockup-inner">' + inner + BUG + '</div></div>';
+}
+
+// ── Mockup renderers ──────────────────────────────────────────────────────────
+
+function renderLogin() {
+  return '<div class="mockup"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">stockiq.local/login</div></div><div class="mockup-inner"><div class="login-mockup"><div class="login-logo-wrap">' + LOGO + '<div class="login-epos-label">EPOS System - Branch Login</div></div><div class="login-card"><div class="login-card-title">Branch Authentication</div><div class="login-card-sub">Login with your branch manager account</div><div class="login-field-wrap"><div class="login-field-label">Email</div><input class="login-field filled" value="manager@pharmacy.com" readonly/></div><div class="login-field-wrap"><div class="login-field-label">Password</div><input class="login-field" type="password" placeholder="Enter password" readonly/></div><button class="login-btn">Login to Branch</button></div><div class="login-footer">Use a manager or admin account with EPOS permission</div></div>' + BUG + '</div></div>';
+}
+
+function renderPin() {
+  return '<div class="mockup"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">stockiq.local/pin</div></div><div class="mockup-inner"><div class="pin-wrap"><div class="login-logo-wrap">' + LOGO + '</div><div class="login-card"><div class="login-card-title">Enter Your PIN</div><div class="login-card-sub">4 digit staff PIN</div><div class="pin-dots"><div class="pin-dot filled"></div><div class="pin-dot filled"></div><div class="pin-dot"></div><div class="pin-dot"></div></div><div class="pin-grid"><button class="pin-key">1</button><button class="pin-key">2</button><button class="pin-key">3</button><button class="pin-key">4</button><button class="pin-key">5</button><button class="pin-key">6</button><button class="pin-key">7</button><button class="pin-key">8</button><button class="pin-key">9</button><button class="pin-key clear">Clear</button><button class="pin-key">0</button><button class="pin-key back">&#8592;</button></div></div><div class="pin-footer">Set your EPOS PIN in the Admin portal under Users</div></div>' + BUG + '</div></div>';
+}
+
+function renderTill(highlight) {
+  var navStyle = highlight === 'nav' ? 'outline:3px solid #14b8a6;outline-offset:-3px;' : '';
+  var topStyle = highlight === 'topbar' ? 'display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;outline:3px solid #14b8a6;border-radius:6px;padding:.3rem;background:rgba(20,184,166,.08);' : 'display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;';
+  var bugHtml = highlight === 'bug' ? BUG_HL : BUG;
+
+  var sbHtml = '<div style="background:#1e2235;display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.3rem;' + navStyle + '">';
+  sbHtml += '<div style="color:#fff;font-weight:900;font-size:.75rem;margin-bottom:.3rem;background:#2d3250;border-radius:6px;padding:.2rem .4rem;">SiQ</div>';
+  sbHtml += '<div style="background:#3a3f5c;border-radius:6px;padding:.3rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;">AP-46</div>';
+  sbHtml += '<div style="background:#4a6fa5;border-radius:6px;padding:.4rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;margin-top:.2rem;"><div style="font-size:.9rem;">&#x1F9FE;</div>Till</div>';
+  sbHtml += '<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x1F4CB;</div>X/Z Read</div>';
+  sbHtml += '<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;position:relative;"><div style="font-size:.9rem;">&#x1F3F7;&#xFE0F;</div>Labels<span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;">99+</span></div>';
+  sbHtml += '<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x1F4CA;</div>Dashboard</div>';
+  sbHtml += '<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x1F465;</div>Accounts</div>';
+  sbHtml += '<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x1F4C8;</div>Reports</div>';
+  sbHtml += '<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x2699;&#xFE0F;</div>Settings</div></div>';
+
+  var mainHtml = '<div style="background:#f0f2f7;padding:.6rem;overflow:hidden;">';
+  mainHtml += '<div style="' + topStyle + '">';
+  mainHtml += '<div style="flex:1;background:#fff;border-radius:20px;padding:.3rem .7rem;font-size:.65rem;color:#aaa;border:1px solid #ddd;">Search barcode or product...</div>';
+  mainHtml += '<div style="font-size:.6rem;color:#666;text-align:right;white-space:nowrap;">Logged in as<br><strong style="color:#111;">Staff Member</strong></div>';
+  mainHtml += '<div style="background:#1e2235;color:#fff;border-radius:6px;padding:.3rem .5rem;font-size:.65rem;font-weight:700;">12:02</div></div>';
+  mainHtml += '<div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">SERVICES &amp; FUNCTIONS</div>';
+  mainHtml += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-bottom:.5rem;">';
+  mainHtml += '<div style="background:#1a3a6b;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;' + hlBtn('nhs') + '"><div style="background:#1565c0;border-radius:3px;font-size:.42rem;margin-bottom:.15rem;padding:.05rem;">NHS</div>NHS SERVICES<div style="color:#90caf9;font-size:.42rem;">PF, CPCS, NMS</div></div>';
+  mainHtml += '<div style="background:#4a4a4a;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;' + hlBtn('misc') + '"><div style="font-size:.8rem;">&#x1F6D2;</div>MISC ITEMS<div style="color:#ccc;font-size:.42rem;">VAT / No VAT</div></div>';
+  mainHtml += '<div style="background:#6a3fa0;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"><div style="font-size:.8rem;">&#x1F50D;</div>PRICE CHECK<div style="color:#ce93d8;font-size:.42rem;">Lookup</div></div>';
+  mainHtml += '<div style="background:#00796b;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"><div style="font-size:.8rem;">&#x1F5A8;&#xFE0F;</div>REPRINT LAST<div style="color:#80cbc4;font-size:.42rem;">Receipt</div></div>';
+  mainHtml += '<div style="background:#2e7d32;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;' + hlBtn('safe') + '"><div style="font-size:.8rem;">&#x1F512;</div>SAFE<div style="color:#a5d6a7;font-size:.42rem;">Drop / Pickup</div></div>';
+  mainHtml += '<div style="background:#c62828;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"><div style="font-size:.8rem;">&#x2716;&#xFE0F;</div>VOID SALE<div style="color:#ef9a9a;font-size:.42rem;">Clear All</div></div></div>';
+  mainHtml += '<div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">QUICK KEYS</div>';
+  mainHtml += '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;margin-bottom:.5rem;">';
+  var qkeys = [['&#x1F489;','FLU JAB','&#xa3;20.00'],['&#x1F697;','DELIVERY','&#xa3;3.50'],['&#x1F48A;','MDS MONTHLY','&#xa3;25.00'],['&#x1F464;','PRIVATE CONSULT','&#xa3;15.00'],['&#x1F6CD;&#xFE0F;','CARRIER BAG','&#xa3;0.20'],['NHS','RX CHARGE','&#xa3;9.90'],['&#x21A9;&#xFE0F;','FP57 REFUND','-&#xa3;9.90'],['&#x1F4B3;','PRIVATE RX','Enter &#xa3;']];
+  for (var i = 0; i < qkeys.length; i++) {
+    mainHtml += '<div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;"><div style="font-size:.7rem;">' + qkeys[i][0] + '</div>' + qkeys[i][1] + '<div style="color:#1565c0;font-weight:700;">' + qkeys[i][2] + '</div></div>';
+  }
+  mainHtml += '</div>';
+  mainHtml += '<div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">MISC</div>';
+  mainHtml += '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;">';
+  var misc = [['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold'],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked'],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply'],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return']];
+  for (var i = 0; i < misc.length; i++) {
+    mainHtml += '<div style="background:' + misc[i][0] + ';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;color:#fff;"><div style="font-size:.7rem;">' + misc[i][1] + '</div>' + misc[i][2] + '<div style="opacity:.8;">' + misc[i][3] + '</div></div>';
+  }
+  mainHtml += '</div></div>';
+
+  var basketHtml = '<div style="background:#f8f9fc;border-left:1px solid #dde;display:flex;flex-direction:column;padding:.5rem;"><div style="text-align:center;color:#aaa;font-size:.6rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;"><div style="font-size:1.4rem;">&#x1F6D2;</div><div style="font-weight:600;color:#555;font-size:.65rem;">Basket is empty</div><div style="font-size:.55rem;">Scan an item or use quick keys</div></div><div style="border-top:1px solid #dde;padding-top:.4rem;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.65rem;font-weight:700;">Total</span><span style="color:#1565c0;font-weight:700;font-size:.75rem;">&#xa3;0.00</span></div><div style="background:#e8f0fe;border-radius:5px;text-align:center;padding:.3rem;font-size:.55rem;margin-bottom:.3rem;color:#555;">Print</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;"><div style="background:#e8f5e9;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B5;</div><div style="background:#e8eaf6;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B3;</div><div style="background:#f3e5f5;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4CB;</div></div></div></div>';
+
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:Instrument Sans,sans-serif;">' + sbHtml + mainHtml + basketHtml + '</div>' + bugHtml + '</div></div>';
+}
+
+function renderXZ() {
+  return wrapMockup('epos.stockiq.uk/xzread', '<div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:Instrument Sans,sans-serif;">' + sidebarHtml('xz') + '<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;"><div><div style="font-size:1rem;font-weight:700;color:#1a2e2d;margin-bottom:.2rem;">X/Z Read</div><div style="font-size:.7rem;color:#888;">View shift summary or close out the till</div></div><div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong> - started today</div><div style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F4CA;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">X-Read - View Current Shift</div></div><div style="background:#e03535;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F512;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">Z-Read - Close Shift</div></div></div></div>');
+}
+
+function renderLabelsSearch(highlight) {
+  var qStyle = highlight === 'queue' ? 'display:grid;grid-template-columns:1fr 160px;gap:.6rem;outline:3px solid #14b8a6;border-radius:10px;padding:.3rem;background:rgba(20,184,166,.05);' : 'display:grid;grid-template-columns:1fr 160px;gap:.6rem;';
+  var inner = '<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:Instrument Sans,sans-serif;">' + sidebarHtml('labels') + '<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div><div style="display:flex;gap:.4rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#555;font-weight:600;">Test Print</div><div style="background:#4a7ff5;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#fff;font-weight:600;">Print All (0)</div></div></div><div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"><div style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;">Search</div><div style="padding:.3rem .8rem;font-size:.65rem;color:#666;display:flex;align-items:center;gap:.3rem;">Price Changes <span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;">99+</span></div></div><div style="' + qStyle + '"><div style="display:flex;flex-direction:column;gap:.5rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.4rem .7rem;display:flex;align-items:center;gap:.4rem;"><span style="color:#aaa;font-size:.75rem;">&#x1F50D;</span><span style="font-size:.65rem;color:#aaa;">Search products...</span></div><div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.7rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;min-height:120px;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;align-self:flex-start;">Label Queue (0 products)</div><div style="margin-top:.5rem;text-align:center;"><div style="font-size:1.4rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.62rem;font-weight:600;color:#555;margin-top:.2rem;">No labels in queue</div></div></div></div><div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.6rem;display:flex;flex-direction:column;gap:.5rem;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;">Label Preview</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;"><div style="font-size:1.2rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.55rem;color:#aaa;text-align:center;">Select a product to preview</div></div><div style="border-top:1px solid #eee;padding-top:.4rem;"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;">Quick Guide</div><div style="font-size:.52rem;color:#555;line-height:1.6;">Search or scan barcodes<br>Click to add to queue<br>Click price to edit if 0.00<br>Click Print All to print</div></div></div></div></div></div>';
+  return wrapMockup('epos.stockiq.uk/labels', inner);
+}
+
+function renderLabelsPriceChanges() {
+  var rows = [['11408 items','Product rebuild - 11408 prices changed','26 Mar 2026 at 16:49'],['45 items','Product rebuild - 45 prices changed','26 Mar 2026 at 14:36'],['4069 items','Product rebuild - 4700 prices changed','26 Mar 2026 at 09:19'],['116 items','Product rebuild - 119 prices changed','26 Mar 2026 at 09:18'],['95 items','Product rebuild - 4322 prices changed','25 Mar 2026 at 22:30']];
+  var rowsHtml = '';
+  for (var i = 0; i < rows.length; i++) {
+    rowsHtml += '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:.62rem;font-weight:700;color:#374151;background:#e5e7eb;border-radius:4px;padding:.1rem .3rem;">C&amp;D Sync</span><span style="font-size:.62rem;color:#555;">' + rows[i][1] + '</span><span style="font-size:.58rem;color:#aaa;">' + rows[i][2] + '</span></div><div style="display:flex;align-items:center;gap:.4rem;"><span style="font-size:.62rem;color:#4a7ff5;font-weight:600;">' + rows[i][0] + '</span><span style="color:#aaa;font-size:.7rem;">&#x25BC;</span></div></div>';
+  }
+  var inner = '<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:Instrument Sans,sans-serif;">' + sidebarHtml('labels') + '<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div><div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"><div style="padding:.3rem .8rem;font-size:.65rem;color:#666;">Search</div><div style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;display:flex;align-items:center;gap:.3rem;">Price Changes <span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;">99+</span></div></div><div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.5rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:.65rem;color:#b45309;font-weight:600;">32924 products need new shelf edge labels</div><div style="display:flex;align-items:center;gap:.5rem;"><div style="background:#4a5568;border-radius:5px;padding:.25rem .5rem;font-size:.58rem;color:#fff;font-weight:600;">Print Selected (0)</div></div></div><div style="display:flex;flex-direction:column;gap:.3rem;">' + rowsHtml + '</div></div></div>';
+  return wrapMockup('epos.stockiq.uk/labels/price-changes', inner);
+}
+
+function renderDashboard(idx) {
+  var bars = [0,4,12,28,22,18,8,5,3,10,16,6,2];
+  var hrs = ['8am','9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm'];
+  var mx = 28;
+  var barsHtml = '';
+  for (var i = 0; i < bars.length; i++) {
+    var h = Math.round((bars[i]/mx)*40);
+    barsHtml += '<div style="flex:1;"><div style="width:100%;background:' + (bars[i]===mx?'#3b6fd4':'#93b4f0') + ';border-radius:2px 2px 0 0;height:' + h + 'px;min-height:' + (bars[i]>0?'3':'0') + 'px;"></div></div>';
+  }
+  var hrsHtml = '';
+  for (var i = 0; i < hrs.length; i++) { hrsHtml += '<span style="font-size:.42rem;color:#aaa;flex:1;text-align:center;">' + hrs[i] + '</span>'; }
+  var inner = '<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:Instrument Sans,sans-serif;">' + sidebarHtml('dashboard') + '<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">' + topNavHtml('Dashboard') + '<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Dashboard</div><div style="font-size:.55rem;color:#888;">Tuesday, 31 March 2026</div></div><div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.2rem .5rem;font-size:.55rem;color:#555;">Refresh</div></div>';
+  inner += '<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:.35rem;' + hl(idx===0) + '">';
+  inner += '<div style="background:#3b6fd4;border-radius:7px;padding:.5rem .6rem;color:#fff;"><div style="font-size:.52rem;opacity:.8;margin-bottom:.2rem;">Total Sales</div><div style="font-size:.9rem;font-weight:700;">&#xa3;248.60</div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Avg Basket</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;8.02</div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">NHS Levy</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;89.10</div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Refunds</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;9.90</div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Discounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;5.00</div></div></div>';
+  inner += '<div style="display:grid;grid-template-columns:1fr 140px;gap:.35rem;">';
+  inner += '<div style="display:flex;flex-direction:column;gap:.35rem;">';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===1) + '"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.6rem;font-weight:700;color:#1a2e2d;">Sales by Hour</span></div><div style="display:flex;align-items:flex-end;gap:2px;height:44px;">' + barsHtml + '</div><div style="display:flex;justify-content:space-between;margin-top:.2rem;">' + hrsHtml + '</div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===2) + '"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Payment Methods</div>';
+  var pmethods = [['Cash','#22c55e',32,'&#xa3;79.30'],['Card','#3b6fd4',85,'&#xa3;164.30'],['Account','#f59e0b',3,'&#xa3;5.00']];
+  for (var i = 0; i < pmethods.length; i++) {
+    inner += '<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem;"><span style="width:6px;height:6px;border-radius:50%;background:' + pmethods[i][1] + ';flex-shrink:0;"></span><span style="font-size:.58rem;color:#555;width:36px;">' + pmethods[i][0] + '</span><div style="flex:1;background:#f0f2f7;border-radius:999px;height:5px;"><div style="background:' + pmethods[i][1] + ';height:100%;border-radius:999px;width:' + pmethods[i][2] + '%;"></div></div><span style="font-size:.58rem;font-weight:600;color:#1a2e2d;">' + pmethods[i][3] + '</span></div>';
+  }
+  inner += '</div></div>';
+  inner += '<div style="display:flex;flex-direction:column;gap:.35rem;">';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===3) + '"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;"><span style="font-size:.6rem;font-weight:700;color:#1a2e2d;">Current Shift</span><span style="background:#dcfce7;color:#16a34a;font-size:.48rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;">OPEN</span></div><div style="font-size:.55rem;color:#555;line-height:1.7;">Staff: <strong>J. Smith</strong><br>Opened: 08:30<br>Float: &#xa3;150.00</div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===4) + '"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;">Top Products</div>';
+  var prods = [['NHS Prescription','5 sold','&#xa3;49.50'],['Paracetamol 500mg','4 sold','&#xa3;7.96'],['Ibuprofen 400mg','3 sold','&#xa3;8.97']];
+  for (var i = 0; i < prods.length; i++) {
+    inner += '<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.2rem;"><span style="font-size:.55rem;color:#aaa;width:8px;">' + (i+1) + '</span><div style="flex:1;"><div style="font-size:.55rem;color:#1a2e2d;font-weight:600;">' + prods[i][0] + '</div><div style="font-size:.5rem;color:#aaa;">' + prods[i][1] + '</div></div><span style="font-size:.55rem;font-weight:600;color:#3b6fd4;">' + prods[i][2] + '</span></div>';
+  }
+  inner += '</div></div></div></div></div>';
+  return wrapMockup('epos.stockiq.uk/dashboard', inner);
+}
+
+function renderAccounts(idx) {
+  var accs = [['Sunrise Care Home','Care Home','&#xa3;142.50','&#xa3;500.00',false],['J. Patel','Customer','&#xa3;28.40','&#xa3;100.00',false],['Maplewood Nursing','Care Home','&#xa3;389.00','&#xa3;350.00',true],['S. Thompson','Customer','&#xa3;0.00','&#xa3;50.00',false],['R. Okafor','Customer','&#xa3;15.90','&#xa3;100.00',false]];
+  var listHtml = '';
+  for (var i = 0; i < accs.length; i++) {
+    listHtml += '<div style="background:' + (i===0?'#eef3ff':'#fff') + ';border:1px solid ' + (i===0?'#c7d7f9':'#e5e7eb') + ';border-radius:7px;padding:.4rem .6rem;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.62rem;font-weight:700;color:#1a2e2d;">' + accs[i][0] + '</div><div style="font-size:.52rem;color:#aaa;">' + accs[i][1] + '</div></div><div style="text-align:right;"><div style="font-size:.62rem;font-weight:700;color:' + (accs[i][4]?'#e03535':'#1a2e2d') + '">' + accs[i][2] + '</div>' + (accs[i][4]?'<div style="font-size:.48rem;color:#e03535;">Over limit</div>':'') + '</div></div></div>';
+  }
+  var inner = '<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:Instrument Sans,sans-serif;">' + sidebarHtml('accounts') + '<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">' + topNavHtml('Accounts') + '<div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Charge Accounts</div></div><div style="background:#3b6fd4;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;color:#fff;font-weight:700;' + hl(idx===2) + '">+ New Account</div></div>';
+  inner += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;' + hl(idx===0) + '">';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F4CA;</span><div><div style="font-size:.52rem;color:#888;">Total Outstanding</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;575.80</div></div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F465;</span><div><div style="font-size:.52rem;color:#888;">Active Accounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">5</div></div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x26A0;&#xFE0F;</span><div><div style="font-size:.52rem;color:#888;">Over Credit Limit</div><div style="font-size:.8rem;font-weight:700;color:#e03535;">1</div></div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F5D3;&#xFE0F;</span><div><div style="font-size:.52rem;color:#888;">Total Accounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">5</div></div></div></div>';
+  inner += '<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:.35rem;' + hl(idx===1) + '"><div style="display:flex;flex-direction:column;gap:.3rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:7px;padding:.35rem .6rem;display:flex;align-items:center;gap:.35rem;"><span style="color:#aaa;font-size:.7rem;">&#x1F50D;</span><span style="font-size:.6rem;color:#aaa;">Search accounts...</span></div>' + listHtml + '</div>';
+  inner += '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.4rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">Sunrise Care Home</div><div style="font-size:.55rem;color:#888;">Care Home</div></div><span style="background:#dcfce7;color:#16a34a;font-size:.5rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;">ACTIVE</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;"><div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.52rem;color:#888;">Outstanding</div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">&#xa3;142.50</div></div><div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.52rem;color:#888;">Credit Limit</div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">&#xa3;500.00</div></div></div><div style="font-size:.58rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;">Recent Transactions</div>';
+  var txns = [['28 Mar','NHS Prescription x3','&#xa3;29.70'],['25 Mar','MDS Monthly','&#xa3;25.00'],['22 Mar','Delivery Charge','&#xa3;3.50']];
+  for (var i = 0; i < txns.length; i++) {
+    inner += '<div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid #f0f2f7;"><div><div style="font-size:.55rem;color:#1a2e2d;">' + txns[i][1] + '</div><div style="font-size:.48rem;color:#aaa;">' + txns[i][0] + '</div></div><div style="font-size:.58rem;font-weight:600;color:#3b6fd4;">' + txns[i][2] + '</div></div>';
+  }
+  inner += '<div style="display:flex;gap:.3rem;margin-top:.2rem;"><div style="flex:1;background:#3b6fd4;border-radius:5px;padding:.3rem;text-align:center;font-size:.58rem;color:#fff;font-weight:600;">Take Payment</div><div style="flex:1;background:#f0f2f7;border-radius:5px;padding:.3rem;text-align:center;font-size:.58rem;color:#555;font-weight:600;">Edit Account</div></div></div></div></div></div>';
+  return wrapMockup('epos.stockiq.uk/accounts', inner);
+}
+
+function renderReports(idx) {
+  var bars = [42,78,95,61,110,134,88];
+  var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  var mx = 134;
+  var barsHtml = '';
+  for (var i = 0; i < bars.length; i++) {
+    var h = Math.round((bars[i]/mx)*42);
+    barsHtml += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">' + (bars[i]===mx?'<span style="font-size:.42rem;color:#3b6fd4;font-weight:700;">&#xa3;' + bars[i] + '</span>':'') + '<div style="width:100%;background:#3b6fd4;border-radius:3px 3px 0 0;height:' + h + 'px;"></div></div>';
+  }
+  var daysHtml = '';
+  for (var i = 0; i < days.length; i++) { daysHtml += '<div style="flex:1;text-align:center;font-size:.45rem;color:#aaa;">' + days[i] + '</div>'; }
+  var cats = [['&#x1F4CA;','Sales Summary',true],['&#x1F4E6;','Product Performance',false],['&#x1F464;','Staff Performance',false],['&#x1F550;','Shift Reports',false],['&#x1F4B3;','Payment Analysis',false],['&#x1F3F7;&#xFE0F;','Discounts & Refunds',false]];
+  var catsHtml = '';
+  for (var i = 0; i < cats.length; i++) {
+    catsHtml += '<div style="display:flex;align-items:center;gap:.4rem;padding:.35rem .5rem;border-radius:6px;background:' + (cats[i][2]?'#eef3ff':'transparent') + ';"><span style="font-size:.75rem;">' + cats[i][0] + '</span><span style="font-size:.58rem;font-weight:' + (cats[i][2]?'700':'400') + ';color:' + (cats[i][2]?'#3b6fd4':'#555') + ';">' + cats[i][1] + '</span></div>';
+  }
+  var dateFilters = ['Today','Yesterday','Week','Month','Custom'];
+  var dfHtml = '';
+  for (var i = 0; i < dateFilters.length; i++) {
+    dfHtml += '<div style="background:' + (i===2?'#3b6fd4':'#fff') + ';color:' + (i===2?'#fff':'#555') + ';border:1px solid ' + (i===2?'#3b6fd4':'#ddd') + ';border-radius:5px;padding:.2rem .45rem;font-size:.55rem;font-weight:' + (i===2?'700':'400') + ';">' + dateFilters[i] + '</div>';
+  }
+  var inner = '<div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:Instrument Sans,sans-serif;">' + sidebarHtml('reports') + '<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">' + topNavHtml('Reports') + '<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Reports</div></div><div style="display:flex;gap:.25rem;' + hl(idx===0) + '">' + dfHtml + '</div></div>';
+  inner += '<div style="display:grid;grid-template-columns:140px 1fr;gap:.5rem;">';
+  inner += '<div style="background:#fff;border-radius:8px;padding:.4rem;display:flex;flex-direction:column;gap:.15rem;' + hl(idx===4) + '">' + catsHtml + '</div>';
+  inner += '<div style="display:flex;flex-direction:column;gap:.4rem;">';
+  inner += '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;' + hl(idx===1) + '">';
+  var cards = [['Total Sales','&#xa3;612.40',true],['Transactions','74',false],['Avg Basket','&#xa3;8.27',false],['Items Sold','118',false],['Discounts','&#xa3;3.20',false],['NHS Levy','&#xa3;89.10',false]];
+  for (var i = 0; i < cards.length; i++) {
+    inner += '<div style="background:' + (cards[i][2]?'#3b6fd4':'#fff') + ';border-radius:6px;padding:.4rem .45rem;"><div style="font-size:.48rem;color:' + (cards[i][2]?'rgba(255,255,255,.8)':'#888') + ';margin-bottom:.2rem;">' + cards[i][0] + '</div><div style="font-size:.75rem;font-weight:700;color:' + (cards[i][2]?'#fff':'#1a2e2d') + ';">' + cards[i][1] + '</div></div>';
+  }
+  inner += '</div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===2) + '"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.5rem;">Daily Sales Trend</div><div style="display:flex;align-items:flex-end;gap:3px;height:52px;padding:0 .2rem;">' + barsHtml + '</div><div style="display:flex;gap:3px;margin-top:.25rem;padding:0 .2rem;">' + daysHtml + '</div></div>';
+  inner += '<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===3) + '"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Payment Methods</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">';
+  var pm = [['&#x1F4B3;','Card','#3b6fd4','72.7%','&#xa3;445.30','54 transactions'],['&#x1F4B5;','Cash','#22c55e','27.3%','&#xa3;167.10','20 transactions']];
+  for (var i = 0; i < pm.length; i++) {
+    inner += '<div style="border:1px solid #e5e7eb;border-radius:6px;padding:.4rem .5rem;"><div style="display:flex;justify-content:space-between;margin-bottom:.2rem;"><span style="font-size:.6rem;color:#555;">' + pm[i][0] + ' ' + pm[i][1] + '</span><span style="font-size:.58rem;font-weight:700;color:' + pm[i][2] + ';">' + pm[i][3] + '</span></div><div style="font-size:.75rem;font-weight:700;color:#1a2e2d;">' + pm[i][4] + '</div><div style="font-size:.5rem;color:#aaa;margin-bottom:.3rem;">' + pm[i][5] + '</div><div style="background:#f0f2f7;border-radius:999px;height:4px;"><div style="background:' + pm[i][2] + ';height:100%;border-radius:999px;width:' + pm[i][3] + ';"></div></div></div>';
+  }
+  inner += '</div></div></div></div></div></div>';
+  return wrapMockup('epos.stockiq.uk/reports', inner);
+}
+
+function renderSettings(idx) {
+  var staff = [['A','Alice','Dispenser',false],['B','Ben','Dispenser',false],['J','James','Manager',true],['P','Priya','Dispenser',false],['R','Rachel','Dispenser',false],['T','Tom','Dispenser',false]];
+  var staffHtml = '';
+  for (var i = 0; i < staff.length; i++) {
+    staffHtml += '<div style="border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .55rem;"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;"><div style="width:22px;height:22px;border-radius:50%;background:#3b6fd4;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0;">' + staff[i][0] + '</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:.3rem;"><span style="font-size:.62rem;font-weight:700;color:#1a2e2d;">' + staff[i][1] + '</span>' + (staff[i][3]?'<span style="background:#e8eaf0;border-radius:3px;font-size:.45rem;color:#555;padding:.05rem .25rem;">Manager</span>':'') + '</div><div style="font-size:.5rem;color:#aaa;">' + staff[i][2] + '</div></div><div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;margin-bottom:.35rem;"><div><div style="font-size:.45rem;color:#aaa;">PIN</div><div style="font-size:.55rem;color:#1a2e2d;">&#x2022;&#x2022;&#x2022;&#x2022;</div></div><div><div style="font-size:.45rem;color:#aaa;">Discount</div><div style="font-size:.55rem;color:#1a2e2d;">10.00%</div></div><div><div style="font-size:.45rem;color:#aaa;">Last Login</div><div style="font-size:.55rem;color:#1a2e2d;">Today</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;"><div style="background:#eef3ff;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#3b6fd4;font-weight:600;">Edit</div><div style="background:#fff0f0;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#e03535;font-weight:600;">Delete</div></div></div>';
+  }
+  var tabsHtml = '<div style="display:flex;gap:.3rem;' + hl(idx===0) + '"><div style="background:#fff;border:1px solid #3b6fd4;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;font-weight:700;color:#3b6fd4;">Staff &amp; PINs</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Services</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Till Config</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Hardware</div></div>';
+  var inner = '<div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:Instrument Sans,sans-serif;">' + sidebarHtml('settings') + '<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">' + topNavHtml('Settings') + '<div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Settings</div></div>' + tabsHtml + '<div style="background:#fff;border-radius:8px;padding:.6rem .7rem;flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;"><span style="font-size:.68rem;font-weight:700;color:#1a2e2d;">Staff Members</span>          <div style="background:#3b6fd4;border-radius:6px;padding:.25rem .55rem;font-size:.58rem;color:#fff;font-weight:700;' + (idx===2 ? 'outline:3px solid #14b8a6;outline-offset:2px;' : '') + '">+ Add Staff</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;' + hl(idx===1||idx===3) + '">' + staffHtml + '</div></div></div></div>';
+  return wrapMockup('epos.stockiq.uk/settings', inner);
+}
+
+// ── Steps data ────────────────────────────────────────────────────────────────
+var steps = [
+  {
+    title: 'Getting Started',
+    subtitle: 'Installing and launching StockIQ on your pharmacy system',
+    icon: '&#x1F680;',
+    subSteps: null,
+    instructions: [
+      { icon: '&#x1F5A5;&#xFE0F;', title: 'Launch the application', text: 'Double-click the StockIQ icon on your desktop or find it via the Start menu.' },
+      { icon: '&#x1F464;', title: 'Enter your credentials', text: 'Type in your pharmacy email and the password set by your pharmacy manager during installation. Click the Login to Branch button.' },
+      { icon: '&#x1F511;', title: 'Enter your PIN', text: 'After logging in, you will be prompted to enter your unique 4-digit staff PIN to complete sign-in.' }
+    ],
+    tip: 'If you forget your password, get in touch with your EPOS contact at Head Office who can reset it for you.',
+    tip2: 'PIN not working? Double-check the correct branch name is displayed in the top-left of your screen.',
+    getMockup: function(i) { if (i < 1) return ''; if (i === 2) return renderPin(); return renderLogin(); }
+  },
+  {
+    title: 'Using the System',
+    subtitle: 'A guide to each module in StockIQ',
+    icon: '&#x1F9FE;',
+    subSteps: [
+      {
+        title: 'Introduction', icon: '&#x1F44B;', subtitle: 'Getting familiar with the StockIQ interface',
+        instructions: [
+          { icon: '&#x1F5C2;&#xFE0F;', title: 'Left navigation panel', text: 'The dark sidebar on the left lets you switch between modules - Till, X/Z Read, Labels, Dashboard, Accounts, Reports, and Settings. Your active module is highlighted in blue.' },
+          { icon: '&#x1F50D;', title: 'Search and top bar', text: 'The top bar shows your branch logo, current time, and logged-in staff member. Use the search bar to scan a barcode or search for a product by name without leaving the till screen.' },
+          { icon: '&#x1F41B;', title: 'Report a problem', text: 'If you ever experience an issue or something does not look right, click the green bug icon in the bottom-right corner of the screen. This will send a report directly to Head Office so we can look into it for you.' }
+        ],
+        tip: null,
+        getMockup: function(i) { return renderTill(i === 0 ? 'nav' : i === 1 ? 'topbar' : i === 2 ? 'bug' : null); }
+      },
+      {
+        title: 'Till', icon: '&#x1F9FE;', subtitle: 'Processing sales and managing transactions',
+        instructions: [
+          { icon: '&#x1F6E0;&#xFE0F;', title: 'Services and Functions', text: 'The coloured buttons at the top give quick access to common actions: NHS Services (PF, CPCS, NMS), Misc Items, Price Check, Reprint Last Receipt, Safe Drop/Pickup, and Void Sale.', expanded: null },
+          { icon: '&#x26A1;', title: 'Quick Keys', text: 'Pre-configured shortcut buttons for your most frequent transactions - Flu Jab (£20.00), NHS RX Charge (£9.90), FP57 Refund, and more. Options for Delivery, MDS Monthly, and Private Consultation have been put in place ready for future initiatives and you will be given more information when we roll these out.' },
+          { icon: '&#x1F6D2;', title: 'Basket and payment panel', text: 'The right-hand panel shows the current basket. Once items are added, the total updates here. Use the Cash, Card, or Account buttons to process payment - the Account option allows you to charge the transaction directly to a customer account. Please note that card payment amounts need to be entered manually into the card machines.' }
+        ],
+        tip: 'You can park a sale mid-transaction using the Park Sale button in the Misc section, then recall it later - handy if a customer needs to pop back to grab something.',
+        getMockup: function() { return renderTill(null); }
+      },
+      {
+        title: 'X/Z Read', icon: '&#x1F4CB;', subtitle: 'View your shift summary or close out the till',
+        instructions: [
+          { icon: '&#x1F7E2;', title: 'Shift status banner', text: 'At the top of the screen you will see a green banner showing whether the shift is currently open and when it was started. This updates automatically when a shift is opened or closed.' },
+          { icon: '&#x1F4CA;', title: 'X-Read - View Current Shift', text: 'Tapping the blue X-Read button gives you a summary of all transactions in the current shift without closing it. Use this to check totals mid-day or at any point during your shift.' },
+          { icon: '&#x1F512;', title: 'Z-Read - Close Shift', text: 'The red Z-Read button closes the current shift and produces a full end-of-shift report. This should be done at the end of each trading day. Once a Z-Read is run the shift cannot be reopened.' }
+        ],
+        tip: 'Always run an X-Read first to review your totals before committing to a Z-Read - once the shift is closed it cannot be undone.',
+        getMockup: function() { return renderXZ(); }
+      },
+      {
+        title: 'Labels', icon: '&#x1F3F7;&#xFE0F;', subtitle: 'Print shelf edge labels and manage price changes',
+        instructions: [
+          { icon: '&#x1F50D;', title: 'Search tab', text: 'Use the Search tab to find any product by name or barcode. Located items are added to the Label Queue. Once your queue is ready, click Print All in the top right to send them to your thermal printer. A Test Print button is also available to check your printer connection.' },
+          { icon: '&#x1F3F7;&#xFE0F;', title: 'Label Queue and Preview', text: 'The Label Queue shows all products queued for printing. Select a product to see a preview of its label on the right-hand side. If a price is showing as £0.00, click it to edit before printing.' },
+          { icon: '&#x1F514;', title: 'Price Changes tab', text: 'The Price Changes tab shows batches of products whose prices have been updated via a C&D Sync. The yellow banner shows how many products in total need new shelf edge labels. You can expand each sync batch, select individual items or use Select All, then click Print Selected to print labels in bulk.' }
+        ],
+        tip: 'Labels print via ESC/POS to a thermal printer. If nothing prints, check your printer connection in Settings - you can use either Web Serial or QZ Tray.',
+        getMockup: function(i) { return i === 2 ? renderLabelsPriceChanges() : renderLabelsSearch(i === 1 ? 'queue' : null); }
+      },
+      {
+        title: 'Dashboard', icon: '&#x1F4CA;', subtitle: 'Monitor today\'s sales performance at a glance',
+        instructions: [
+          { icon: '&#x1F4B7;', title: 'Summary cards', text: 'The top row shows key metrics for the current shift: Total Sales, Average Basket value, NHS Levy collected, Refunds issued, and Discounts applied. These update each time you click Refresh.' },
+          { icon: '&#x1F4C8;', title: 'Sales by Hour chart', text: 'The bar chart shows your sales activity broken down by hour across the trading day. This makes it easy to spot your busiest periods and quieter times at a glance.' },
+          { icon: '&#x1F4B3;', title: 'Payment Methods', text: 'The Payment Methods section breaks down your total takings by payment type - Cash, Card, and Account - so you can see exactly how customers are paying.' },
+          { icon: '&#x1F550;', title: 'Current Shift', text: 'The Current Shift panel on the right shows whether the shift is open, which staff member opened it, the time it was opened, and the opening float amount.' },
+          { icon: '&#x1F3C6;', title: 'Top Products and Recent Transactions', text: 'Below the shift info you will find your top-selling products by quantity, and a live feed of recent transactions showing the transaction ID, time, payment method, and value.' }
+        ],
+        tip: 'The Dashboard reflects the current shift only. To see historical data across multiple days, head to the Reports module.',
+        getMockup: function(i) { return renderDashboard(i); }
+      },
+      {
+        title: 'Accounts', icon: '&#x1F465;', subtitle: 'Manage customer and care home charge accounts',
+        instructions: [
+          { icon: '&#x1F4CA;', title: 'Summary cards', text: 'The top row shows an overview of all charge accounts: Total Outstanding balance across all accounts, number of Active Accounts, how many accounts are Over Credit Limit, and the Total Accounts registered.' },
+          { icon: '&#x1F50D;', title: 'Search and account list', text: 'Use the search bar to find an account by name. All accounts are listed on the left - click any account to view its full details, transaction history, and outstanding balance on the right-hand panel.' },
+          { icon: '&#x2795;', title: 'Creating a new account', text: 'Click the + New Account button in the top right to set up a new charge account for a customer or care home. You can set a credit limit, account name, and contact details.' }
+        ],
+        tip: 'Accounts over their credit limit will be flagged automatically. Keep an eye on the Over Credit Limit card and follow up with customers to settle outstanding balances.',
+        getMockup: function(i) { return renderAccounts(i); }
+      },
+      {
+        title: 'Reports', icon: '&#x1F4C8;', subtitle: 'Sales analytics and performance reports',
+        instructions: [
+          { icon: '&#x1F4C5;', title: 'Date range selector', text: 'Use the date range buttons in the top right - Today, Yesterday, Week, Month, or Custom - to filter all report data to the period you need.' },
+          { icon: '&#x1F4CA;', title: 'Summary cards', text: 'The top row shows key figures for the selected period: Total Sales, number of Transactions, Average Basket size, Items Sold, Discounts applied, and NHS Levy collected.' },
+          { icon: '&#x1F4C9;', title: 'Daily Sales Trend', text: 'The bar chart shows your sales broken down by day across the selected period, making it easy to spot your busiest and quietest trading days at a glance.' },
+          { icon: '&#x1F4B3;', title: 'Payment Methods', text: 'The Payment Methods section shows how much was taken by Card and Cash, including the percentage split and number of transactions for each method.' },
+          { icon: '&#x1F5C2;&#xFE0F;', title: 'Report categories', text: 'Use the left-hand panel to switch between report types: Sales Summary, Product Performance, Staff Performance, Shift Reports, Payment Analysis, and Discounts and Refunds.' }
+        ],
+        tip: 'Use the Week or Month view to get a broader picture of trading trends - useful for spotting patterns and planning staffing or stock levels.',
+        getMockup: function(i) { return renderReports(i); }
+      },
+      {
+        title: 'Settings', icon: '&#x2699;&#xFE0F;', subtitle: 'Configure your EPOS system',
+        instructions: [
+          { icon: '&#x1F5C2;&#xFE0F;', title: 'Settings tabs', text: 'Settings has four tabs - Staff and PINs, Services, Till Config, and Hardware. As a branch, you will only need to use the Staff and PINs tab. The other tabs are managed by Head Office and should not be changed without guidance.' },
+          { icon: '&#x1F465;', title: 'Staff Members', text: 'The Staff and PINs tab lists all staff members registered to your branch, showing their name, role, PIN, staff discount rate, and the date they last logged in.' },
+          { icon: '&#x2795;', title: 'Adding a new staff member', text: 'Click + Add Staff in the top right to create a new staff member. You will be able to set their name, role, PIN, and discount rate. Staff will use this PIN to sign in to the till each day.' },
+          { icon: '&#x270F;&#xFE0F;', title: 'Editing staff', text: 'Use the Edit button on any staff card to update their details or change their PIN.' }
+        ],
+        tip: 'Only the Staff and PINs tab needs to be used day-to-day. If you think something in Services, Till Config, or Hardware needs changing, please contact Head Office first.',
+        getMockup: function(i) { return renderSettings(i); }
+      }
+    ]
+  },
+  {
+    title: 'Cash Up Procedure',
+    subtitle: 'End-of-day cash up steps',
+    icon: '&#x1F4B0;',
+    subSteps: null,
+    instructions: [
+      { icon: '&#x1F5C4;&#xFE0F;', title: 'Open cash drawer (if needed)', text: 'If the cash drawer is closed and you need to open it before starting, go to Main Page, then Settings, then Hardware, then Test Cash Drawer to Open.' },
+      { icon: '&#x1F512;', title: 'Z-Read - Close Shift', text: 'Navigate to X/Z Read from the left-hand navigation panel, then press the red Z-Read - Close Shift button to begin the cash up process.' },
+      { icon: '&#x1F4B5;', title: 'Count cash', text: 'Enter the quantity of each denomination using the keypad, then press Continue when you are done to record your cash total.' },
+      { icon: '&#x1F4B3;', title: 'Card machine total', text: 'Retrieve the daily total from your card machine. On Dojo: tap the three lines, then the folder icon next to Settings, enter your Supervisor Code and note the daily total. On Takepayments: tap the three lines, then Reports - a receipt will print with the daily total. Enter the total into the Card Machine (PDQ) Total field and press Done.' },
+      { icon: '&#x1F4DD;', title: 'Variance note', text: 'If the till is over or under by any amount, enter an explanation in the Variance Notes field before proceeding.' },
+      { icon: '&#x1F510;', title: 'Remove cash for safe', text: 'Check the To Deposit in Safe figure shown on screen. Remove exactly that amount from the till and place it in the safe. Leave the £60 float in the till.' },
+      { icon: '&#x2705;', title: 'Close shift', text: 'Confirm all figures are correct, then press the red Close Shift button to complete the cash up.' }
+    ],
+    tip: 'Always check the To Deposit in Safe figure carefully before removing cash - leave the £60 float in the till every night.',
+    getMockup: function() { return renderXZ(); }
+  }
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+var curStep = 0, curSub = 0, curInstr = 0;
+var doneSteps = [], doneSubs = {};
+
+function isDoneStep(i) { for (var j = 0; j < doneSteps.length; j++) { if (doneSteps[j] === i) return true; } return false; }
+function isDoneSub(si, sj) { if (!doneSubs[si]) return false; for (var k = 0; k < doneSubs[si].length; k++) { if (doneSubs[si][k] === sj) return true; } return false; }
+function markDoneStep(i) { if (!isDoneStep(i)) doneSteps.push(i); }
+function markDoneSub(si, sj) { if (!doneSubs[si]) doneSubs[si] = []; if (!isDoneSub(si, sj)) doneSubs[si].push(sj); }
+
+function aStep() { return steps[curStep]; }
+function aSub() { var s = aStep(); return s.subSteps ? s.subSteps[curSub] : null; }
+function aInstrs() { var sub = aSub(); return sub ? sub.instructions : aStep().instructions; }
+function aTip() { var sub = aSub(); return (sub !== null && sub !== undefined) ? sub.tip : aStep().tip; }
+function aMockup() { var sub = aSub(); return sub ? sub.getMockup(curInstr) : aStep().getMockup(curInstr); }
+
+function goToStep(i) { curStep = i; curSub = 0; curInstr = 0; activeSFPanel = null; render(); }
+function goToSub(j) { curSub = j; curInstr = 0; activeSFPanel = null; render(); }
+
+function nextInstr() {
+  var n = curInstr + 1;
+  if (n < aInstrs().length) { curInstr = n; switchMockup(curInstr); }
+  else { advance(); }
+}
+
+function advance() {
+  var s = aStep();
+  if (s.subSteps) {
+    markDoneSub(curStep, curSub);
+    if (curSub < s.subSteps.length - 1) { curSub++; curInstr = 0; render(); }
+    else { markDoneStep(curStep); curStep++; curSub = 0; curInstr = 0; render(); }
+  } else {
+    markDoneStep(curStep); curStep++; curInstr = 0; render();
+  }
+}
+
+function prevAction() {
+  var s = aStep();
+  if (s.subSteps) {
+    if (curSub > 0) { curSub--; curInstr = 0; render(); }
+    else if (curStep > 0) { curStep--; var p = steps[curStep]; curSub = p.subSteps ? p.subSteps.length - 1 : 0; curInstr = 0; render(); }
+  } else {
+    if (curStep > 0) { curStep--; var p = steps[curStep]; curSub = p.subSteps ? p.subSteps.length - 1 : 0; curInstr = 0; render(); }
+  }
+}
+
+function switchMockup(i) {
+  if (i !== curInstr) activeSFPanel = null;
+  curInstr = i;
+  var el = document.getElementById('stepMockup');
+  if (el) { var h = aMockup(); el.innerHTML = h; el.style.display = h ? 'block' : 'none'; }
+  var items = document.querySelectorAll('.instr-item');
+  for (var j = 0; j < items.length; j++) {
+    if (j === i) items[j].classList.add('active-instr');
+    else items[j].classList.remove('active-instr');
+  }
+  updateInlineBtn();
+}
+
+function updateInlineBtn() {
+  var btn = document.getElementById('inlineNext');
+  if (!btn) return;
+  var instrs = aInstrs(), isLast = curInstr >= instrs.length - 1;
+  var s = aStep(), lastSub = s.subSteps ? curSub >= s.subSteps.length - 1 : true, lastStep = curStep >= steps.length - 1;
+  btn.textContent = (isLast && lastSub && lastStep) ? 'Finish' : isLast ? 'Next Section' : 'Next';
+}
+
+function toggleSidebar() {
+  document.getElementById('stepNav').classList.toggle('open');
+  document.getElementById('sidebarToggle').classList.toggle('open');
+}
+
+function closeMobileNav() {
+  if (window.innerWidth <= 700) {
+    document.getElementById('stepNav').classList.remove('open');
+    document.getElementById('sidebarToggle').classList.remove('open');
+  }
+}
+
+function restart() { curStep = 0; curSub = 0; curInstr = 0; doneSteps = []; doneSubs = {}; render(); }
+
+function renderNav() {
+  var nav = document.getElementById('stepNav');
+  var html = '';
+  for (var i = 0; i < steps.length; i++) {
+    var s = steps[i];
+    var isActive = i === curStep, isDone = isDoneStep(i);
+    html += '<div class="nav-item' + (isActive ? ' active' : '') + (isDone && !isActive ? ' completed' : '') + '" onclick="goToStep(' + i + ')">';
+    html += '<div class="nav-num">' + (isDone && !isActive ? '&#x2713;' : (i + 1)) + '</div>';
+    html += '<span>' + s.title + '</span></div>';
+    if (s.subSteps && isActive) {
+      html += '<div class="sub-nav">';
+      for (var j = 0; j < s.subSteps.length; j++) {
+        var sub = s.subSteps[j], sa = j === curSub, sd = isDoneSub(i, j);
+        html += '<div class="sub-nav-item' + (sa ? ' active' : '') + (sd && !sa ? ' completed' : '') + '" onclick="goToSub(' + j + ')">';
+        html += '<div class="sub-nav-dot">' + (sd && !sa ? '&#x2713;' : sub.icon) + '</div>';
+        html += '<span>' + sub.title + '</span></div>';
+      }
+      html += '</div>';
+    }
+  }
+  nav.innerHTML = html;
+}
+
+function renderContent() {
+  if (curStep >= steps.length) {
+    return '<div class="step-card"><div class="complete-screen"><div class="complete-badge">&#x1F389;</div><h2>Tutorial Complete!</h2><p>You have successfully covered all sections. You are ready to start using StockIQ in your pharmacy.</p><button class="restart-btn" onclick="restart()">Restart Tutorial</button></div></div>';
+  }
+  var s = aStep(), sub = aSub(), instrs = aInstrs(), tip = aTip();
+  var mockupHtml = (curStep === 0 && curInstr < 1) ? '' : aMockup();
+  var title = sub ? sub.title : s.title;
+  var subtitle = sub ? sub.subtitle : s.subtitle;
+  var badge = sub ? (s.title + ' - ' + (curSub + 1) + ' of ' + s.subSteps.length + ' ' + sub.icon) : ('Step ' + (curStep + 1) + ' of ' + steps.length + ' ' + s.icon);
+  var isFirst = curStep === 0 && (!s.subSteps || curSub === 0);
+  var hideBtn = sub && (sub.title === 'Till' || sub.title === 'X/Z Read');
+  var isLastSub = s.subSteps ? curSub >= s.subSteps.length - 1 : true;
+  var isLastStep = curStep >= steps.length - 1;
+
+  var body = '';
+  if (instrs.length === 0) {
+    body = '<div class="stub-box"><div class="stub-icon">' + (sub ? sub.icon : s.icon) + '</div><h3>' + title + '</h3><p>Content for this section is coming soon.</p></div>';
+  } else {
+    body += '<div id="stepMockup" style="display:' + (mockupHtml ? 'block' : 'none') + '">' + mockupHtml + '</div>';
+    body += '<ul class="instructions">';
+    for (var i = 0; i < instrs.length; i++) {
+      body += '<li class="instr-item' + (i === curInstr ? ' active-instr' : '') + '" onclick="switchMockup(' + i + ')">';
+      body += '<div class="instr-icon">' + instrs[i].icon + '</div>';
+      body += '<div class="instr-text"><strong>' + instrs[i].title + '</strong><p>' + instrs[i].text + '</p></div></li>';
+      // Inject SF panels after Services & Functions when it is the active instruction
+      if (i === curInstr && instrs[i].title === 'Services and Functions') {
+        body += '<li id="sf-panels" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;padding:.2rem 0 .4rem 2.5rem;">';
+        for (var p = 0; p < SF_PANELS.length; p++) {
+          var panel = SF_PANELS[p];
+          var isOpen = activeSFPanel === panel.key;
+          body += '<div>';
+          body += '<button type="button" style="display:flex;align-items:center;gap:.6rem;width:100%;background:' + (isOpen ? panel.color : '#fff') + ';border:2px solid ' + panel.color + ';border-radius:' + (isOpen ? '8px 8px 0 0' : '8px') + ';padding:.5rem .8rem;cursor:pointer;text-align:left;" onmousedown="sfToggle(\'' + panel.key + '\');return false;">';
+          body += '<span style="font-size:1rem;">' + panel.icon + '</span>';
+          body += '<span style="font-size:.85rem;font-weight:600;color:' + (isOpen ? '#fff' : panel.color) + ';flex:1;">' + panel.label + '</span>';
+          body += '<span style="font-size:.75rem;color:' + (isOpen ? 'rgba(255,255,255,.7)' : panel.color) + ';">' + (isOpen ? '&#x25B2;' : '&#x25BC;') + '</span>';
+          body += '</button>';
+          if (isOpen) {
+            body += '<div style="background:#f8f9fc;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:.8rem 1rem;font-size:.84rem;color:#444;line-height:1.6;">' + panel.text + '</div>';
+          }
+          body += '</div>';
+        }
+        body += '</li>';
+      }
+    }
+    body += '</ul>';
+    if (!hideBtn) {
+      var btnLabel = (curInstr >= instrs.length - 1) ? (isLastSub && isLastStep ? 'Finish' : 'Next Section') : 'Next';
+      body += '<div style="display:flex;justify-content:flex-end;margin-top:1rem;"><button id="inlineNext" class="btn btn-primary" onclick="nextInstr()">' + btnLabel + '</button></div>';
+    }
+    if (tip) { body += '<div class="tip-box"><div class="tip-icon">&#x1F4A1;</div><p>' + tip + '</p></div>'; }
+    var tip2 = s.tip2 || null;
+    if (tip2) { body += '<div class="tip-box" style="margin-top:.75rem;"><div class="tip-icon">&#x1F4A1;</div><p>' + tip2 + '</p></div>'; }
+  }
+
+  var skipLabel = isLastStep && isLastSub ? 'Finish' : 'Skip to Next';
+  return '<div class="step-card"><div class="card-header"><div class="step-badge">' + badge + '</div><div class="card-title">' + title + '</div><div class="card-subtitle">' + subtitle + '</div></div><div class="card-body">' + body + '</div></div><div class="nav-btns"><button class="btn btn-outline" onclick="prevAction()"' + (isFirst ? ' disabled' : '') + '>Back</button><button class="btn btn-primary" onclick="advance()">' + skipLabel + '</button></div>';
+}
+
+function sfRender() {
+  var panels = document.getElementById('sf-panels');
+  if (!panels) return;
+  var html = '';
+  for (var p = 0; p < SF_PANELS.length; p++) {
+    var pn = SF_PANELS[p];
+    var open = activeSFPanel === pn.key;
+    var md = "activeSFPanel=activeSFPanel==='" + pn.key + "'?null:'" + pn.key + "';sfRender();var mk=document.getElementById('stepMockup');if(mk)mk.innerHTML=renderTill(null);";
+    html += '<div>';
+    html += '<button type="button" onmousedown="' + md + '" style="display:flex;align-items:center;gap:.6rem;width:100%;background-color:' + (open ? pn.color : '#fff') + ';border:2px solid ' + pn.color + ';border-radius:' + (open ? '8px 8px 0 0' : '8px') + ';padding:.5rem .8rem;cursor:pointer;text-align:left;">';
+    html += '<span style="font-size:1rem;">' + pn.icon + '</span>';
+    html += '<span style="font-size:.85rem;font-weight:600;color:' + (open ? '#fff' : pn.color) + ';flex:1;">' + pn.label + '</span>';
+    html += '<span style="font-size:.75rem;color:' + (open ? 'rgba(255,255,255,.7)' : pn.color) + ';">' + (open ? '&#x25B2;' : '&#x25BC;') + '</span>';
+    html += '</button>';
+    if (open) {
+      html += '<div style="background:#f8f9fc;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:.8rem 1rem;font-size:.84rem;color:#444;line-height:1.6;">' + pn.text + '</div>';
+    }
+    html += '</div>';
+  }
+  panels.innerHTML = html;
+}
+
+function render(noScroll) {
+  document.getElementById('mainContent').innerHTML = renderContent();
+  renderNav();
+  closeMobileNav();
+  sfRender();
+  if (!noScroll) window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+render();
+</script>
+</body>
+</html>
