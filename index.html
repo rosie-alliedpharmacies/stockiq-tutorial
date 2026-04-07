@@ -1,0 +1,739 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="en"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1">&lt;meta charset="UTF-8"/&gt;</p>
+<p class="p1">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"/&gt;</p>
+<p class="p1">&lt;title&gt;StockIQ Tutorial&lt;/title&gt;</p>
+<p class="p2"><br></p>
+<p class="p1">&lt;style&gt;</p>
+<p class="p1">:root{--teal:#0d9488;--teal-light:#14b8a6;--teal-dim:#0f766e;--bg:#f0faf9;--surface:#fff;--surface2:#e6f7f6;--border:#b2dfdb;--text:#1a2e2d;--muted:#5f8a87;--done:#10b981;--pill-r:999px;--radius:14px;--shadow:0 4px 24px rgba(13,148,136,.10);--shadow-lg:0 12px 48px rgba(13,148,136,.18);}</p>
+<p class="p1">*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}</p>
+<p class="p1">body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;}</p>
+<p class="p1">header{width:100%;background:var(--teal);padding:0 2rem;display:flex;align-items:center;gap:1rem;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.15);}</p>
+<p class="p1">.header-pill{margin-left:auto;background:rgba(255,255,255,.15);color:#fff;font-size:.78rem;font-weight:600;padding:.3rem .9rem;border-radius:var(--pill-r);letter-spacing:.04em;text-transform:uppercase;}</p>
+<p class="p1">.shell{display:grid;grid-template-columns:260px 1fr;gap:2rem;max-width:1120px;width:100%;padding:2.5rem 1.5rem 4rem;}</p>
+<p class="p1">.sidebar{position:sticky;top:84px;align-self:start;}</p>
+<p class="p1">.sidebar-title{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}</p>
+<p class="p1">.step-nav{display:flex;flex-direction:column;gap:.4rem;}</p>
+<p class="p1">.nav-item{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:10px;cursor:pointer;transition:background .2s,color .2s;font-size:.9rem;color:var(--muted);border:2px solid transparent;}</p>
+<p class="p1">.nav-item:hover{background:var(--surface2);color:var(--text);}</p>
+<p class="p1">.nav-item.active{background:var(--surface);color:var(--teal);border-color:var(--border);font-weight:600;box-shadow:var(--shadow);}</p>
+<p class="p1">.nav-item.completed{color:var(--done);}</p>
+<p class="p1">.nav-item.completed .nav-num{background:var(--done);color:#fff;}</p>
+<p class="p1">.nav-num{width:26px;height:26px;border-radius:50%;background:var(--border);color:var(--muted);font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}</p>
+<p class="p1">.nav-item.active .nav-num{background:var(--teal);color:#fff;}</p>
+<p class="p1">.sub-nav{display:flex;flex-direction:column;gap:.25rem;margin-left:1rem;margin-top:.25rem;padding-left:.75rem;border-left:2px solid var(--border);}</p>
+<p class="p1">.sub-nav-item{display:flex;align-items:center;gap:.5rem;padding:.45rem .75rem;border-radius:8px;cursor:pointer;font-size:.82rem;color:var(--muted);border:1.5px solid transparent;transition:background .2s,color .2s;}</p>
+<p class="p1">.sub-nav-item:hover{background:var(--surface2);color:var(--text);}</p>
+<p class="p1">.sub-nav-item.active{background:var(--surface);color:var(--teal);border-color:var(--border);font-weight:600;}</p>
+<p class="p1">.sub-nav-item.completed{color:var(--done);}</p>
+<p class="p1">.sub-nav-dot{width:18px;height:18px;border-radius:50%;background:var(--border);color:var(--muted);font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}</p>
+<p class="p1">.sub-nav-item.active .sub-nav-dot{background:var(--teal);color:#fff;}</p>
+<p class="p1">.sub-nav-item.completed .sub-nav-dot{background:var(--done);color:#fff;}</p>
+<p class="p1">.main{min-width:0;}</p>
+<p class="p1">.step-card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);border:1px solid var(--border);overflow:hidden;animation:slideIn .35s cubic-bezier(.4,0,.2,1);}</p>
+<p class="p1">@keyframes slideIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}</p>
+<p class="p1">.card-header{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-dim) 100%);padding:2rem 2.5rem 1.6rem;position:relative;overflow:hidden;}</p>
+<p class="p1">.card-header::after{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.07);}</p>
+<p class="p1">.card-header::before{content:'';position:absolute;right:60px;bottom:-60px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.05);}</p>
+<p class="p1">.step-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.18);color:#fff;font-size:.72rem;font-weight:600;padding:.28rem .8rem;border-radius:var(--pill-r);margin-bottom:.9rem;letter-spacing:.06em;text-transform:uppercase;}</p>
+<p class="p1">.card-title{font-family:Georgia,'Times New Roman',serif;font-size:2rem;color:#fff;line-height:1.2;position:relative;z-index:1;}</p>
+<p class="p1">.card-subtitle{color:rgba(255,255,255,.75);margin-top:.5rem;font-size:.95rem;position:relative;z-index:1;}</p>
+<p class="p1">.card-body{padding:2rem 2.5rem 2.5rem;}</p>
+<p class="p1">.mockup{background:#0f1e1d;border-radius:10px;margin-bottom:2rem;overflow:hidden;border:1px solid #1a3332;box-shadow:0 8px 32px rgba(0,0,0,.25);}</p>
+<p class="p1">.mockup-bar{background:#162b2a;padding:.5rem 1rem;display:flex;align-items:center;gap:.4rem;}</p>
+<p class="p1">.mockup-dot{width:10px;height:10px;border-radius:50%;}</p>
+<p class="p1">.mockup-dot:nth-child(1){background:#ef4444;}</p>
+<p class="p1">.mockup-dot:nth-child(2){background:#f59e0b;}</p>
+<p class="p1">.mockup-dot:nth-child(3){background:#22c55e;}</p>
+<p class="p1">.mockup-url{margin-left:.6rem;background:#1e3534;border-radius:6px;padding:.2rem .8rem;color:#5f8a87;font-family:'DM Mono',monospace;font-size:.72rem;}</p>
+<p class="p1">.mockup-inner{position:relative;}</p>
+<p class="p1">.bug-btn{position:absolute;bottom:.5rem;right:.5rem;width:28px;height:28px;background:#0d9488;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer;z-index:10;}</p>
+<p class="p1">.login-mockup{display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.5rem 1rem;gap:.6rem;background:#1a2a3a;}</p>
+<p class="p1">.login-logo-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:.4rem;}</p>
+<p class="p1">.login-epos-label{color:#8a9bb0;font-size:.78rem;letter-spacing:.04em;margin-top:.2rem;}</p>
+<p class="p1">.login-card{width:100%;max-width:320px;background:rgba(255,255,255,.08);border-radius:14px;padding:1.5rem;display:flex;flex-direction:column;gap:.8rem;}</p>
+<p class="p1">.login-card-title{color:#fff;font-weight:700;font-size:1rem;text-align:center;}</p>
+<p class="p1">.login-card-sub{color:#8a9bb0;font-size:.75rem;text-align:center;margin-top:-.4rem;}</p>
+<p class="p1">.login-field-wrap{display:flex;flex-direction:column;gap:.25rem;}</p>
+<p class="p1">.login-field-label{color:#c0cfe0;font-size:.75rem;}</p>
+<p class="p1">.login-field{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:.6rem .9rem;color:#8a9bb0;font-size:.82rem;}</p>
+<p class="p1">.login-field.filled{color:#c0cfe0;}</p>
+<p class="p1">.login-btn{width:100%;background:#4a7ff5;color:#fff;border:none;border-radius:10px;padding:.75rem;font-weight:700;font-size:.9rem;cursor:pointer;margin-top:.2rem;}</p>
+<p class="p1">.login-footer{color:#5a7a9a;font-size:.7rem;text-align:center;padding-bottom:.5rem;}</p>
+<p class="p1">.pin-wrap{display:flex;flex-direction:column;align-items:center;padding:1.2rem 1rem 1rem;background:#1a2a3a;gap:.7rem;}</p>
+<p class="p1">.pin-dots{display:flex;gap:.7rem;margin:.3rem 0;}</p>
+<p class="p1">.pin-dot{width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.18);}</p>
+<p class="p1">.pin-dot.filled{background:#4a7ff5;border-color:#4a7ff5;}</p>
+<p class="p1">.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;width:100%;max-width:260px;}</p>
+<p class="p1">.pin-key{background:#2a3f57;border:none;border-radius:10px;color:#fff;font-size:1.2rem;font-weight:700;padding:.7rem;cursor:pointer;text-align:center;}</p>
+<p class="p1">.pin-key.clear{background:#7f1d1d;color:#f87171;}</p>
+<p class="p1">.pin-key.back{background:#78610a;color:#fbbf24;}</p>
+<p class="p1">.pin-footer{color:#5a7a9a;font-size:.7rem;text-align:center;padding-bottom:.3rem;}</p>
+<p class="p1">.instr-item.active-instr{border-color:var(--teal);background:var(--surface2);box-shadow:0 0 0 3px rgba(13,148,136,.12);}</p>
+<p class="p1">.instructions{list-style:none;display:flex;flex-direction:column;gap:.9rem;}</p>
+<p class="p1">.instr-item{display:flex;gap:1rem;align-items:flex-start;padding:1rem 1.2rem;background:var(--bg);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:border-color .2s,box-shadow .2s;}</p>
+<p class="p1">.instr-item:hover{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.08);}</p>
+<p class="p1">.instr-icon{width:36px;height:36px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;border:1px solid var(--border);}</p>
+<p class="p1">.instr-text strong{display:block;font-size:.9rem;margin-bottom:.2rem;color:var(--text);}</p>
+<p class="p1">.instr-text p{font-size:.84rem;color:var(--muted);line-height:1.5;}</p>
+<p class="p1">.tip-box{margin-top:1.5rem;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:1rem 1.2rem;display:flex;gap:.75rem;align-items:flex-start;}</p>
+<p class="p1">.tip-icon{font-size:1.2rem;flex-shrink:0;margin-top:.05rem;}</p>
+<p class="p1">.tip-box p{font-size:.85rem;color:#92400e;line-height:1.5;}</p>
+<p class="p1">.stub-box{text-align:center;padding:3rem 2rem;color:var(--muted);}</p>
+<p class="p1">.stub-box .stub-icon{font-size:2.5rem;margin-bottom:1rem;}</p>
+<p class="p1">.stub-box h3{font-family:Georgia,'Times New Roman',serif;font-size:1.4rem;color:var(--text);margin-bottom:.5rem;}</p>
+<p class="p1">.stub-box p{font-size:.9rem;line-height:1.6;}</p>
+<p class="p1">.nav-btns{display:flex;justify-content:space-between;align-items:center;margin-top:2rem;gap:1rem;}</p>
+<p class="p1">.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;border-radius:var(--pill-r);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:all .2s;}</p>
+<p class="p1">.btn-outline{background:transparent;border-color:var(--border);color:var(--muted);}</p>
+<p class="p1">.btn-outline:hover{border-color:var(--teal);color:var(--teal);background:var(--surface2);}</p>
+<p class="p1">.btn-primary{background:var(--teal);color:#fff;border-color:var(--teal);box-shadow:0 4px 16px rgba(13,148,136,.3);}</p>
+<p class="p1">.btn-primary:hover{background:var(--teal-dim);border-color:var(--teal-dim);transform:translateY(-1px);}</p>
+<p class="p1">.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;}</p>
+<p class="p1">.complete-screen{text-align:center;padding:3rem 2rem;}</p>
+<p class="p1">.complete-badge{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--done),var(--teal));display:flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto 1.5rem;box-shadow:0 8px 32px rgba(16,185,129,.3);animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}</p>
+<p class="p1">@keyframes popIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}</p>
+<p class="p1">.complete-screen h2{font-family:Georgia,'Times New Roman',serif;font-size:2rem;margin-bottom:.5rem;color:var(--text);}</p>
+<p class="p1">.complete-screen p{color:var(--muted);max-width:360px;margin:0 auto 2rem;line-height:1.6;}</p>
+<p class="p1">.restart-btn{background:transparent;border:2px solid var(--teal);color:var(--teal);padding:.7rem 2rem;border-radius:var(--pill-r);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s;}</p>
+<p class="p1">.restart-btn:hover{background:var(--teal);color:#fff;}</p>
+<p class="p1">.sidebar-toggle{display:none;}</p>
+<p class="p1">@media(max-width:700px){</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.shell{grid-template-columns:1fr;padding:1rem .75rem 3rem;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.card-title{font-size:1.4rem;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.card-header{padding:1.4rem 1.4rem 1.2rem;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.card-body{padding:1.2rem 1.4rem 1.6rem;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.sidebar{position:static;width:100%;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.sidebar-title{display:none;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.sidebar-toggle{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.7rem 1rem;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--teal);box-shadow:var(--shadow);margin-bottom:.5rem;user-select:none;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.sidebar-toggle .arr{transition:transform .25s;}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.sidebar-toggle.open .arr{transform:rotate(180deg);}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.step-nav{max-height:0;overflow:hidden;transition:max-height .3s cubic-bezier(.4,0,.2,1);}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.step-nav.open{max-height:600px;}</p>
+<p class="p1">}</p>
+<p class="p1">&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1">&lt;header&gt;</p>
+<p class="p1">&lt;svg xmlns="http://www.w3.org/2000/svg" height="36" viewBox="6749 10033 16582 4921"&gt;&lt;path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M896.761 433.683C913.753 431.465 936.429 439.866 949.052 451.211C963.396 464.19 971.962 482.361 972.844 501.686C973.926 522.269 966.562 539.558 953.066 554.69C945.726 548.056 937.901 541.454 930.403 534.963C936.147 527.287 940.46 519.758 941.614 510.064C944.16 488.673 927.985 465.9 905.998 463.833C894.185 462.722 884.948 466.195 875.898 473.584C872.348 476.88 869.213 481.124 866.953 485.399C861.619 495.346 860.447 507.003 863.696 517.813C866.63 527.195 873.086 535.075 881.708 539.798C885.681 541.934 889.943 543.5 894.093 545.745L894.684 546.069C894.284 553.488 890.611 566.974 888.703 574.736C883.135 573.158 877.246 571.575 872.013 569.205C817.636 544.586 817.957 461.226 874.292 439.065C882.573 435.808 888.033 434.707 896.761 433.683Z"/&gt;&lt;path fill="#fff" transform="scale(23.7969 23.7969)" d="M516.882 472.191C545.251 469.888 570.178 490.871 572.748 519.216C575.318 547.562 554.571 572.685 526.251 575.522C497.551 578.397 472.016 557.311 469.412 528.585C466.807 499.859 488.133 474.524 516.882 472.191ZM523.969 549.134C531.564 547.298 537.296 544.368 541.443 537.338C548.319 525.682 543.957 507.633 531.826 501.161C527.737 498.966 523.074 498.075 518.464 498.609C502.981 501.945 494.278 514.729 498.001 530.209C499.515 536.526 503.457 541.992 508.973 545.423C513.331 548.081 518.877 549.307 523.969 549.134Z"/&gt;&lt;path fill="#fff" transform="scale(23.7969 23.7969)" d="M342.852 436.232C361.262 435.972 378.619 441.048 390.119 456.121C383.691 462.75 377.064 469.439 370.912 476.305C360.936 467.285 346.665 457.87 333.067 467.519C331.308 468.767 329.302 472.143 329.338 474.397C329.464 488.659 350.492 490.88 362.707 494.519C394.699 504.05 405.266 539.472 380.735 563.356C370.427 573.391 351.865 575.41 336.88 574.393C317.683 572.156 305.653 565.337 292.589 551.267C297.285 545.66 308.285 535.916 314.2 529.939C314.877 530.633 315.558 531.324 316.243 532.01C324.921 540.7 332.691 546.068 345.286 546.05C351.931 546.04 362.708 542.219 361.746 534.062C360.07 519.844 339.941 518.299 329.375 514.255C322.18 511.501 315.539 509.324 309.555 504.332C293.851 491.662 293.537 465.8 306.326 450.97C315.372 440.481 329.604 437.156 342.852 436.232Z"/&gt;&lt;path fill="#fff" transform="scale(23.7969 23.7969)" d="M686.922 430.316C696.102 430.278 705.283 430.329 714.462 430.47C713.575 458.518 714.869 486.38 714.219 514.233C720.135 509.273 726.167 502.406 731.453 496.643L751.848 474.537C763.139 474.46 774.429 474.293 785.717 474.036C784.029 476.3 782.189 478.391 780.27 480.459C769.36 492.214 759.218 504.772 748.241 516.445C756.556 528.695 765.049 540.825 773.716 552.829C778.462 559.85 783.579 566.844 788.408 573.981C776.947 573.808 765.484 573.748 754.021 573.8C745.745 562.483 735.525 546.162 727.748 534.212C723.187 538.625 718.717 543.639 714.495 548.374C714.201 556.8 714.188 565.507 714.074 573.957L686.529 573.974L686.922 430.316Z"/&gt;&lt;path fill="#fff" transform="scale(23.7969 23.7969)" d="M630.264 472.204C649.479 471.842 664.156 478.455 675.425 494.264C667.27 499.053 659.856 503.988 652.759 510.273C647.867 504.423 642.578 499.001 634.52 498.593C621.25 497.92 610.949 509.244 610.589 521.788C610.391 529.183 613.204 536.342 618.384 541.623C630.597 553.865 644.591 548.496 655.129 537.636C658.504 540.39 661.856 543.172 665.185 545.982C667.609 548.224 671.688 551.288 674.349 553.316C668.6 564.304 653.525 572.723 641.508 574.405C627.245 576.374 612.781 572.653 601.239 564.047C572.968 542.569 577.23 494.629 608.603 478.529C616.153 474.655 621.891 473.296 630.264 472.204Z"/&gt;&lt;path fill="#fff" transform="scale(23.7969 23.7969)" d="M411.864 447.934C420.91 447.889 429.956 447.926 439.001 448.044L439.076 474.525C446.337 474.358 454.569 474.721 462.016 474.711C461.799 483.426 461.793 492.145 462 500.86L439.026 500.849C438.964 511.391 438.777 522.016 438.97 532.551C439.264 548.537 447.131 548.996 460.436 548.211C460.067 554.614 460.115 560.997 460.096 567.41C460.138 569.649 460.347 572.211 460.475 574.475C457.994 574.779 455.497 574.934 452.998 574.941C413.326 575.253 410.841 554.564 411.385 521.414L411.565 500.843L397.557 500.824C397.562 495.181 397.298 479.917 398.262 475.345C399.93 474.039 409.168 474.48 411.828 474.493C411.364 467.06 412.066 456.032 411.864 447.934Z"/&gt;&lt;path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M792.97 474.264C802.484 474.114 812 474.179 821.511 474.459L821.447 573.935C812.059 574.125 802.198 573.974 792.773 573.976C793.101 564.525 792.798 552.539 792.873 542.88C793.078 520.009 793.11 497.136 792.97 474.264Z"/&gt;&lt;path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M906.25 525.624C911.235 527.989 922.548 538.783 927.371 542.832C934.872 549.128 943.988 556 951.054 562.61L940.806 566.092C945.227 578.331 951.667 591.942 956.712 604.232C951.336 602.948 945.977 601.592 940.637 600.163L935.169 599.215L921.84 616.249C916.945 604.319 912.334 590.796 908.121 578.568C904.249 579.535 900.4 580.589 896.575 581.729C900.041 563.395 902.954 544.14 906.25 525.624Z"/&gt;&lt;path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M803.348 433.731C811.748 431.657 820.246 436.758 822.365 445.147C824.484 453.535 819.429 462.06 811.051 464.224C802.611 466.404 794.007 461.302 791.872 452.85C789.737 444.397 794.885 435.821 803.348 433.731Z"/&gt;&lt;/svg&gt;</p>
+<p class="p1">&lt;div class="header-pill"&gt;Tutorial Mode&lt;/div&gt;</p>
+<p class="p1">&lt;/header&gt;</p>
+<p class="p1">&lt;div class="shell"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;aside class="sidebar"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="sidebar-title"&gt;Tutorial Steps&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;span&gt;Tutorial Steps&lt;/span&gt;&lt;span class="arr"&gt;&amp;#9660;&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="step-nav" id="stepNav"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/aside&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;main class="main" id="mainContent"&gt;&lt;/main&gt;</p>
+<p class="p1">&lt;/div&gt;</p>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1">var activeSFPanel = null;</p>
+<p class="p2"><br></p>
+<p class="p1">function hl(on) { return on ? 'outline:3px solid #14b8a6;border-radius:7px;background:rgba(20,184,166,.06);' : ''; }</p>
+<p class="p1">function hlBtn(key) { return activeSFPanel === key ? 'box-shadow:0 0 0 3px #14b8a6;' : ''; }</p>
+<p class="p2"><br></p>
+<p class="p1">var SF_PANELS = [</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{ key: 'nhs',<span class="Apple-converted-space">  </span>label: 'NHS Services', icon: '&amp;#x1F489;', color: '#1a3a6b', text: 'Recording NHS Services such as BP Checks, Flu Jabs (PF), CPCS, and NMS helps build a picture of trends over time - for example, which times of year certain services are busier, or which staff members are particularly good at offering and delivering a specific service. This data helps Head Office plan support and training accordingly.' },</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{ key: 'misc', label: 'Misc Items', <span class="Apple-converted-space">  </span>icon: '&amp;#x1F6D2;', color: '#4a4a4a', text: 'The Misc Items button lets you manually add a price to any item that scans through with no price attached. This is useful for one-off products or items whose barcode is not yet set up in the system.' },</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{ key: 'safe', label: 'Safe', <span class="Apple-converted-space">        </span>icon: '&amp;#x1F512;', color: '#2e7d32', text: 'The Safe button has two uses. First, if you have taken a lot of cash during the day and do not want to wait until cash up, you can use it to log a deposit from the till into the in-branch safe at any point during the day. Second, it can also be used to log when cash has been deposited from the in-branch safe into the bank.' }</p>
+<p class="p1">];</p>
+<p class="p2"><br></p>
+<p class="p1">function toggleSFPanel(key) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>activeSFPanel = activeSFPanel === key ? null : key;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>render();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">var LOGO = '&lt;svg xmlns="http://www.w3.org/2000/svg" height="40" viewBox="6749 10033 16582 4921"&gt;&lt;path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M896.761 433.683C913.753 431.465 936.429 439.866 949.052 451.211C963.396 464.19 971.962 482.361 972.844 501.686C973.926 522.269 966.562 539.558 953.066 554.69C945.726 548.056 937.901 541.454 930.403 534.963C936.147 527.287 940.46 519.758 941.614 510.064C944.16 488.673 927.985 465.9 905.998 463.833C894.185 462.722 884.948 466.195 875.898 473.584C872.348 476.88 869.213 481.124 866.953 485.399C861.619 495.346 860.447 507.003 863.696 517.813C866.63 527.195 873.086 535.075 881.708 539.798C885.681 541.934 889.943 543.5 894.093 545.745L894.684 546.069C894.284 553.488 890.611 566.974 888.703 574.736C883.135 573.158 877.246 571.575 872.013 569.205C817.636 544.586 817.957 461.226 874.292 439.065C882.573 435.808 888.033 434.707 896.761 433.683Z"/&gt;&lt;path fill="#111737" transform="scale(23.7969 23.7969)" d="M516.882 472.191C545.251 469.888 570.178 490.871 572.748 519.216C575.318 547.562 554.571 572.685 526.251 575.522C497.551 578.397 472.016 557.311 469.412 528.585C466.807 499.859 488.133 474.524 516.882 472.191ZM523.969 549.134C531.564 547.298 537.296 544.368 541.443 537.338C548.319 525.682 543.957 507.633 531.826 501.161C527.737 498.966 523.074 498.075 518.464 498.609C502.981 501.945 494.278 514.729 498.001 530.209C499.515 536.526 503.457 541.992 508.973 545.423C513.331 548.081 518.877 549.307 523.969 549.134Z"/&gt;&lt;path fill="#111737" transform="scale(23.7969 23.7969)" d="M342.852 436.232C361.262 435.972 378.619 441.048 390.119 456.121C383.691 462.75 377.064 469.439 370.912 476.305C360.936 467.285 346.665 457.87 333.067 467.519C331.308 468.767 329.302 472.143 329.338 474.397C329.464 488.659 350.492 490.88 362.707 494.519C394.699 504.05 405.266 539.472 380.735 563.356C370.427 573.391 351.865 575.41 336.88 574.393C317.683 572.156 305.653 565.337 292.589 551.267C297.285 545.66 308.285 535.916 314.2 529.939C314.877 530.633 315.558 531.324 316.243 532.01C324.921 540.7 332.691 546.068 345.286 546.05C351.931 546.04 362.708 542.219 361.746 534.062C360.07 519.844 339.941 518.299 329.375 514.255C322.18 511.501 315.539 509.324 309.555 504.332C293.851 491.662 293.537 465.8 306.326 450.97C315.372 440.481 329.604 437.156 342.852 436.232Z"/&gt;&lt;path fill="#111737" transform="scale(23.7969 23.7969)" d="M686.922 430.316C696.102 430.278 705.283 430.329 714.462 430.47C713.575 458.518 714.869 486.38 714.219 514.233C720.135 509.273 726.167 502.406 731.453 496.643L751.848 474.537C763.139 474.46 774.429 474.293 785.717 474.036C784.029 476.3 782.189 478.391 780.27 480.459C769.36 492.214 759.218 504.772 748.241 516.445C756.556 528.695 765.049 540.825 773.716 552.829C778.462 559.85 783.579 566.844 788.408 573.981C776.947 573.808 765.484 573.748 754.021 573.8C745.745 562.483 735.525 546.162 727.748 534.212C723.187 538.625 718.717 543.639 714.495 548.374C714.201 556.8 714.188 565.507 714.074 573.957L686.529 573.974L686.922 430.316Z"/&gt;&lt;path fill="#111737" transform="scale(23.7969 23.7969)" d="M630.264 472.204C649.479 471.842 664.156 478.455 675.425 494.264C667.27 499.053 659.856 503.988 652.759 510.273C647.867 504.423 642.578 499.001 634.52 498.593C621.25 497.92 610.949 509.244 610.589 521.788C610.391 529.183 613.204 536.342 618.384 541.623C630.597 553.865 644.591 548.496 655.129 537.636C658.504 540.39 661.856 543.172 665.185 545.982C667.609 548.224 671.688 551.288 674.349 553.316C668.6 564.304 653.525 572.723 641.508 574.405C627.245 576.374 612.781 572.653 601.239 564.047C572.968 542.569 577.23 494.629 608.603 478.529C616.153 474.655 621.891 473.296 630.264 472.204Z"/&gt;&lt;path fill="#111737" transform="scale(23.7969 23.7969)" d="M411.864 447.934C420.91 447.889 429.956 447.926 439.001 448.044L439.076 474.525C446.337 474.358 454.569 474.721 462.016 474.711C461.799 483.426 461.793 492.145 462 500.86L439.026 500.849C438.964 511.391 438.777 522.016 438.97 532.551C439.264 548.537 447.131 548.996 460.436 548.211C460.067 554.614 460.115 560.997 460.096 567.41C460.138 569.649 460.347 572.211 460.475 574.475C457.994 574.779 455.497 574.934 452.998 574.941C413.326 575.253 410.841 554.564 411.385 521.414L411.565 500.843L397.557 500.824C397.562 495.181 397.298 479.917 398.262 475.345C399.93 474.039 409.168 474.48 411.828 474.493C411.364 467.06 412.066 456.032 411.864 447.934Z"/&gt;&lt;path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M792.97 474.264C802.484 474.114 812 474.179 821.511 474.459L821.447 573.935C812.059 574.125 802.198 573.974 792.773 573.976C793.101 564.525 792.798 552.539 792.873 542.88C793.078 520.009 793.11 497.136 792.97 474.264Z"/&gt;&lt;path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M906.25 525.624C911.235 527.989 922.548 538.783 927.371 542.832C934.872 549.128 943.988 556 951.054 562.61L940.806 566.092C945.227 578.331 951.667 591.942 956.712 604.232C951.336 602.948 945.977 601.592 940.637 600.163L935.169 599.215L921.84 616.249C916.945 604.319 912.334 590.796 908.121 578.568C904.249 579.535 900.4 580.589 896.575 581.729C900.041 563.395 902.954 544.14 906.25 525.624Z"/&gt;&lt;path fill="#32B48A" transform="scale(23.7969 23.7969)" d="M803.348 433.731C811.748 431.657 820.246 436.758 822.365 445.147C824.484 453.535 819.429 462.06 811.051 464.224C802.611 466.404 794.007 461.302 791.872 452.85C789.737 444.397 794.885 435.821 803.348 433.731Z"/&gt;&lt;/svg&gt;';</p>
+<p class="p2"><br></p>
+<p class="p1">var BUG = '&lt;div class="bug-btn"&gt;&lt;svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;ellipse cx="12" cy="13" rx="4" ry="5"/&gt;&lt;circle cx="12" cy="7" r="2"/&gt;&lt;line x1="10" y1="5.5" x2="8" y2="3.5"/&gt;&lt;line x1="14" y1="5.5" x2="16" y2="3.5"/&gt;&lt;line x1="8" y1="11" x2="5.5" y2="10"/&gt;&lt;line x1="8" y1="13" x2="5.5" y2="13"/&gt;&lt;line x1="8" y1="15" x2="5.5" y2="16"/&gt;&lt;line x1="16" y1="11" x2="18.5" y2="10"/&gt;&lt;line x1="16" y1="13" x2="18.5" y2="13"/&gt;&lt;line x1="16" y1="15" x2="18.5" y2="16"/&gt;&lt;line x1="12" y1="9" x2="12" y2="18"/&gt;&lt;/svg&gt;&lt;/div&gt;';</p>
+<p class="p2"><br></p>
+<p class="p1">var BUG_HL = '&lt;div class="bug-btn" style="box-shadow:0 0 0 4px #14b8a6,0 2px 8px rgba(0,0,0,.3);transform:scale(1.2);"&gt;&lt;svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;ellipse cx="12" cy="13" rx="4" ry="5"/&gt;&lt;circle cx="12" cy="7" r="2"/&gt;&lt;line x1="10" y1="5.5" x2="8" y2="3.5"/&gt;&lt;line x1="14" y1="5.5" x2="16" y2="3.5"/&gt;&lt;line x1="8" y1="11" x2="5.5" y2="10"/&gt;&lt;line x1="8" y1="13" x2="5.5" y2="13"/&gt;&lt;line x1="8" y1="15" x2="5.5" y2="16"/&gt;&lt;line x1="16" y1="11" x2="18.5" y2="10"/&gt;&lt;line x1="16" y1="13" x2="18.5" y2="13"/&gt;&lt;line x1="16" y1="15" x2="18.5" y2="16"/&gt;&lt;line x1="12" y1="9" x2="12" y2="18"/&gt;&lt;/svg&gt;&lt;/div&gt;';</p>
+<p class="p2"><br></p>
+<p class="p1">function hl(on) { return on ? 'outline:3px solid #14b8a6;border-radius:7px;background:rgba(20,184,166,.06);' : ''; }</p>
+<p class="p2"><br></p>
+<p class="p1">var SF_PANELS = [</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{ key: 'nhs', label: 'NHS Services', icon: '&amp;#x1F489;', color: '#1a3a6b', text: 'Recording NHS Services such as BP Checks, Flu Jabs (PF), CPCS, and NMS helps build a picture of trends over time - for example, which times of year certain services are busier, or which staff members are particularly good at offering and delivering a specific service. This data helps Head Office plan support and training accordingly.' },</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{ key: 'misc', label: 'Misc Items', icon: '&amp;#x1F6D2;', color: '#4a4a4a', text: 'The Misc Items button lets you manually add a price to any item that scans through with no price attached. This is useful for one-off products or items whose barcode is not yet set up in the system.' },</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{ key: 'safe', label: 'Safe', icon: '&amp;#x1F512;', color: '#2e7d32', text: 'The Safe button has two uses. First, if you have taken a lot of cash during the day and do not want to wait until cash up, you can use it to log a deposit from the till into the in-branch safe at any point during the day. Second, it can also be used to log when cash has been deposited from the in-branch safe into the bank.' }</p>
+<p class="p1">];</p>
+<p class="p2"><br></p>
+<p class="p1">var activeSFPanel = null;</p>
+<p class="p2"><br></p>
+<p class="p1">function toggleSFPanel(key) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>activeSFPanel = activeSFPanel === key ? null : key;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>switchMockup(curInstr);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function sidebarHtml(active) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var items = [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['till','till','&lt;div style="font-size:.9rem;"&gt;&amp;#x1F9FE;&lt;/div&gt;Till'],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['xz','xz','&lt;div style="font-size:.9rem;"&gt;&amp;#x1F4CB;&lt;/div&gt;X/Z Read'],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['labels','labels','&lt;div style="font-size:.9rem;"&gt;&amp;#x1F3F7;&amp;#xFE0F;&lt;/div&gt;Labels'],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['dashboard','dashboard','&lt;div style="font-size:.9rem;"&gt;&amp;#x1F4CA;&lt;/div&gt;Dashboard'],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['accounts','accounts','&lt;div style="font-size:.9rem;"&gt;&amp;#x1F465;&lt;/div&gt;Accounts'],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['reports','reports','&lt;div style="font-size:.9rem;"&gt;&amp;#x1F4C8;&lt;/div&gt;Reports'],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>['settings','settings','&lt;div style="font-size:.9rem;"&gt;&amp;#x2699;&amp;#xFE0F;&lt;/div&gt;Settings']</p>
+<p class="p1"><span class="Apple-converted-space">  </span>];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var html = '&lt;div style="background:#1e2235;display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.3rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>html += '&lt;div style="color:#fff;font-weight:900;font-size:.75rem;margin-bottom:.3rem;background:#2d3250;border-radius:6px;padding:.2rem .4rem;"&gt;SiQ&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>html += '&lt;div style="background:#3a3f5c;border-radius:6px;padding:.3rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;"&gt;AP-46&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; items.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var key = items[i][0];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var isActive = key === active;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var badge = key === 'labels' ? '&lt;span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;"&gt;99+&lt;/span&gt;' : '';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;div style="' + (isActive ? 'background:#4a6fa5;border-radius:6px;' : '') + 'padding:.4rem .5rem;color:' + (isActive ? '#fff' : '#8a9bb0') + ';font-size:.55rem;text-align:center;width:48px;position:relative;"&gt;' + items[i][2] + badge + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>html += '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return html;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function topNavHtml(active) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var tabs = ['Dashboard','Accounts','Reports','Settings'];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var html = '&lt;div style="background:#fff;border-radius:8px;padding:.35rem .6rem;display:flex;align-items:center;gap:.5rem;box-shadow:0 1px 3px rgba(0,0,0,.07);"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>html += '&lt;span style="font-size:.75rem;font-weight:800;color:#1a2e2d;"&gt;StockIQ&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>html += '&lt;span style="font-size:.52rem;color:#888;border:1px solid #ddd;border-radius:3px;padding:.05rem .25rem;"&gt;EPOS&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>html += '&lt;div style="display:flex;gap:.3rem;margin-left:.3rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; tabs.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var isActive = tabs[i] === active;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;span style="' + (isActive ? 'background:#3b6fd4;color:#fff;border-radius:5px;' : 'color:#888;') + 'padding:.15rem .45rem;font-size:.55rem;font-weight:' + (isActive ? '600' : '400') + ';"&gt;' + tabs[i] + '&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>html += '&lt;/div&gt;&lt;div style="margin-left:auto;font-size:.55rem;color:#555;"&gt;Sample Pharmacy&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return html;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function wrapMockup(url, inner) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return '&lt;div class="mockup" style="background:#e8eaf0;"&gt;&lt;div class="mockup-bar"&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-url"&gt;' + url + '&lt;/div&gt;&lt;/div&gt;&lt;div class="mockup-inner"&gt;' + inner + BUG + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Mockup renderers ──────────────────────────────────────────────────────────</p>
+<p class="p2"><br></p>
+<p class="p1">function renderLogin() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return '&lt;div class="mockup"&gt;&lt;div class="mockup-bar"&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-url"&gt;stockiq.local/login&lt;/div&gt;&lt;/div&gt;&lt;div class="mockup-inner"&gt;&lt;div class="login-mockup"&gt;&lt;div class="login-logo-wrap"&gt;' + LOGO + '&lt;div class="login-epos-label"&gt;EPOS System - Branch Login&lt;/div&gt;&lt;/div&gt;&lt;div class="login-card"&gt;&lt;div class="login-card-title"&gt;Branch Authentication&lt;/div&gt;&lt;div class="login-card-sub"&gt;Login with your branch manager account&lt;/div&gt;&lt;div class="login-field-wrap"&gt;&lt;div class="login-field-label"&gt;Email&lt;/div&gt;&lt;input class="login-field filled" value="manager@pharmacy.com" readonly/&gt;&lt;/div&gt;&lt;div class="login-field-wrap"&gt;&lt;div class="login-field-label"&gt;Password&lt;/div&gt;&lt;input class="login-field" type="password" placeholder="Enter password" readonly/&gt;&lt;/div&gt;&lt;button class="login-btn"&gt;Login to Branch&lt;/button&gt;&lt;/div&gt;&lt;div class="login-footer"&gt;Use a manager or admin account with EPOS permission&lt;/div&gt;&lt;/div&gt;' + BUG + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderPin() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return '&lt;div class="mockup"&gt;&lt;div class="mockup-bar"&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-url"&gt;stockiq.local/pin&lt;/div&gt;&lt;/div&gt;&lt;div class="mockup-inner"&gt;&lt;div class="pin-wrap"&gt;&lt;div class="login-logo-wrap"&gt;' + LOGO + '&lt;/div&gt;&lt;div class="login-card"&gt;&lt;div class="login-card-title"&gt;Enter Your PIN&lt;/div&gt;&lt;div class="login-card-sub"&gt;4 digit staff PIN&lt;/div&gt;&lt;div class="pin-dots"&gt;&lt;div class="pin-dot filled"&gt;&lt;/div&gt;&lt;div class="pin-dot filled"&gt;&lt;/div&gt;&lt;div class="pin-dot"&gt;&lt;/div&gt;&lt;div class="pin-dot"&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="pin-grid"&gt;&lt;button class="pin-key"&gt;1&lt;/button&gt;&lt;button class="pin-key"&gt;2&lt;/button&gt;&lt;button class="pin-key"&gt;3&lt;/button&gt;&lt;button class="pin-key"&gt;4&lt;/button&gt;&lt;button class="pin-key"&gt;5&lt;/button&gt;&lt;button class="pin-key"&gt;6&lt;/button&gt;&lt;button class="pin-key"&gt;7&lt;/button&gt;&lt;button class="pin-key"&gt;8&lt;/button&gt;&lt;button class="pin-key"&gt;9&lt;/button&gt;&lt;button class="pin-key clear"&gt;Clear&lt;/button&gt;&lt;button class="pin-key"&gt;0&lt;/button&gt;&lt;button class="pin-key back"&gt;&amp;#8592;&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="pin-footer"&gt;Set your EPOS PIN in the Admin portal under Users&lt;/div&gt;&lt;/div&gt;' + BUG + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderTill(highlight) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var navStyle = highlight === 'nav' ? 'outline:3px solid #14b8a6;outline-offset:-3px;' : '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var topStyle = highlight === 'topbar' ? 'display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;outline:3px solid #14b8a6;border-radius:6px;padding:.3rem;background:rgba(20,184,166,.08);' : 'display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var bugHtml = highlight === 'bug' ? BUG_HL : BUG;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>var sbHtml = '&lt;div style="background:#1e2235;display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.3rem;' + navStyle + '"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="color:#fff;font-weight:900;font-size:.75rem;margin-bottom:.3rem;background:#2d3250;border-radius:6px;padding:.2rem .4rem;"&gt;SiQ&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="background:#3a3f5c;border-radius:6px;padding:.3rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;"&gt;AP-46&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="background:#4a6fa5;border-radius:6px;padding:.4rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;margin-top:.2rem;"&gt;&lt;div style="font-size:.9rem;"&gt;&amp;#x1F9FE;&lt;/div&gt;Till&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"&gt;&lt;div style="font-size:.9rem;"&gt;&amp;#x1F4CB;&lt;/div&gt;X/Z Read&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;position:relative;"&gt;&lt;div style="font-size:.9rem;"&gt;&amp;#x1F3F7;&amp;#xFE0F;&lt;/div&gt;Labels&lt;span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;"&gt;99+&lt;/span&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"&gt;&lt;div style="font-size:.9rem;"&gt;&amp;#x1F4CA;&lt;/div&gt;Dashboard&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"&gt;&lt;div style="font-size:.9rem;"&gt;&amp;#x1F465;&lt;/div&gt;Accounts&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"&gt;&lt;div style="font-size:.9rem;"&gt;&amp;#x1F4C8;&lt;/div&gt;Reports&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sbHtml += '&lt;div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"&gt;&lt;div style="font-size:.9rem;"&gt;&amp;#x2699;&amp;#xFE0F;&lt;/div&gt;Settings&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>var mainHtml = '&lt;div style="background:#f0f2f7;padding:.6rem;overflow:hidden;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="' + topStyle + '"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="flex:1;background:#fff;border-radius:20px;padding:.3rem .7rem;font-size:.65rem;color:#aaa;border:1px solid #ddd;"&gt;Search barcode or product...&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="font-size:.6rem;color:#666;text-align:right;white-space:nowrap;"&gt;Logged in as&lt;br&gt;&lt;strong style="color:#111;"&gt;Staff Member&lt;/strong&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="background:#1e2235;color:#fff;border-radius:6px;padding:.3rem .5rem;font-size:.65rem;font-weight:700;"&gt;12:02&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;"&gt;SERVICES &amp;amp; FUNCTIONS&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-bottom:.5rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="background:#1a3a6b;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;' + hlBtn('nhs') + '"&gt;&lt;div style="background:#1565c0;border-radius:3px;font-size:.42rem;margin-bottom:.15rem;padding:.05rem;"&gt;NHS&lt;/div&gt;NHS SERVICES&lt;div style="color:#90caf9;font-size:.42rem;"&gt;PF, CPCS, NMS&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="background:#4a4a4a;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;' + hlBtn('misc') + '"&gt;&lt;div style="font-size:.8rem;"&gt;&amp;#x1F6D2;&lt;/div&gt;MISC ITEMS&lt;div style="color:#ccc;font-size:.42rem;"&gt;VAT / No VAT&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="background:#6a3fa0;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"&gt;&lt;div style="font-size:.8rem;"&gt;&amp;#x1F50D;&lt;/div&gt;PRICE CHECK&lt;div style="color:#ce93d8;font-size:.42rem;"&gt;Lookup&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="background:#00796b;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"&gt;&lt;div style="font-size:.8rem;"&gt;&amp;#x1F5A8;&amp;#xFE0F;&lt;/div&gt;REPRINT LAST&lt;div style="color:#80cbc4;font-size:.42rem;"&gt;Receipt&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="background:#2e7d32;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;' + hlBtn('safe') + '"&gt;&lt;div style="font-size:.8rem;"&gt;&amp;#x1F512;&lt;/div&gt;SAFE&lt;div style="color:#a5d6a7;font-size:.42rem;"&gt;Drop / Pickup&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="background:#c62828;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"&gt;&lt;div style="font-size:.8rem;"&gt;&amp;#x2716;&amp;#xFE0F;&lt;/div&gt;VOID SALE&lt;div style="color:#ef9a9a;font-size:.42rem;"&gt;Clear All&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;"&gt;QUICK KEYS&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;margin-bottom:.5rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var qkeys = [['&amp;#x1F489;','FLU JAB','&amp;#xa3;20.00'],['&amp;#x1F697;','DELIVERY','&amp;#xa3;3.50'],['&amp;#x1F48A;','MDS MONTHLY','&amp;#xa3;25.00'],['&amp;#x1F464;','PRIVATE CONSULT','&amp;#xa3;15.00'],['&amp;#x1F6CD;&amp;#xFE0F;','CARRIER BAG','&amp;#xa3;0.20'],['NHS','RX CHARGE','&amp;#xa3;9.90'],['&amp;#x21A9;&amp;#xFE0F;','FP57 REFUND','-&amp;#xa3;9.90'],['&amp;#x1F4B3;','PRIVATE RX','Enter &amp;#xa3;']];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; qkeys.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>mainHtml += '&lt;div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;"&gt;&lt;div style="font-size:.7rem;"&gt;' + qkeys[i][0] + '&lt;/div&gt;' + qkeys[i][1] + '&lt;div style="color:#1565c0;font-weight:700;"&gt;' + qkeys[i][2] + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;"&gt;MISC&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var misc = [['#bdbdbd','&amp;#x23F8;&amp;#xFE0F;','PARK SALE','Hold'],['#7b1fa2','&amp;#x25B6;&amp;#xFE0F;','RECALL','Parked'],['#bdbdbd','&amp;#x1F3F7;&amp;#xFE0F;','DISCOUNT','Apply'],['#0288d1','&amp;#x1F4CB;','SALES HISTORY','Past Sales'],['#6a3fa0','&amp;#x1F4CA;','SALES REPORT','Summary'],['#e65100','&amp;#x1F4B5;','CASH OUT','Petty Cash'],['#c62828','&amp;#x21A9;&amp;#xFE0F;','REFUND','Return']];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; misc.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>mainHtml += '&lt;div style="background:' + misc[i][0] + ';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;color:#fff;"&gt;&lt;div style="font-size:.7rem;"&gt;' + misc[i][1] + '&lt;/div&gt;' + misc[i][2] + '&lt;div style="opacity:.8;"&gt;' + misc[i][3] + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>mainHtml += '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>var basketHtml = '&lt;div style="background:#f8f9fc;border-left:1px solid #dde;display:flex;flex-direction:column;padding:.5rem;"&gt;&lt;div style="text-align:center;color:#aaa;font-size:.6rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;"&gt;&lt;div style="font-size:1.4rem;"&gt;&amp;#x1F6D2;&lt;/div&gt;&lt;div style="font-weight:600;color:#555;font-size:.65rem;"&gt;Basket is empty&lt;/div&gt;&lt;div style="font-size:.55rem;"&gt;Scan an item or use quick keys&lt;/div&gt;&lt;/div&gt;&lt;div style="border-top:1px solid #dde;padding-top:.4rem;"&gt;&lt;div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"&gt;&lt;span style="font-size:.65rem;font-weight:700;"&gt;Total&lt;/span&gt;&lt;span style="color:#1565c0;font-weight:700;font-size:.75rem;"&gt;&amp;#xa3;0.00&lt;/span&gt;&lt;/div&gt;&lt;div style="background:#e8f0fe;border-radius:5px;text-align:center;padding:.3rem;font-size:.55rem;margin-bottom:.3rem;color:#555;"&gt;Print&lt;/div&gt;&lt;div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;"&gt;&lt;div style="background:#e8f5e9;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;"&gt;&amp;#x1F4B5;&lt;/div&gt;&lt;div style="background:#e8eaf6;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;"&gt;&amp;#x1F4B3;&lt;/div&gt;&lt;div style="background:#f3e5f5;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;"&gt;&amp;#x1F4CB;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>return '&lt;div class="mockup" style="background:#e8eaf0;"&gt;&lt;div class="mockup-bar"&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-dot"&gt;&lt;/div&gt;&lt;div class="mockup-url"&gt;epos.stockiq.uk/till&lt;/div&gt;&lt;/div&gt;&lt;div class="mockup-inner"&gt;&lt;div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:Instrument Sans,sans-serif;"&gt;' + sbHtml + mainHtml + basketHtml + '&lt;/div&gt;' + bugHtml + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderXZ() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return wrapMockup('epos.stockiq.uk/xzread', '&lt;div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:Instrument Sans,sans-serif;"&gt;' + sidebarHtml('xz') + '&lt;div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;"&gt;&lt;div&gt;&lt;div style="font-size:1rem;font-weight:700;color:#1a2e2d;margin-bottom:.2rem;"&gt;X/Z Read&lt;/div&gt;&lt;div style="font-size:.7rem;color:#888;"&gt;View shift summary or close out the till&lt;/div&gt;&lt;/div&gt;&lt;div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;"&gt;Shift is &lt;strong&gt;open&lt;/strong&gt; - started today&lt;/div&gt;&lt;div style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"&gt;&lt;div style="font-size:1.1rem;"&gt;&amp;#x1F4CA;&lt;/div&gt;&lt;div style="color:#fff;font-weight:700;font-size:.82rem;"&gt;X-Read - View Current Shift&lt;/div&gt;&lt;/div&gt;&lt;div style="background:#e03535;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"&gt;&lt;div style="font-size:1.1rem;"&gt;&amp;#x1F512;&lt;/div&gt;&lt;div style="color:#fff;font-weight:700;font-size:.82rem;"&gt;Z-Read - Close Shift&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderLabelsSearch(highlight) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var qStyle = highlight === 'queue' ? 'display:grid;grid-template-columns:1fr 160px;gap:.6rem;outline:3px solid #14b8a6;border-radius:10px;padding:.3rem;background:rgba(20,184,166,.05);' : 'display:grid;grid-template-columns:1fr 160px;gap:.6rem;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var inner = '&lt;div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:Instrument Sans,sans-serif;"&gt;' + sidebarHtml('labels') + '&lt;div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"&gt;&lt;div style="display:flex;justify-content:space-between;align-items:flex-start;"&gt;&lt;div&gt;&lt;div style="font-size:.9rem;font-weight:700;color:#1a2e2d;"&gt;Shelf Edge Labels&lt;/div&gt;&lt;div style="font-size:.6rem;color:#888;"&gt;Search products and print price labels&lt;/div&gt;&lt;/div&gt;&lt;div style="display:flex;gap:.4rem;"&gt;&lt;div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#555;font-weight:600;"&gt;Test Print&lt;/div&gt;&lt;div style="background:#4a7ff5;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#fff;font-weight:600;"&gt;Print All (0)&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"&gt;&lt;div style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;"&gt;Search&lt;/div&gt;&lt;div style="padding:.3rem .8rem;font-size:.65rem;color:#666;display:flex;align-items:center;gap:.3rem;"&gt;Price Changes &lt;span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;"&gt;99+&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style="' + qStyle + '"&gt;&lt;div style="display:flex;flex-direction:column;gap:.5rem;"&gt;&lt;div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.4rem .7rem;display:flex;align-items:center;gap:.4rem;"&gt;&lt;span style="color:#aaa;font-size:.75rem;"&gt;&amp;#x1F50D;&lt;/span&gt;&lt;span style="font-size:.65rem;color:#aaa;"&gt;Search products...&lt;/span&gt;&lt;/div&gt;&lt;div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.7rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;min-height:120px;"&gt;&lt;div style="font-size:.65rem;font-weight:700;color:#1a2e2d;align-self:flex-start;"&gt;Label Queue (0 products)&lt;/div&gt;&lt;div style="margin-top:.5rem;text-align:center;"&gt;&lt;div style="font-size:1.4rem;"&gt;&amp;#x1F3F7;&amp;#xFE0F;&lt;/div&gt;&lt;div style="font-size:.62rem;font-weight:600;color:#555;margin-top:.2rem;"&gt;No labels in queue&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.6rem;display:flex;flex-direction:column;gap:.5rem;"&gt;&lt;div style="font-size:.65rem;font-weight:700;color:#1a2e2d;"&gt;Label Preview&lt;/div&gt;&lt;div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;"&gt;&lt;div style="font-size:1.2rem;"&gt;&amp;#x1F3F7;&amp;#xFE0F;&lt;/div&gt;&lt;div style="font-size:.55rem;color:#aaa;text-align:center;"&gt;Select a product to preview&lt;/div&gt;&lt;/div&gt;&lt;div style="border-top:1px solid #eee;padding-top:.4rem;"&gt;&lt;div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;"&gt;Quick Guide&lt;/div&gt;&lt;div style="font-size:.52rem;color:#555;line-height:1.6;"&gt;Search or scan barcodes&lt;br&gt;Click to add to queue&lt;br&gt;Click price to edit if 0.00&lt;br&gt;Click Print All to print&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return wrapMockup('epos.stockiq.uk/labels', inner);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderLabelsPriceChanges() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var rows = [['11408 items','Product rebuild - 11408 prices changed','26 Mar 2026 at 16:49'],['45 items','Product rebuild - 45 prices changed','26 Mar 2026 at 14:36'],['4069 items','Product rebuild - 4700 prices changed','26 Mar 2026 at 09:19'],['116 items','Product rebuild - 119 prices changed','26 Mar 2026 at 09:18'],['95 items','Product rebuild - 4322 prices changed','25 Mar 2026 at 22:30']];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var rowsHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; rows.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>rowsHtml += '&lt;div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .8rem;display:flex;justify-content:space-between;align-items:center;"&gt;&lt;div style="display:flex;align-items:center;gap:.5rem;"&gt;&lt;span style="font-size:.62rem;font-weight:700;color:#374151;background:#e5e7eb;border-radius:4px;padding:.1rem .3rem;"&gt;C&amp;amp;D Sync&lt;/span&gt;&lt;span style="font-size:.62rem;color:#555;"&gt;' + rows[i][1] + '&lt;/span&gt;&lt;span style="font-size:.58rem;color:#aaa;"&gt;' + rows[i][2] + '&lt;/span&gt;&lt;/div&gt;&lt;div style="display:flex;align-items:center;gap:.4rem;"&gt;&lt;span style="font-size:.62rem;color:#4a7ff5;font-weight:600;"&gt;' + rows[i][0] + '&lt;/span&gt;&lt;span style="color:#aaa;font-size:.7rem;"&gt;&amp;#x25BC;&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var inner = '&lt;div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:Instrument Sans,sans-serif;"&gt;' + sidebarHtml('labels') + '&lt;div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"&gt;&lt;div&gt;&lt;div style="font-size:.9rem;font-weight:700;color:#1a2e2d;"&gt;Shelf Edge Labels&lt;/div&gt;&lt;div style="font-size:.6rem;color:#888;"&gt;Search products and print price labels&lt;/div&gt;&lt;/div&gt;&lt;div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"&gt;&lt;div style="padding:.3rem .8rem;font-size:.65rem;color:#666;"&gt;Search&lt;/div&gt;&lt;div style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;display:flex;align-items:center;gap:.3rem;"&gt;Price Changes &lt;span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;"&gt;99+&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.5rem .8rem;display:flex;justify-content:space-between;align-items:center;"&gt;&lt;div style="font-size:.65rem;color:#b45309;font-weight:600;"&gt;32924 products need new shelf edge labels&lt;/div&gt;&lt;div style="display:flex;align-items:center;gap:.5rem;"&gt;&lt;div style="background:#4a5568;border-radius:5px;padding:.25rem .5rem;font-size:.58rem;color:#fff;font-weight:600;"&gt;Print Selected (0)&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style="display:flex;flex-direction:column;gap:.3rem;"&gt;' + rowsHtml + '&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return wrapMockup('epos.stockiq.uk/labels/price-changes', inner);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderDashboard(idx) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var bars = [0,4,12,28,22,18,8,5,3,10,16,6,2];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var hrs = ['8am','9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm'];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var mx = 28;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var barsHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; bars.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var h = Math.round((bars[i]/mx)*40);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>barsHtml += '&lt;div style="flex:1;"&gt;&lt;div style="width:100%;background:' + (bars[i]===mx?'#3b6fd4':'#93b4f0') + ';border-radius:2px 2px 0 0;height:' + h + 'px;min-height:' + (bars[i]&gt;0?'3':'0') + 'px;"&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var hrsHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; hrs.length; i++) { hrsHtml += '&lt;span style="font-size:.42rem;color:#aaa;flex:1;text-align:center;"&gt;' + hrs[i] + '&lt;/span&gt;'; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var inner = '&lt;div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:Instrument Sans,sans-serif;"&gt;' + sidebarHtml('dashboard') + '&lt;div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;"&gt;' + topNavHtml('Dashboard') + '&lt;div style="display:flex;justify-content:space-between;align-items:center;"&gt;&lt;div&gt;&lt;div style="font-size:.85rem;font-weight:700;color:#1a2e2d;"&gt;Dashboard&lt;/div&gt;&lt;div style="font-size:.55rem;color:#888;"&gt;Tuesday, 31 March 2026&lt;/div&gt;&lt;/div&gt;&lt;div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.2rem .5rem;font-size:.55rem;color:#555;"&gt;Refresh&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:.35rem;' + hl(idx===0) + '"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#3b6fd4;border-radius:7px;padding:.5rem .6rem;color:#fff;"&gt;&lt;div style="font-size:.52rem;opacity:.8;margin-bottom:.2rem;"&gt;Total Sales&lt;/div&gt;&lt;div style="font-size:.9rem;font-weight:700;"&gt;&amp;#xa3;248.60&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"&gt;&lt;div style="font-size:.52rem;color:#888;margin-bottom:.2rem;"&gt;Avg Basket&lt;/div&gt;&lt;div style="font-size:.8rem;font-weight:700;color:#1a2e2d;"&gt;&amp;#xa3;8.02&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"&gt;&lt;div style="font-size:.52rem;color:#888;margin-bottom:.2rem;"&gt;NHS Levy&lt;/div&gt;&lt;div style="font-size:.8rem;font-weight:700;color:#1a2e2d;"&gt;&amp;#xa3;89.10&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"&gt;&lt;div style="font-size:.52rem;color:#888;margin-bottom:.2rem;"&gt;Refunds&lt;/div&gt;&lt;div style="font-size:.8rem;font-weight:700;color:#1a2e2d;"&gt;&amp;#xa3;9.90&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"&gt;&lt;div style="font-size:.52rem;color:#888;margin-bottom:.2rem;"&gt;Discounts&lt;/div&gt;&lt;div style="font-size:.8rem;font-weight:700;color:#1a2e2d;"&gt;&amp;#xa3;5.00&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:grid;grid-template-columns:1fr 140px;gap:.35rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:flex;flex-direction:column;gap:.35rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===1) + '"&gt;&lt;div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"&gt;&lt;span style="font-size:.6rem;font-weight:700;color:#1a2e2d;"&gt;Sales by Hour&lt;/span&gt;&lt;/div&gt;&lt;div style="display:flex;align-items:flex-end;gap:2px;height:44px;"&gt;' + barsHtml + '&lt;/div&gt;&lt;div style="display:flex;justify-content:space-between;margin-top:.2rem;"&gt;' + hrsHtml + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===2) + '"&gt;&lt;div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;"&gt;Payment Methods&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var pmethods = [['Cash','#22c55e',32,'&amp;#xa3;79.30'],['Card','#3b6fd4',85,'&amp;#xa3;164.30'],['Account','#f59e0b',3,'&amp;#xa3;5.00']];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; pmethods.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>inner += '&lt;div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem;"&gt;&lt;span style="width:6px;height:6px;border-radius:50%;background:' + pmethods[i][1] + ';flex-shrink:0;"&gt;&lt;/span&gt;&lt;span style="font-size:.58rem;color:#555;width:36px;"&gt;' + pmethods[i][0] + '&lt;/span&gt;&lt;div style="flex:1;background:#f0f2f7;border-radius:999px;height:5px;"&gt;&lt;div style="background:' + pmethods[i][1] + ';height:100%;border-radius:999px;width:' + pmethods[i][2] + '%;"&gt;&lt;/div&gt;&lt;/div&gt;&lt;span style="font-size:.58rem;font-weight:600;color:#1a2e2d;"&gt;' + pmethods[i][3] + '&lt;/span&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:flex;flex-direction:column;gap:.35rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===3) + '"&gt;&lt;div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;"&gt;&lt;span style="font-size:.6rem;font-weight:700;color:#1a2e2d;"&gt;Current Shift&lt;/span&gt;&lt;span style="background:#dcfce7;color:#16a34a;font-size:.48rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;"&gt;OPEN&lt;/span&gt;&lt;/div&gt;&lt;div style="font-size:.55rem;color:#555;line-height:1.7;"&gt;Staff: &lt;strong&gt;J. Smith&lt;/strong&gt;&lt;br&gt;Opened: 08:30&lt;br&gt;Float: &amp;#xa3;150.00&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===4) + '"&gt;&lt;div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;"&gt;Top Products&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var prods = [['NHS Prescription','5 sold','&amp;#xa3;49.50'],['Paracetamol 500mg','4 sold','&amp;#xa3;7.96'],['Ibuprofen 400mg','3 sold','&amp;#xa3;8.97']];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; prods.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>inner += '&lt;div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.2rem;"&gt;&lt;span style="font-size:.55rem;color:#aaa;width:8px;"&gt;' + (i+1) + '&lt;/span&gt;&lt;div style="flex:1;"&gt;&lt;div style="font-size:.55rem;color:#1a2e2d;font-weight:600;"&gt;' + prods[i][0] + '&lt;/div&gt;&lt;div style="font-size:.5rem;color:#aaa;"&gt;' + prods[i][1] + '&lt;/div&gt;&lt;/div&gt;&lt;span style="font-size:.55rem;font-weight:600;color:#3b6fd4;"&gt;' + prods[i][2] + '&lt;/span&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return wrapMockup('epos.stockiq.uk/dashboard', inner);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderAccounts(idx) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var accs = [['Sunrise Care Home','Care Home','&amp;#xa3;142.50','&amp;#xa3;500.00',false],['J. Patel','Customer','&amp;#xa3;28.40','&amp;#xa3;100.00',false],['Maplewood Nursing','Care Home','&amp;#xa3;389.00','&amp;#xa3;350.00',true],['S. Thompson','Customer','&amp;#xa3;0.00','&amp;#xa3;50.00',false],['R. Okafor','Customer','&amp;#xa3;15.90','&amp;#xa3;100.00',false]];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var listHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; accs.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>listHtml += '&lt;div style="background:' + (i===0?'#eef3ff':'#fff') + ';border:1px solid ' + (i===0?'#c7d7f9':'#e5e7eb') + ';border-radius:7px;padding:.4rem .6rem;"&gt;&lt;div style="display:flex;justify-content:space-between;align-items:center;"&gt;&lt;div&gt;&lt;div style="font-size:.62rem;font-weight:700;color:#1a2e2d;"&gt;' + accs[i][0] + '&lt;/div&gt;&lt;div style="font-size:.52rem;color:#aaa;"&gt;' + accs[i][1] + '&lt;/div&gt;&lt;/div&gt;&lt;div style="text-align:right;"&gt;&lt;div style="font-size:.62rem;font-weight:700;color:' + (accs[i][4]?'#e03535':'#1a2e2d') + '"&gt;' + accs[i][2] + '&lt;/div&gt;' + (accs[i][4]?'&lt;div style="font-size:.48rem;color:#e03535;"&gt;Over limit&lt;/div&gt;':'') + '&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var inner = '&lt;div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:Instrument Sans,sans-serif;"&gt;' + sidebarHtml('accounts') + '&lt;div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;"&gt;' + topNavHtml('Accounts') + '&lt;div style="display:flex;justify-content:space-between;align-items:flex-start;"&gt;&lt;div&gt;&lt;div style="font-size:.85rem;font-weight:700;color:#1a2e2d;"&gt;Charge Accounts&lt;/div&gt;&lt;/div&gt;&lt;div style="background:#3b6fd4;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;color:#fff;font-weight:700;' + hl(idx===2) + '"&gt;+ New Account&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;' + hl(idx===0) + '"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"&gt;&lt;span&gt;&amp;#x1F4CA;&lt;/span&gt;&lt;div&gt;&lt;div style="font-size:.52rem;color:#888;"&gt;Total Outstanding&lt;/div&gt;&lt;div style="font-size:.8rem;font-weight:700;color:#1a2e2d;"&gt;&amp;#xa3;575.80&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"&gt;&lt;span&gt;&amp;#x1F465;&lt;/span&gt;&lt;div&gt;&lt;div style="font-size:.52rem;color:#888;"&gt;Active Accounts&lt;/div&gt;&lt;div style="font-size:.8rem;font-weight:700;color:#1a2e2d;"&gt;5&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"&gt;&lt;span&gt;&amp;#x26A0;&amp;#xFE0F;&lt;/span&gt;&lt;div&gt;&lt;div style="font-size:.52rem;color:#888;"&gt;Over Credit Limit&lt;/div&gt;&lt;div style="font-size:.8rem;font-weight:700;color:#e03535;"&gt;1&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"&gt;&lt;span&gt;&amp;#x1F5D3;&amp;#xFE0F;&lt;/span&gt;&lt;div&gt;&lt;div style="font-size:.52rem;color:#888;"&gt;Total Accounts&lt;/div&gt;&lt;div style="font-size:.8rem;font-weight:700;color:#1a2e2d;"&gt;5&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:grid;grid-template-columns:1fr 1.4fr;gap:.35rem;' + hl(idx===1) + '"&gt;&lt;div style="display:flex;flex-direction:column;gap:.3rem;"&gt;&lt;div style="background:#fff;border:1px solid #ddd;border-radius:7px;padding:.35rem .6rem;display:flex;align-items:center;gap:.35rem;"&gt;&lt;span style="color:#aaa;font-size:.7rem;"&gt;&amp;#x1F50D;&lt;/span&gt;&lt;span style="font-size:.6rem;color:#aaa;"&gt;Search accounts...&lt;/span&gt;&lt;/div&gt;' + listHtml + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.4rem;"&gt;&lt;div style="display:flex;justify-content:space-between;align-items:flex-start;"&gt;&lt;div&gt;&lt;div style="font-size:.72rem;font-weight:700;color:#1a2e2d;"&gt;Sunrise Care Home&lt;/div&gt;&lt;div style="font-size:.55rem;color:#888;"&gt;Care Home&lt;/div&gt;&lt;/div&gt;&lt;span style="background:#dcfce7;color:#16a34a;font-size:.5rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;"&gt;ACTIVE&lt;/span&gt;&lt;/div&gt;&lt;div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;"&gt;&lt;div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"&gt;&lt;div style="font-size:.52rem;color:#888;"&gt;Outstanding&lt;/div&gt;&lt;div style="font-size:.72rem;font-weight:700;color:#1a2e2d;"&gt;&amp;#xa3;142.50&lt;/div&gt;&lt;/div&gt;&lt;div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"&gt;&lt;div style="font-size:.52rem;color:#888;"&gt;Credit Limit&lt;/div&gt;&lt;div style="font-size:.72rem;font-weight:700;color:#1a2e2d;"&gt;&amp;#xa3;500.00&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style="font-size:.58rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;"&gt;Recent Transactions&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var txns = [['28 Mar','NHS Prescription x3','&amp;#xa3;29.70'],['25 Mar','MDS Monthly','&amp;#xa3;25.00'],['22 Mar','Delivery Charge','&amp;#xa3;3.50']];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; txns.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>inner += '&lt;div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid #f0f2f7;"&gt;&lt;div&gt;&lt;div style="font-size:.55rem;color:#1a2e2d;"&gt;' + txns[i][1] + '&lt;/div&gt;&lt;div style="font-size:.48rem;color:#aaa;"&gt;' + txns[i][0] + '&lt;/div&gt;&lt;/div&gt;&lt;div style="font-size:.58rem;font-weight:600;color:#3b6fd4;"&gt;' + txns[i][2] + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:flex;gap:.3rem;margin-top:.2rem;"&gt;&lt;div style="flex:1;background:#3b6fd4;border-radius:5px;padding:.3rem;text-align:center;font-size:.58rem;color:#fff;font-weight:600;"&gt;Take Payment&lt;/div&gt;&lt;div style="flex:1;background:#f0f2f7;border-radius:5px;padding:.3rem;text-align:center;font-size:.58rem;color:#555;font-weight:600;"&gt;Edit Account&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return wrapMockup('epos.stockiq.uk/accounts', inner);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderReports(idx) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var bars = [42,78,95,61,110,134,88];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var mx = 134;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var barsHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; bars.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var h = Math.round((bars[i]/mx)*42);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>barsHtml += '&lt;div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"&gt;' + (bars[i]===mx?'&lt;span style="font-size:.42rem;color:#3b6fd4;font-weight:700;"&gt;&amp;#xa3;' + bars[i] + '&lt;/span&gt;':'') + '&lt;div style="width:100%;background:#3b6fd4;border-radius:3px 3px 0 0;height:' + h + 'px;"&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var daysHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; days.length; i++) { daysHtml += '&lt;div style="flex:1;text-align:center;font-size:.45rem;color:#aaa;"&gt;' + days[i] + '&lt;/div&gt;'; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var cats = [['&amp;#x1F4CA;','Sales Summary',true],['&amp;#x1F4E6;','Product Performance',false],['&amp;#x1F464;','Staff Performance',false],['&amp;#x1F550;','Shift Reports',false],['&amp;#x1F4B3;','Payment Analysis',false],['&amp;#x1F3F7;&amp;#xFE0F;','Discounts &amp; Refunds',false]];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var catsHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; cats.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>catsHtml += '&lt;div style="display:flex;align-items:center;gap:.4rem;padding:.35rem .5rem;border-radius:6px;background:' + (cats[i][2]?'#eef3ff':'transparent') + ';"&gt;&lt;span style="font-size:.75rem;"&gt;' + cats[i][0] + '&lt;/span&gt;&lt;span style="font-size:.58rem;font-weight:' + (cats[i][2]?'700':'400') + ';color:' + (cats[i][2]?'#3b6fd4':'#555') + ';"&gt;' + cats[i][1] + '&lt;/span&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var dateFilters = ['Today','Yesterday','Week','Month','Custom'];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var dfHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; dateFilters.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>dfHtml += '&lt;div style="background:' + (i===2?'#3b6fd4':'#fff') + ';color:' + (i===2?'#fff':'#555') + ';border:1px solid ' + (i===2?'#3b6fd4':'#ddd') + ';border-radius:5px;padding:.2rem .45rem;font-size:.55rem;font-weight:' + (i===2?'700':'400') + ';"&gt;' + dateFilters[i] + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var inner = '&lt;div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:Instrument Sans,sans-serif;"&gt;' + sidebarHtml('reports') + '&lt;div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;"&gt;' + topNavHtml('Reports') + '&lt;div style="display:flex;justify-content:space-between;align-items:center;"&gt;&lt;div&gt;&lt;div style="font-size:.85rem;font-weight:700;color:#1a2e2d;"&gt;Reports&lt;/div&gt;&lt;/div&gt;&lt;div style="display:flex;gap:.25rem;' + hl(idx===0) + '"&gt;' + dfHtml + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:grid;grid-template-columns:140px 1fr;gap:.5rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:8px;padding:.4rem;display:flex;flex-direction:column;gap:.15rem;' + hl(idx===4) + '"&gt;' + catsHtml + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:flex;flex-direction:column;gap:.4rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;' + hl(idx===1) + '"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var cards = [['Total Sales','&amp;#xa3;612.40',true],['Transactions','74',false],['Avg Basket','&amp;#xa3;8.27',false],['Items Sold','118',false],['Discounts','&amp;#xa3;3.20',false],['NHS Levy','&amp;#xa3;89.10',false]];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; cards.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>inner += '&lt;div style="background:' + (cards[i][2]?'#3b6fd4':'#fff') + ';border-radius:6px;padding:.4rem .45rem;"&gt;&lt;div style="font-size:.48rem;color:' + (cards[i][2]?'rgba(255,255,255,.8)':'#888') + ';margin-bottom:.2rem;"&gt;' + cards[i][0] + '&lt;/div&gt;&lt;div style="font-size:.75rem;font-weight:700;color:' + (cards[i][2]?'#fff':'#1a2e2d') + ';"&gt;' + cards[i][1] + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===2) + '"&gt;&lt;div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.5rem;"&gt;Daily Sales Trend&lt;/div&gt;&lt;div style="display:flex;align-items:flex-end;gap:3px;height:52px;padding:0 .2rem;"&gt;' + barsHtml + '&lt;/div&gt;&lt;div style="display:flex;gap:3px;margin-top:.25rem;padding:0 .2rem;"&gt;' + daysHtml + '&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;div style="background:#fff;border-radius:7px;padding:.5rem .6rem;' + hl(idx===3) + '"&gt;&lt;div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;"&gt;Payment Methods&lt;/div&gt;&lt;div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var pm = [['&amp;#x1F4B3;','Card','#3b6fd4','72.7%','&amp;#xa3;445.30','54 transactions'],['&amp;#x1F4B5;','Cash','#22c55e','27.3%','&amp;#xa3;167.10','20 transactions']];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; pm.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>inner += '&lt;div style="border:1px solid #e5e7eb;border-radius:6px;padding:.4rem .5rem;"&gt;&lt;div style="display:flex;justify-content:space-between;margin-bottom:.2rem;"&gt;&lt;span style="font-size:.6rem;color:#555;"&gt;' + pm[i][0] + ' ' + pm[i][1] + '&lt;/span&gt;&lt;span style="font-size:.58rem;font-weight:700;color:' + pm[i][2] + ';"&gt;' + pm[i][3] + '&lt;/span&gt;&lt;/div&gt;&lt;div style="font-size:.75rem;font-weight:700;color:#1a2e2d;"&gt;' + pm[i][4] + '&lt;/div&gt;&lt;div style="font-size:.5rem;color:#aaa;margin-bottom:.3rem;"&gt;' + pm[i][5] + '&lt;/div&gt;&lt;div style="background:#f0f2f7;border-radius:999px;height:4px;"&gt;&lt;div style="background:' + pm[i][2] + ';height:100%;border-radius:999px;width:' + pm[i][3] + ';"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>inner += '&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return wrapMockup('epos.stockiq.uk/reports', inner);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderSettings(idx) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var staff = [['A','Alice','Dispenser',false],['B','Ben','Dispenser',false],['J','James','Manager',true],['P','Priya','Dispenser',false],['R','Rachel','Dispenser',false],['T','Tom','Dispenser',false]];</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var staffHtml = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; staff.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>staffHtml += '&lt;div style="border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .55rem;"&gt;&lt;div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;"&gt;&lt;div style="width:22px;height:22px;border-radius:50%;background:#3b6fd4;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0;"&gt;' + staff[i][0] + '&lt;/div&gt;&lt;div style="flex:1;"&gt;&lt;div style="display:flex;align-items:center;gap:.3rem;"&gt;&lt;span style="font-size:.62rem;font-weight:700;color:#1a2e2d;"&gt;' + staff[i][1] + '&lt;/span&gt;' + (staff[i][3]?'&lt;span style="background:#e8eaf0;border-radius:3px;font-size:.45rem;color:#555;padding:.05rem .25rem;"&gt;Manager&lt;/span&gt;':'') + '&lt;/div&gt;&lt;div style="font-size:.5rem;color:#aaa;"&gt;' + staff[i][2] + '&lt;/div&gt;&lt;/div&gt;&lt;div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;"&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;margin-bottom:.35rem;"&gt;&lt;div&gt;&lt;div style="font-size:.45rem;color:#aaa;"&gt;PIN&lt;/div&gt;&lt;div style="font-size:.55rem;color:#1a2e2d;"&gt;&amp;#x2022;&amp;#x2022;&amp;#x2022;&amp;#x2022;&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div style="font-size:.45rem;color:#aaa;"&gt;Discount&lt;/div&gt;&lt;div style="font-size:.55rem;color:#1a2e2d;"&gt;10.00%&lt;/div&gt;&lt;/div&gt;&lt;div&gt;&lt;div style="font-size:.45rem;color:#aaa;"&gt;Last Login&lt;/div&gt;&lt;div style="font-size:.55rem;color:#1a2e2d;"&gt;Today&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;"&gt;&lt;div style="background:#eef3ff;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#3b6fd4;font-weight:600;"&gt;Edit&lt;/div&gt;&lt;div style="background:#fff0f0;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#e03535;font-weight:600;"&gt;Delete&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var tabsHtml = '&lt;div style="display:flex;gap:.3rem;' + hl(idx===0) + '"&gt;&lt;div style="background:#fff;border:1px solid #3b6fd4;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;font-weight:700;color:#3b6fd4;"&gt;Staff &amp;amp; PINs&lt;/div&gt;&lt;div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;"&gt;Services&lt;/div&gt;&lt;div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;"&gt;Till Config&lt;/div&gt;&lt;div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;"&gt;Hardware&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var inner = '&lt;div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:Instrument Sans,sans-serif;"&gt;' + sidebarHtml('settings') + '&lt;div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;"&gt;' + topNavHtml('Settings') + '&lt;div&gt;&lt;div style="font-size:.85rem;font-weight:700;color:#1a2e2d;"&gt;Settings&lt;/div&gt;&lt;/div&gt;' + tabsHtml + '&lt;div style="background:#fff;border-radius:8px;padding:.6rem .7rem;flex:1;"&gt;&lt;div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;"&gt;&lt;span style="font-size:.68rem;font-weight:700;color:#1a2e2d;"&gt;Staff Members&lt;/span&gt;<span class="Apple-converted-space">          </span>&lt;div style="background:#3b6fd4;border-radius:6px;padding:.25rem .55rem;font-size:.58rem;color:#fff;font-weight:700;' + (idx===2 ? 'outline:3px solid #14b8a6;outline-offset:2px;' : '') + '"&gt;+ Add Staff&lt;/div&gt;&lt;/div&gt;&lt;div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;' + hl(idx===1||idx===3) + '"&gt;' + staffHtml + '&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return wrapMockup('epos.stockiq.uk/settings', inner);</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// ── Steps data ────────────────────────────────────────────────────────────────</p>
+<p class="p1">var steps = [</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{</p>
+<p class="p1"><span class="Apple-converted-space">    </span>title: 'Getting Started',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>subtitle: 'Installing and launching StockIQ on your pharmacy system',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>icon: '&amp;#x1F680;',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>subSteps: null,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F5A5;&amp;#xFE0F;', title: 'Launch the application', text: 'Double-click the StockIQ icon on your desktop or find it via the Start menu.' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F464;', title: 'Enter your credentials', text: 'Type in your pharmacy email and the password set by your pharmacy manager during installation. Click the Login to Branch button.' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F511;', title: 'Enter your PIN', text: 'After logging in, you will be prompted to enter your unique 4-digit staff PIN to complete sign-in.' }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>tip: 'If you forget your password, get in touch with your EPOS contact at Head Office who can reset it for you.',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>tip2: 'PIN not working? Double-check the correct branch name is displayed in the top-left of your screen.',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>getMockup: function(i) { if (i &lt; 1) return ''; if (i === 2) return renderPin(); return renderLogin(); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{</p>
+<p class="p1"><span class="Apple-converted-space">    </span>title: 'Using the System',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>subtitle: 'A guide to each module in StockIQ',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>icon: '&amp;#x1F9FE;',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>subSteps: [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: 'Introduction', icon: '&amp;#x1F44B;', subtitle: 'Getting familiar with the StockIQ interface',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F5C2;&amp;#xFE0F;', title: 'Left navigation panel', text: 'The dark sidebar on the left lets you switch between modules - Till, X/Z Read, Labels, Dashboard, Accounts, Reports, and Settings. Your active module is highlighted in blue.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F50D;', title: 'Search and top bar', text: 'The top bar shows your branch logo, current time, and logged-in staff member. Use the search bar to scan a barcode or search for a product by name without leaving the till screen.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F41B;', title: 'Report a problem', text: 'If you ever experience an issue or something does not look right, click the green bug icon in the bottom-right corner of the screen. This will send a report directly to Head Office so we can look into it for you.' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>tip: null,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>getMockup: function(i) { return renderTill(i === 0 ? 'nav' : i === 1 ? 'topbar' : i === 2 ? 'bug' : null); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: 'Till', icon: '&amp;#x1F9FE;', subtitle: 'Processing sales and managing transactions',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F6E0;&amp;#xFE0F;', title: 'Services and Functions', text: 'The coloured buttons at the top give quick access to common actions: NHS Services (PF, CPCS, NMS), Misc Items, Price Check, Reprint Last Receipt, Safe Drop/Pickup, and Void Sale.', expanded: null },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x26A1;', title: 'Quick Keys', text: 'Pre-configured shortcut buttons for your most frequent transactions - Flu Jab (£20.00), NHS RX Charge (£9.90), FP57 Refund, and more. Options for Delivery, MDS Monthly, and Private Consultation have been put in place ready for future initiatives and you will be given more information when we roll these out.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F6D2;', title: 'Basket and payment panel', text: 'The right-hand panel shows the current basket. Once items are added, the total updates here. Use the Cash, Card, or Account buttons to process payment - the Account option allows you to charge the transaction directly to a customer account. Please note that card payment amounts need to be entered manually into the card machines.' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>tip: 'You can park a sale mid-transaction using the Park Sale button in the Misc section, then recall it later - handy if a customer needs to pop back to grab something.',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>getMockup: function() { return renderTill(null); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: 'X/Z Read', icon: '&amp;#x1F4CB;', subtitle: 'View your shift summary or close out the till',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F7E2;', title: 'Shift status banner', text: 'At the top of the screen you will see a green banner showing whether the shift is currently open and when it was started. This updates automatically when a shift is opened or closed.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4CA;', title: 'X-Read - View Current Shift', text: 'Tapping the blue X-Read button gives you a summary of all transactions in the current shift without closing it. Use this to check totals mid-day or at any point during your shift.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F512;', title: 'Z-Read - Close Shift', text: 'The red Z-Read button closes the current shift and produces a full end-of-shift report. This should be done at the end of each trading day. Once a Z-Read is run the shift cannot be reopened.' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>tip: 'Always run an X-Read first to review your totals before committing to a Z-Read - once the shift is closed it cannot be undone.',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>getMockup: function() { return renderXZ(); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: 'Labels', icon: '&amp;#x1F3F7;&amp;#xFE0F;', subtitle: 'Print shelf edge labels and manage price changes',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F50D;', title: 'Search tab', text: 'Use the Search tab to find any product by name or barcode. Located items are added to the Label Queue. Once your queue is ready, click Print All in the top right to send them to your thermal printer. A Test Print button is also available to check your printer connection.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F3F7;&amp;#xFE0F;', title: 'Label Queue and Preview', text: 'The Label Queue shows all products queued for printing. Select a product to see a preview of its label on the right-hand side. If a price is showing as £0.00, click it to edit before printing.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F514;', title: 'Price Changes tab', text: 'The Price Changes tab shows batches of products whose prices have been updated via a C&amp;D Sync. The yellow banner shows how many products in total need new shelf edge labels. You can expand each sync batch, select individual items or use Select All, then click Print Selected to print labels in bulk.' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>tip: 'Labels print via ESC/POS to a thermal printer. If nothing prints, check your printer connection in Settings - you can use either Web Serial or QZ Tray.',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>getMockup: function(i) { return i === 2 ? renderLabelsPriceChanges() : renderLabelsSearch(i === 1 ? 'queue' : null); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: 'Dashboard', icon: '&amp;#x1F4CA;', subtitle: 'Monitor today\'s sales performance at a glance',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4B7;', title: 'Summary cards', text: 'The top row shows key metrics for the current shift: Total Sales, Average Basket value, NHS Levy collected, Refunds issued, and Discounts applied. These update each time you click Refresh.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4C8;', title: 'Sales by Hour chart', text: 'The bar chart shows your sales activity broken down by hour across the trading day. This makes it easy to spot your busiest periods and quieter times at a glance.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4B3;', title: 'Payment Methods', text: 'The Payment Methods section breaks down your total takings by payment type - Cash, Card, and Account - so you can see exactly how customers are paying.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F550;', title: 'Current Shift', text: 'The Current Shift panel on the right shows whether the shift is open, which staff member opened it, the time it was opened, and the opening float amount.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F3C6;', title: 'Top Products and Recent Transactions', text: 'Below the shift info you will find your top-selling products by quantity, and a live feed of recent transactions showing the transaction ID, time, payment method, and value.' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>tip: 'The Dashboard reflects the current shift only. To see historical data across multiple days, head to the Reports module.',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>getMockup: function(i) { return renderDashboard(i); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: 'Accounts', icon: '&amp;#x1F465;', subtitle: 'Manage customer and care home charge accounts',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4CA;', title: 'Summary cards', text: 'The top row shows an overview of all charge accounts: Total Outstanding balance across all accounts, number of Active Accounts, how many accounts are Over Credit Limit, and the Total Accounts registered.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F50D;', title: 'Search and account list', text: 'Use the search bar to find an account by name. All accounts are listed on the left - click any account to view its full details, transaction history, and outstanding balance on the right-hand panel.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x2795;', title: 'Creating a new account', text: 'Click the + New Account button in the top right to set up a new charge account for a customer or care home. You can set a credit limit, account name, and contact details.' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>tip: 'Accounts over their credit limit will be flagged automatically. Keep an eye on the Over Credit Limit card and follow up with customers to settle outstanding balances.',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>getMockup: function(i) { return renderAccounts(i); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: 'Reports', icon: '&amp;#x1F4C8;', subtitle: 'Sales analytics and performance reports',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4C5;', title: 'Date range selector', text: 'Use the date range buttons in the top right - Today, Yesterday, Week, Month, or Custom - to filter all report data to the period you need.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4CA;', title: 'Summary cards', text: 'The top row shows key figures for the selected period: Total Sales, number of Transactions, Average Basket size, Items Sold, Discounts applied, and NHS Levy collected.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4C9;', title: 'Daily Sales Trend', text: 'The bar chart shows your sales broken down by day across the selected period, making it easy to spot your busiest and quietest trading days at a glance.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F4B3;', title: 'Payment Methods', text: 'The Payment Methods section shows how much was taken by Card and Cash, including the percentage split and number of transactions for each method.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F5C2;&amp;#xFE0F;', title: 'Report categories', text: 'Use the left-hand panel to switch between report types: Sales Summary, Product Performance, Staff Performance, Shift Reports, Payment Analysis, and Discounts and Refunds.' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>tip: 'Use the Week or Month view to get a broader picture of trading trends - useful for spotting patterns and planning staffing or stock levels.',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>getMockup: function(i) { return renderReports(i); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>title: 'Settings', icon: '&amp;#x2699;&amp;#xFE0F;', subtitle: 'Configure your EPOS system',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F5C2;&amp;#xFE0F;', title: 'Settings tabs', text: 'Settings has four tabs - Staff and PINs, Services, Till Config, and Hardware. As a branch, you will only need to use the Staff and PINs tab. The other tabs are managed by Head Office and should not be changed without guidance.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x1F465;', title: 'Staff Members', text: 'The Staff and PINs tab lists all staff members registered to your branch, showing their name, role, PIN, staff discount rate, and the date they last logged in.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x2795;', title: 'Adding a new staff member', text: 'Click + Add Staff in the top right to create a new staff member. You will be able to set their name, role, PIN, and discount rate. Staff will use this PIN to sign in to the till each day.' },</p>
+<p class="p1"><span class="Apple-converted-space">          </span>{ icon: '&amp;#x270F;&amp;#xFE0F;', title: 'Editing staff', text: 'Use the Edit button on any staff card to update their details or change their PIN.' }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>],</p>
+<p class="p1"><span class="Apple-converted-space">        </span>tip: 'Only the Staff and PINs tab needs to be used day-to-day. If you think something in Services, Till Config, or Hardware needs changing, please contact Head Office first.',</p>
+<p class="p1"><span class="Apple-converted-space">        </span>getMockup: function(i) { return renderSettings(i); }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>]</p>
+<p class="p1"><span class="Apple-converted-space">  </span>},</p>
+<p class="p1"><span class="Apple-converted-space">  </span>{</p>
+<p class="p1"><span class="Apple-converted-space">    </span>title: 'Cash Up Procedure',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>subtitle: 'End-of-day cash up steps',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>icon: '&amp;#x1F4B0;',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>subSteps: null,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>instructions: [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F5C4;&amp;#xFE0F;', title: 'Open cash drawer (if needed)', text: 'If the cash drawer is closed and you need to open it before starting, go to Main Page, then Settings, then Hardware, then Test Cash Drawer to Open.' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F512;', title: 'Z-Read - Close Shift', text: 'Navigate to X/Z Read from the left-hand navigation panel, then press the red Z-Read - Close Shift button to begin the cash up process.' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F4B5;', title: 'Count cash', text: 'Enter the quantity of each denomination using the keypad, then press Continue when you are done to record your cash total.' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F4B3;', title: 'Card machine total', text: 'Retrieve the daily total from your card machine. On Dojo: tap the three lines, then the folder icon next to Settings, enter your Supervisor Code and note the daily total. On Takepayments: tap the three lines, then Reports - a receipt will print with the daily total. Enter the total into the Card Machine (PDQ) Total field and press Done.' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F4DD;', title: 'Variance note', text: 'If the till is over or under by any amount, enter an explanation in the Variance Notes field before proceeding.' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x1F510;', title: 'Remove cash for safe', text: 'Check the To Deposit in Safe figure shown on screen. Remove exactly that amount from the till and place it in the safe. Leave the £60 float in the till.' },</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{ icon: '&amp;#x2705;', title: 'Close shift', text: 'Confirm all figures are correct, then press the red Close Shift button to complete the cash up.' }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>tip: 'Always check the To Deposit in Safe figure carefully before removing cash - leave the £60 float in the till every night.',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>getMockup: function() { return renderXZ(); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">];</p>
+<p class="p2"><br></p>
+<p class="p1">// ── State ─────────────────────────────────────────────────────────────────────</p>
+<p class="p1">var curStep = 0, curSub = 0, curInstr = 0;</p>
+<p class="p1">var doneSteps = [], doneSubs = {};</p>
+<p class="p2"><br></p>
+<p class="p1">function isDoneStep(i) { for (var j = 0; j &lt; doneSteps.length; j++) { if (doneSteps[j] === i) return true; } return false; }</p>
+<p class="p1">function isDoneSub(si, sj) { if (!doneSubs[si]) return false; for (var k = 0; k &lt; doneSubs[si].length; k++) { if (doneSubs[si][k] === sj) return true; } return false; }</p>
+<p class="p1">function markDoneStep(i) { if (!isDoneStep(i)) doneSteps.push(i); }</p>
+<p class="p1">function markDoneSub(si, sj) { if (!doneSubs[si]) doneSubs[si] = []; if (!isDoneSub(si, sj)) doneSubs[si].push(sj); }</p>
+<p class="p2"><br></p>
+<p class="p1">function aStep() { return steps[curStep]; }</p>
+<p class="p1">function aSub() { var s = aStep(); return s.subSteps ? s.subSteps[curSub] : null; }</p>
+<p class="p1">function aInstrs() { var sub = aSub(); return sub ? sub.instructions : aStep().instructions; }</p>
+<p class="p1">function aTip() { var sub = aSub(); return (sub !== null &amp;&amp; sub !== undefined) ? sub.tip : aStep().tip; }</p>
+<p class="p1">function aMockup() { var sub = aSub(); return sub ? sub.getMockup(curInstr) : aStep().getMockup(curInstr); }</p>
+<p class="p2"><br></p>
+<p class="p1">function goToStep(i) { curStep = i; curSub = 0; curInstr = 0; activeSFPanel = null; render(); }</p>
+<p class="p1">function goToSub(j) { curSub = j; curInstr = 0; activeSFPanel = null; render(); }</p>
+<p class="p2"><br></p>
+<p class="p1">function nextInstr() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var n = curInstr + 1;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (n &lt; aInstrs().length) { curInstr = n; switchMockup(curInstr); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>else { advance(); }</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function advance() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var s = aStep();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (s.subSteps) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>markDoneSub(curStep, curSub);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (curSub &lt; s.subSteps.length - 1) { curSub++; curInstr = 0; render(); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>else { markDoneStep(curStep); curStep++; curSub = 0; curInstr = 0; render(); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>markDoneStep(curStep); curStep++; curInstr = 0; render();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function prevAction() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var s = aStep();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (s.subSteps) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (curSub &gt; 0) { curSub--; curInstr = 0; render(); }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>else if (curStep &gt; 0) { curStep--; var p = steps[curStep]; curSub = p.subSteps ? p.subSteps.length - 1 : 0; curInstr = 0; render(); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (curStep &gt; 0) { curStep--; var p = steps[curStep]; curSub = p.subSteps ? p.subSteps.length - 1 : 0; curInstr = 0; render(); }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function switchMockup(i) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (i !== curInstr) activeSFPanel = null;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>curInstr = i;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var el = document.getElementById('stepMockup');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (el) { var h = aMockup(); el.innerHTML = h; el.style.display = h ? 'block' : 'none'; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var items = document.querySelectorAll('.instr-item');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var j = 0; j &lt; items.length; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (j === i) items[j].classList.add('active-instr');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>else items[j].classList.remove('active-instr');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>updateInlineBtn();</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function updateInlineBtn() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var btn = document.getElementById('inlineNext');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!btn) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var instrs = aInstrs(), isLast = curInstr &gt;= instrs.length - 1;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var s = aStep(), lastSub = s.subSteps ? curSub &gt;= s.subSteps.length - 1 : true, lastStep = curStep &gt;= steps.length - 1;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>btn.textContent = (isLast &amp;&amp; lastSub &amp;&amp; lastStep) ? 'Finish' : isLast ? 'Next Section' : 'Next';</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function toggleSidebar() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('stepNav').classList.toggle('open');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('sidebarToggle').classList.toggle('open');</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function closeMobileNav() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (window.innerWidth &lt;= 700) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('stepNav').classList.remove('open');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById('sidebarToggle').classList.remove('open');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function restart() { curStep = 0; curSub = 0; curInstr = 0; doneSteps = []; doneSubs = {}; render(); }</p>
+<p class="p2"><br></p>
+<p class="p1">function renderNav() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var nav = document.getElementById('stepNav');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var html = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var i = 0; i &lt; steps.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var s = steps[i];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var isActive = i === curStep, isDone = isDoneStep(i);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;div class="nav-item' + (isActive ? ' active' : '') + (isDone &amp;&amp; !isActive ? ' completed' : '') + '" onclick="goToStep(' + i + ')"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;div class="nav-num"&gt;' + (isDone &amp;&amp; !isActive ? '&amp;#x2713;' : (i + 1)) + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;span&gt;' + s.title + '&lt;/span&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (s.subSteps &amp;&amp; isActive) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>html += '&lt;div class="sub-nav"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>for (var j = 0; j &lt; s.subSteps.length; j++) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>var sub = s.subSteps[j], sa = j === curSub, sd = isDoneSub(i, j);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>html += '&lt;div class="sub-nav-item' + (sa ? ' active' : '') + (sd &amp;&amp; !sa ? ' completed' : '') + '" onclick="goToSub(' + j + ')"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>html += '&lt;div class="sub-nav-dot"&gt;' + (sd &amp;&amp; !sa ? '&amp;#x2713;' : sub.icon) + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>html += '&lt;span&gt;' + sub.title + '&lt;/span&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>html += '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>nav.innerHTML = html;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function renderContent() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (curStep &gt;= steps.length) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return '&lt;div class="step-card"&gt;&lt;div class="complete-screen"&gt;&lt;div class="complete-badge"&gt;&amp;#x1F389;&lt;/div&gt;&lt;h2&gt;Tutorial Complete!&lt;/h2&gt;&lt;p&gt;You have successfully covered all sections. You are ready to start using StockIQ in your pharmacy.&lt;/p&gt;&lt;button class="restart-btn" onclick="restart()"&gt;Restart Tutorial&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var s = aStep(), sub = aSub(), instrs = aInstrs(), tip = aTip();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var mockupHtml = (curStep === 0 &amp;&amp; curInstr &lt; 1) ? '' : aMockup();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var title = sub ? sub.title : s.title;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var subtitle = sub ? sub.subtitle : s.subtitle;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var badge = sub ? (s.title + ' - ' + (curSub + 1) + ' of ' + s.subSteps.length + ' ' + sub.icon) : ('Step ' + (curStep + 1) + ' of ' + steps.length + ' ' + s.icon);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var isFirst = curStep === 0 &amp;&amp; (!s.subSteps || curSub === 0);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var hideBtn = sub &amp;&amp; (sub.title === 'Till' || sub.title === 'X/Z Read');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var isLastSub = s.subSteps ? curSub &gt;= s.subSteps.length - 1 : true;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var isLastStep = curStep &gt;= steps.length - 1;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>var body = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (instrs.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body = '&lt;div class="stub-box"&gt;&lt;div class="stub-icon"&gt;' + (sub ? sub.icon : s.icon) + '&lt;/div&gt;&lt;h3&gt;' + title + '&lt;/h3&gt;&lt;p&gt;Content for this section is coming soon.&lt;/p&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body += '&lt;div id="stepMockup" style="display:' + (mockupHtml ? 'block' : 'none') + '"&gt;' + mockupHtml + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body += '&lt;ul class="instructions"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>for (var i = 0; i &lt; instrs.length; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>body += '&lt;li class="instr-item' + (i === curInstr ? ' active-instr' : '') + '" onclick="switchMockup(' + i + ')"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>body += '&lt;div class="instr-icon"&gt;' + instrs[i].icon + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>body += '&lt;div class="instr-text"&gt;&lt;strong&gt;' + instrs[i].title + '&lt;/strong&gt;&lt;p&gt;' + instrs[i].text + '&lt;/p&gt;&lt;/div&gt;&lt;/li&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>// Inject SF panels after Services &amp; Functions when it is the active instruction</p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (i === curInstr &amp;&amp; instrs[i].title === 'Services and Functions') {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body += '&lt;li id="sf-panels" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;padding:.2rem 0 .4rem 2.5rem;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>for (var p = 0; p &lt; SF_PANELS.length; p++) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>var panel = SF_PANELS[p];</p>
+<p class="p1"><span class="Apple-converted-space">          </span>var isOpen = activeSFPanel === panel.key;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>body += '&lt;div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>body += '&lt;button type="button" style="display:flex;align-items:center;gap:.6rem;width:100%;background:' + (isOpen ? panel.color : '#fff') + ';border:2px solid ' + panel.color + ';border-radius:' + (isOpen ? '8px 8px 0 0' : '8px') + ';padding:.5rem .8rem;cursor:pointer;text-align:left;" onmousedown="sfToggle(\'' + panel.key + '\');return false;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>body += '&lt;span style="font-size:1rem;"&gt;' + panel.icon + '&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>body += '&lt;span style="font-size:.85rem;font-weight:600;color:' + (isOpen ? '#fff' : panel.color) + ';flex:1;"&gt;' + panel.label + '&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>body += '&lt;span style="font-size:.75rem;color:' + (isOpen ? 'rgba(255,255,255,.7)' : panel.color) + ';"&gt;' + (isOpen ? '&amp;#x25B2;' : '&amp;#x25BC;') + '&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>body += '&lt;/button&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>if (isOpen) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>body += '&lt;div style="background:#f8f9fc;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:.8rem 1rem;font-size:.84rem;color:#444;line-height:1.6;"&gt;' + panel.text + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">          </span>}</p>
+<p class="p1"><span class="Apple-converted-space">          </span>body += '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body += '&lt;/li&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>body += '&lt;/ul&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (!hideBtn) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>var btnLabel = (curInstr &gt;= instrs.length - 1) ? (isLastSub &amp;&amp; isLastStep ? 'Finish' : 'Next Section') : 'Next';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>body += '&lt;div style="display:flex;justify-content:flex-end;margin-top:1rem;"&gt;&lt;button id="inlineNext" class="btn btn-primary" onclick="nextInstr()"&gt;' + btnLabel + '&lt;/button&gt;&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (tip) { body += '&lt;div class="tip-box"&gt;&lt;div class="tip-icon"&gt;&amp;#x1F4A1;&lt;/div&gt;&lt;p&gt;' + tip + '&lt;/p&gt;&lt;/div&gt;'; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var tip2 = s.tip2 || null;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (tip2) { body += '&lt;div class="tip-box" style="margin-top:.75rem;"&gt;&lt;div class="tip-icon"&gt;&amp;#x1F4A1;&lt;/div&gt;&lt;p&gt;' + tip2 + '&lt;/p&gt;&lt;/div&gt;'; }</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>var skipLabel = isLastStep &amp;&amp; isLastSub ? 'Finish' : 'Skip to Next';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return '&lt;div class="step-card"&gt;&lt;div class="card-header"&gt;&lt;div class="step-badge"&gt;' + badge + '&lt;/div&gt;&lt;div class="card-title"&gt;' + title + '&lt;/div&gt;&lt;div class="card-subtitle"&gt;' + subtitle + '&lt;/div&gt;&lt;/div&gt;&lt;div class="card-body"&gt;' + body + '&lt;/div&gt;&lt;/div&gt;&lt;div class="nav-btns"&gt;&lt;button class="btn btn-outline" onclick="prevAction()"' + (isFirst ? ' disabled' : '') + '&gt;Back&lt;/button&gt;&lt;button class="btn btn-primary" onclick="advance()"&gt;' + skipLabel + '&lt;/button&gt;&lt;/div&gt;';</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function sfRender() {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var panels = document.getElementById('sf-panels');</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!panels) return;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>var html = '';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>for (var p = 0; p &lt; SF_PANELS.length; p++) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var pn = SF_PANELS[p];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var open = activeSFPanel === pn.key;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>var md = "activeSFPanel=activeSFPanel==='" + pn.key + "'?null:'" + pn.key + "';sfRender();var mk=document.getElementById('stepMockup');if(mk)mk.innerHTML=renderTill(null);";</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;button type="button" onmousedown="' + md + '" style="display:flex;align-items:center;gap:.6rem;width:100%;background-color:' + (open ? pn.color : '#fff') + ';border:2px solid ' + pn.color + ';border-radius:' + (open ? '8px 8px 0 0' : '8px') + ';padding:.5rem .8rem;cursor:pointer;text-align:left;"&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;span style="font-size:1rem;"&gt;' + pn.icon + '&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;span style="font-size:.85rem;font-weight:600;color:' + (open ? '#fff' : pn.color) + ';flex:1;"&gt;' + pn.label + '&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;span style="font-size:.75rem;color:' + (open ? 'rgba(255,255,255,.7)' : pn.color) + ';"&gt;' + (open ? '&amp;#x25B2;' : '&amp;#x25BC;') + '&lt;/span&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;/button&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (open) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>html += '&lt;div style="background:#f8f9fc;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:.8rem 1rem;font-size:.84rem;color:#444;line-height:1.6;"&gt;' + pn.text + '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>html += '&lt;/div&gt;';</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>panels.innerHTML = html;</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">function render(noScroll) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>document.getElementById('mainContent').innerHTML = renderContent();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>renderNav();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>closeMobileNav();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sfRender();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>if (!noScroll) window.scrollTo({ top: 0, behavior: 'smooth' });</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">render();</p>
+<p class="p1">&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
