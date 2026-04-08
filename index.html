@@ -9,10 +9,11 @@
 <style>
 :root{--teal:#0d9488;--teal-light:#14b8a6;--teal-dim:#0f766e;--bg:#f0faf9;--surface:#fff;--surface2:#e6f7f6;--border:#b2dfdb;--text:#1a2e2d;--muted:#5f8a87;--done:#10b981;--pill-r:999px;--radius:14px;--shadow:0 4px 24px rgba(13,148,136,.10);--shadow-lg:0 12px 48px rgba(13,148,136,.18);}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
-header{width:100%;background:var(--teal);padding:0 1.25rem;display:flex;align-items:center;gap:1rem;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.15);}
+html{height:100%;-webkit-text-size-adjust:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100%;display:flex;flex-direction:column;align-items:center;}
+header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-items:center;gap:1rem;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.15);}
 .header-pill{margin-left:auto;background:rgba(255,255,255,.15);color:#fff;font-size:.78rem;font-weight:600;padding:.3rem .9rem;border-radius:var(--pill-r);letter-spacing:.04em;text-transform:uppercase;}
-.shell{display:grid;grid-template-columns:260px 1fr;gap:2rem;max-width:1120px;width:100%;padding:2.5rem 1.5rem 4rem;}
+.shell{display:grid;grid-template-columns:260px 1fr;gap:2rem;max-width:1120px;width:100%;padding:2.5rem 1.5rem 6rem;}
 .sidebar{position:sticky;top:84px;align-self:start;}
 .sidebar-title{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;}
 .step-nav{display:flex;flex-direction:column;gap:.4rem;}
@@ -116,7 +117,7 @@ header{width:100%;background:var(--teal);padding:0 1.25rem;display:flex;align-it
 .sf-safe .sf-toggle:checked+.sf-label{background:#2e7d32;}
 .sidebar-toggle{display:none;}
 @media(max-width:700px){
-  .shell{grid-template-columns:1fr;padding:1rem 1rem 3rem;}
+  .shell{grid-template-columns:1fr;padding:1.5rem 1.25rem 6rem;width:100%;}
   .card-title{font-size:1.4rem;}
   .card-header{padding:1.4rem 1.4rem 1.2rem;}
   .card-body{padding:1.2rem 1.4rem 1.6rem;}
