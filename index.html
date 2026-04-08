@@ -49,6 +49,8 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
 .mockup-url{margin-left:.6rem;background:#1e3534;border-radius:6px;padding:.2rem .8rem;color:#5f8a87;font-family:monospace;font-size:.72rem;}
 .mockup-inner{position:relative;}
 .bug-btn{position:absolute;bottom:.5rem;right:.5rem;width:28px;height:28px;background:#0d9488;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:pointer;z-index:10;}
+.mc{cursor:pointer;transition:outline .15s,background .15s;}
+.mc:hover{outline:2px solid #14b8a6;border-radius:4px;}
 .login-mockup{display:flex;flex-direction:column;align-items:center;padding:1.5rem 1.5rem 1rem;gap:.6rem;background:#1a2a3a;}
 .login-logo-wrap{display:flex;flex-direction:column;align-items:center;margin-bottom:.4rem;}
 .login-epos-label{color:#8a9bb0;font-size:.78rem;letter-spacing:.04em;margin-top:.2rem;}
@@ -107,12 +109,10 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
 </style>
 </head>
 <body>
-
 <header>
   <span style="color:#fff;font-weight:800;font-size:1.2rem;">StockIQ</span>
   <div class="header-pill">Tutorial Mode</div>
 </header>
-
 <div class="shell">
   <aside class="sidebar">
     <div class="sidebar-title">Tutorial Steps</div>
@@ -120,45 +120,63 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
   </aside>
   <main class="main" id="mainContent"></main>
 </div>
-
 <script>
 var BUG = '<div class="bug-btn" title="Report a problem">&#x1F41B;</div>';
 var BUG_HL = '<div class="bug-btn" style="box-shadow:0 0 0 4px #14b8a6,0 2px 8px rgba(0,0,0,.3);transform:scale(1.2);" title="Report a problem">&#x1F41B;</div>';
-
-var activeSFPanel = null;
-var curStep = 0, curSub = 0, curInstr = 0;
-var doneSteps = [], doneSubs = {};
+var activeSFPanel=null,curStep=0,curSub=0,curInstr=0;
+var doneSteps=[],doneSubs={};
 
 function hl(on){return on?'outline:3px solid #14b8a6;border-radius:7px;background:rgba(20,184,166,.06);':'';}
 function hlBtn(key){return activeSFPanel===key?'box-shadow:0 0 0 3px #14b8a6;':'';}
 
+// Navigate to a step/sub/instr and highlight+scroll to the instruction item
+function navToInstr(stepIdx,subIdx,instrIdx){
+  var sameSection=curStep===stepIdx&&curSub===(subIdx!==undefined?subIdx:0);
+  curStep=stepIdx;curSub=subIdx!==undefined?subIdx:0;curInstr=instrIdx||0;activeSFPanel=null;
+  render(true);
+  if(!sameSection){
+    setTimeout(function(){
+      var items=document.querySelectorAll('.instr-item');
+      if(items[curInstr]){
+        items[curInstr].scrollIntoView({behavior:'smooth',block:'center'});
+      }
+    },80);
+  }
+}
+
+// Map sidebar keys to subStep indices within "Using the System" (step index 1)
+var sidebarSubMap={till:1,xz:2,labels:3,dashboard:4,accounts:5,reports:6,settings:7};
+
+function sidebarClick(key){
+  var subIdx=sidebarSubMap[key];
+  if(subIdx!==undefined) navToInstr(1,subIdx,0);
+}
+
 var SF_PANELS=[
-  {key:'nhs', label:'NHS Services', icon:'&#x1F3E5;', color:'#1a3a6b', text:'Provides access to NHS-funded services including Prescription Forwarding (PF), Community Pharmacist Consultation Service (CPCS), and New Medicine Service (NMS).'},
-  {key:'misc',label:'Misc Items',   icon:'&#x1F6D2;', color:'#4a4a4a', text:'Charge for miscellaneous items not in the product database, either with or without VAT.'},
-  {key:'safe',label:'Safe',         icon:'&#x1F512;', color:'#2e7d32', text:'Record cash drops into the safe or pickups from it, keeping an audit trail of safe movements throughout the day.'}
+  {key:'nhs',label:'NHS Services',icon:'&#x1F3E5;',color:'#1a3a6b',text:'Provides access to NHS-funded services including Prescription Forwarding (PF), Community Pharmacist Consultation Service (CPCS), and New Medicine Service (NMS).'},
+  {key:'misc',label:'Misc Items',icon:'&#x1F6D2;',color:'#4a4a4a',text:'Charge for miscellaneous items not in the product database, either with or without VAT.'},
+  {key:'safe',label:'Safe',icon:'&#x1F512;',color:'#2e7d32',text:'Record cash drops into the safe or pickups from it, keeping an audit trail of safe movements throughout the day.'}
 ];
 
 function isDoneStep(i){for(var j=0;j<doneSteps.length;j++){if(doneSteps[j]===i)return true;}return false;}
 function isDoneSub(si,sj){if(!doneSubs[si])return false;for(var k=0;k<doneSubs[si].length;k++){if(doneSubs[si][k]===sj)return true;}return false;}
 function markDoneStep(i){if(!isDoneStep(i))doneSteps.push(i);}
 function markDoneSub(si,sj){if(!doneSubs[si])doneSubs[si]=[];if(!isDoneSub(si,sj))doneSubs[si].push(sj);}
-
 function aStep(){return steps[curStep];}
 function aSub(){var s=aStep();return s.subSteps?s.subSteps[curSub]:null;}
 function aInstrs(){var sub=aSub();return sub?sub.instructions:aStep().instructions;}
 function aTip(){var sub=aSub();return(sub!==null&&sub!==undefined)?sub.tip:aStep().tip;}
 function aTip2(){return aStep().tip2||null;}
 function aMockup(){var sub=aSub();return sub?sub.getMockup(curInstr):aStep().getMockup(curInstr);}
-
 function goToStep(i){curStep=i;curSub=0;curInstr=0;activeSFPanel=null;render();}
 function goToSub(j){curSub=j;curInstr=0;activeSFPanel=null;render();}
+function navTo(stepIdx,subIdx){curStep=stepIdx;curSub=subIdx!==undefined?subIdx:0;curInstr=0;activeSFPanel=null;render();}
 
 function nextInstr(){
   var n=curInstr+1;
   if(n<aInstrs().length){curInstr=n;switchMockup(curInstr);}
-  else{advance();}
+  else advance();
 }
-
 function advance(){
   var s=aStep();
   if(s.subSteps){
@@ -169,7 +187,6 @@ function advance(){
     markDoneStep(curStep);curStep++;curInstr=0;render();
   }
 }
-
 function prevAction(){
   var s=aStep();
   if(s.subSteps){
@@ -179,7 +196,6 @@ function prevAction(){
     if(curStep>0){curStep--;var p=steps[curStep];curSub=p.subSteps?p.subSteps.length-1:0;curInstr=0;render();}
   }
 }
-
 function switchMockup(i){
   if(i!==curInstr)activeSFPanel=null;
   curInstr=i;
@@ -192,7 +208,6 @@ function switchMockup(i){
   }
   updateInlineBtn();
 }
-
 function updateInlineBtn(){
   var btn=document.getElementById('inlineNext');
   if(!btn)return;
@@ -200,45 +215,42 @@ function updateInlineBtn(){
   var s=aStep(),lastSub=s.subSteps?curSub>=s.subSteps.length-1:true,lastStep=curStep>=steps.length-1;
   btn.textContent=(isLast&&lastSub&&lastStep)?'Finish':isLast?'Next Section':'Next';
 }
-
-function navTo(stepIdx,subIdx){
-  curStep=stepIdx;curSub=subIdx!==undefined?subIdx:0;curInstr=0;activeSFPanel=null;render();
-}
-
 function sfRender(){
   var panels=document.getElementById('sf-panels');
   if(!panels)return;
   var html='';
   for(var p=0;p<SF_PANELS.length;p++){
-    var pn=SF_PANELS[p];
-    var open=activeSFPanel===pn.key;
+    var pn=SF_PANELS[p],open=activeSFPanel===pn.key;
     var md="activeSFPanel=activeSFPanel==='"+pn.key+"'?null:'"+pn.key+"';sfRender();var mk=document.getElementById('stepMockup');if(mk)mk.innerHTML=renderTill(null);";
-    html+='<div>';
-    html+='<button type="button" onmousedown="'+md+'" style="display:flex;align-items:center;gap:.6rem;width:100%;background-color:'+(open?pn.color:'#fff')+';border:2px solid '+pn.color+';border-radius:'+(open?'8px 8px 0 0':'8px')+';padding:.5rem .8rem;cursor:pointer;text-align:left;">';
-    html+='<span style="font-size:1rem;">'+pn.icon+'</span>';
-    html+='<span style="font-size:.85rem;font-weight:600;color:'+(open?'#fff':pn.color)+';flex:1;">'+pn.label+'</span>';
-    html+='<span style="font-size:.75rem;color:'+(open?'rgba(255,255,255,.7)':pn.color)+';">'+(open?'&#x25B2;':'&#x25BC;')+'</span>';
-    html+='</button>';
-    if(open){html+='<div style="background:#f8f9fc;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:.8rem 1rem;font-size:.84rem;color:#444;line-height:1.6;">'+pn.text+'</div>';}
+    html+='<div><button type="button" onmousedown="'+md+'" style="display:flex;align-items:center;gap:.6rem;width:100%;background-color:'+(open?pn.color:'#fff')+';border:2px solid '+pn.color+';border-radius:'+(open?'8px 8px 0 0':'8px')+';padding:.5rem .8rem;cursor:pointer;text-align:left;"><span style="font-size:1rem;">'+pn.icon+'</span><span style="font-size:.85rem;font-weight:600;color:'+(open?'#fff':pn.color)+';flex:1;">'+pn.label+'</span><span style="font-size:.75rem;color:'+(open?'rgba(255,255,255,.7)':pn.color)+';">'+(open?'&#x25B2;':'&#x25BC;')+'</span></button>';
+    if(open)html+='<div style="background:#f8f9fc;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:.8rem 1rem;font-size:.84rem;color:#444;line-height:1.6;">'+pn.text+'</div>';
     html+='</div>';
   }
   panels.innerHTML=html;
 }
-
 function closeMobileNav(){}
-
 function restart(){curStep=0;curSub=0;curInstr=0;doneSteps=[];doneSubs={};activeSFPanel=null;render();}
 
+// ── Mockup helpers ──
+// Clickable sidebar used across all module screens
 function sidebarHtml(active){
-  var items=[['till','&#x1F9FE;','Till'],['xz','&#x1F4CB;','X/Z Read'],['labels','&#x1F3F7;&#xFE0F;','Labels',true],['dashboard','&#x1F4CA;','Dashboard'],['accounts','&#x1F465;','Accounts'],['reports','&#x1F4C8;','Reports'],['settings','&#x2699;&#xFE0F;','Settings']];
+  var items=[
+    {key:'till',icon:'&#x1F9FE;',label:'Till'},
+    {key:'xz',icon:'&#x1F4CB;',label:'X/Z Read'},
+    {key:'labels',icon:'&#x1F3F7;&#xFE0F;',label:'Labels',badge:true},
+    {key:'dashboard',icon:'&#x1F4CA;',label:'Dashboard'},
+    {key:'accounts',icon:'&#x1F465;',label:'Accounts'},
+    {key:'reports',icon:'&#x1F4C8;',label:'Reports'},
+    {key:'settings',icon:'&#x2699;&#xFE0F;',label:'Settings'}
+  ];
   var h='<div style="background:#1e2235;display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.3rem;">';
   h+='<div style="color:#fff;font-weight:900;font-size:.75rem;margin-bottom:.3rem;background:#2d3250;border-radius:6px;padding:.2rem .4rem;">SiQ</div>';
   h+='<div style="background:#3a3f5c;border-radius:6px;padding:.3rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;">AP-46</div>';
   for(var i=0;i<items.length;i++){
-    var it=items[i],isAct=it[0]===active;
-    h+='<div style="'+(isAct?'background:#4a6fa5;border-radius:6px;':'')+'padding:.4rem .5rem;color:'+(isAct?'#fff':'#8a9bb0')+';font-size:.55rem;text-align:center;width:48px;position:relative;">';
-    h+='<div style="font-size:.9rem;">'+it[1]+'</div>'+it[2];
-    if(it[3])h+='<span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;">99+</span>';
+    var it=items[i],isAct=it.key===active;
+    h+='<div class="mc" onclick="sidebarClick(\''+it.key+'\')" title="Go to '+it.label+'" style="'+(isAct?'background:#4a6fa5;border-radius:6px;':'')+'padding:.4rem .5rem;color:'+(isAct?'#fff':'#8a9bb0')+';font-size:.55rem;text-align:center;width:48px;position:relative;">';
+    h+='<div style="font-size:.9rem;">'+it.icon+'</div>'+it.label;
+    if(it.badge)h+='<span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;">99+</span>';
     h+='</div>';
   }
   h+='</div>';
@@ -252,8 +264,8 @@ function topNavHtml(active){
   h+='<span style="font-size:.52rem;color:#888;border:1px solid #ddd;border-radius:3px;padding:.05rem .25rem;">EPOS</span>';
   h+='<div style="display:flex;gap:.3rem;margin-left:.3rem;">';
   for(var i=0;i<tabs.length;i++){
-    var isAct=tabs[i]===active;
-    h+='<span style="'+(isAct?'background:#3b6fd4;color:#fff;border-radius:5px;':'color:#888;')+'padding:.15rem .45rem;font-size:.55rem;font-weight:'+(isAct?'600':'400')+';">'+tabs[i]+'</span>';
+    var isAct=tabs[i]===active,key=tabs[i].toLowerCase();
+    h+='<span class="mc" onclick="sidebarClick(\''+key+'\')" title="Go to '+tabs[i]+'" style="'+(isAct?'background:#3b6fd4;color:#fff;border-radius:5px;':'color:#888;')+'padding:.15rem .45rem;font-size:.55rem;font-weight:'+(isAct?'600':'400')+';">'+tabs[i]+'</span>';
   }
   h+='</div><div style="margin-left:auto;font-size:.55rem;color:#555;">Sample Pharmacy</div></div>';
   return h;
@@ -266,7 +278,6 @@ function wrapMockup(url,inner){
 function renderLogin(){
   return '<div class="mockup"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">stockiq.local/login</div></div><div class="mockup-inner"><div class="login-mockup"><div class="login-logo-wrap"><div style="font-size:1.5rem;font-weight:900;color:#fff;">StockIQ</div><div class="login-epos-label">EPOS System - Branch Login</div></div><div class="login-card"><div class="login-card-title">Branch Authentication</div><div class="login-card-sub">Login with your branch manager account</div><div class="login-field-wrap"><div class="login-field-label">Email</div><input class="login-field filled" value="manager@pharmacy.com" readonly/></div><div class="login-field-wrap"><div class="login-field-label">Password</div><input class="login-field" type="password" placeholder="Enter password" readonly/></div><button class="login-btn">Login to Branch</button></div><div class="login-footer">Use a manager or admin account with EPOS permission</div></div>'+BUG+'</div></div>';
 }
-
 function renderPin(){
   return '<div class="mockup"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">stockiq.local/pin</div></div><div class="mockup-inner"><div class="pin-wrap"><div class="login-logo-wrap"><div style="font-size:1.5rem;font-weight:900;color:#fff;">StockIQ</div></div><div class="login-card"><div class="login-card-title">Enter Your PIN</div><div class="login-card-sub">4 digit staff PIN</div><div class="pin-dots"><div class="pin-dot filled"></div><div class="pin-dot filled"></div><div class="pin-dot"></div><div class="pin-dot"></div></div><div class="pin-grid"><button class="pin-key">1</button><button class="pin-key">2</button><button class="pin-key">3</button><button class="pin-key">4</button><button class="pin-key">5</button><button class="pin-key">6</button><button class="pin-key">7</button><button class="pin-key">8</button><button class="pin-key">9</button><button class="pin-key clear">Clear</button><button class="pin-key">0</button><button class="pin-key back">&#8592;</button></div></div><div class="pin-footer">Set your EPOS PIN in the Admin portal under Users</div></div>'+BUG+'</div></div>';
 }
@@ -275,57 +286,78 @@ function renderTill(highlight){
   var navS=highlight==='nav'?'outline:3px solid #14b8a6;outline-offset:-3px;':'';
   var topS=highlight==='topbar'?'display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;outline:3px solid #14b8a6;border-radius:6px;padding:.3rem;background:rgba(20,184,166,.08);':'display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;';
   var bugHtml=highlight==='bug'?BUG_HL:BUG;
+
   var sb='<div style="background:#1e2235;display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.3rem;'+navS+'">';
   sb+='<div style="color:#fff;font-weight:900;font-size:.75rem;margin-bottom:.3rem;background:#2d3250;border-radius:6px;padding:.2rem .4rem;">SiQ</div>';
   sb+='<div style="background:#3a3f5c;border-radius:6px;padding:.3rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;">AP-46</div>';
-  sb+='<div style="background:#4a6fa5;border-radius:6px;padding:.4rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;margin-top:.2rem;"><div style="font-size:.9rem;">&#x1F9FE;</div>Till</div>';
-  sb+='<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x1F4CB;</div>X/Z Read</div>';
-  sb+='<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;position:relative;"><div style="font-size:.9rem;">&#x1F3F7;&#xFE0F;</div>Labels<span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;">99+</span></div>';
-  sb+='<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x1F4CA;</div>Dashboard</div>';
-  sb+='<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x1F465;</div>Accounts</div>';
-  sb+='<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x1F4C8;</div>Reports</div>';
-  sb+='<div style="padding:.4rem .5rem;color:#8a9bb0;font-size:.55rem;text-align:center;width:48px;"><div style="font-size:.9rem;">&#x2699;&#xFE0F;</div>Settings</div></div>';
+  var sideItems=[
+    {key:'till',icon:'&#x1F9FE;',label:'Till',active:true},
+    {key:'xz',icon:'&#x1F4CB;',label:'X/Z Read',active:false},
+    {key:'labels',icon:'&#x1F3F7;&#xFE0F;',label:'Labels',active:false,badge:true},
+    {key:'dashboard',icon:'&#x1F4CA;',label:'Dashboard',active:false},
+    {key:'accounts',icon:'&#x1F465;',label:'Accounts',active:false},
+    {key:'reports',icon:'&#x1F4C8;',label:'Reports',active:false},
+    {key:'settings',icon:'&#x2699;&#xFE0F;',label:'Settings',active:false}
+  ];
+  for(var i=0;i<sideItems.length;i++){
+    var si=sideItems[i];
+    sb+='<div class="mc" onclick="sidebarClick(\''+si.key+'\')" title="Go to '+si.label+'" style="'+(si.active?'background:#4a6fa5;border-radius:6px;':'')+'padding:.4rem .5rem;color:'+(si.active?'#fff':'#8a9bb0')+';font-size:.55rem;text-align:center;width:48px;position:relative;">';
+    sb+='<div style="font-size:.9rem;">'+si.icon+'</div>'+si.label;
+    if(si.badge)sb+='<span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;">99+</span>';
+    sb+='</div>';
+  }
+  sb+='</div>';
+
+  var topBarClick=highlight==='topbar'?'':'onclick="navToInstr(1,0,1)"';
   var main='<div style="background:#f0f2f7;padding:.6rem;overflow:hidden;">';
-  main+='<div style="'+topS+'">';
+  main+='<div class="mc" '+topBarClick+' title="Search and top bar" style="'+topS+'">';
   main+='<div style="flex:1;background:#fff;border-radius:20px;padding:.3rem .7rem;font-size:.65rem;color:#aaa;border:1px solid #ddd;">&#x1F50D; Scan barcode or search...</div>';
   main+='<div style="font-size:.6rem;color:#666;text-align:right;white-space:nowrap;">Logged in as<br><strong style="color:#111;">Staff Member</strong></div>';
   main+='<div style="background:#1e2235;color:#fff;border-radius:6px;padding:.3rem .5rem;font-size:.65rem;font-weight:700;">12:02</div></div>';
+
   main+='<div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">SERVICES &amp; FUNCTIONS</div>';
-  main+='<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-bottom:.5rem;">';
+  main+='<div class="mc" onclick="navToInstr(1,1,0)" title="Services and Functions" style="display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-bottom:.5rem;">';
   main+='<div style="background:#1a3a6b;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;'+hlBtn('nhs')+'"><div style="background:#1565c0;border-radius:3px;font-size:.42rem;margin-bottom:.15rem;padding:.05rem;">NHS</div>NHS SERVICES<div style="color:#90caf9;font-size:.42rem;">PF, CPCS, NMS</div></div>';
   main+='<div style="background:#4a4a4a;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;'+hlBtn('misc')+'"><div style="font-size:.8rem;">&#x1F6D2;</div>MISC ITEMS<div style="color:#ccc;font-size:.42rem;">VAT / No VAT</div></div>';
   main+='<div style="background:#6a3fa0;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"><div style="font-size:.8rem;">&#x1F50D;</div>PRICE CHECK<div style="color:#ce93d8;font-size:.42rem;">Lookup</div></div>';
   main+='<div style="background:#00796b;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"><div style="font-size:.8rem;">&#x1F5A8;&#xFE0F;</div>REPRINT LAST<div style="color:#80cbc4;font-size:.42rem;">Receipt</div></div>';
   main+='<div style="background:#2e7d32;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;'+hlBtn('safe')+'"><div style="font-size:.8rem;">&#x1F512;</div>SAFE<div style="color:#a5d6a7;font-size:.42rem;">Drop / Pickup</div></div>';
   main+='<div style="background:#c62828;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"><div style="font-size:.8rem;">&#x2716;&#xFE0F;</div>VOID SALE<div style="color:#ef9a9a;font-size:.42rem;">Clear All</div></div></div>';
+
   main+='<div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">QUICK KEYS</div>';
-  main+='<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;margin-bottom:.5rem;">';
+  main+='<div class="mc" onclick="navToInstr(1,1,1)" title="Quick Keys" style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;margin-bottom:.5rem;">';
   var qk=[['&#x1F489;','FLU JAB','&#xa3;20.00'],['&#x1F697;','DELIVERY','&#xa3;3.50'],['&#x1F48A;','MDS MONTHLY','&#xa3;25.00'],['&#x1F464;','PRIVATE CONSULT','&#xa3;15.00'],['&#x1F6CD;&#xFE0F;','CARRIER BAG','&#xa3;0.20'],['NHS','RX CHARGE','&#xa3;9.90'],['&#x21A9;&#xFE0F;','FP57 REFUND','-&#xa3;9.90'],['&#x1F4B3;','PRIVATE RX','Enter &#xa3;']];
   for(var i=0;i<qk.length;i++)main+='<div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;"><div style="font-size:.7rem;">'+qk[i][0]+'</div>'+qk[i][1]+'<div style="color:#1565c0;font-weight:700;">'+qk[i][2]+'</div></div>';
-  main+='</div><div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">MISC</div>';
+  main+='</div>';
+
+  main+='<div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">MISC</div>';
   main+='<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;">';
   var misc=[['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold'],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked'],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply'],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return']];
   for(var i=0;i<misc.length;i++)main+='<div style="background:'+misc[i][0]+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;color:#fff;"><div style="font-size:.7rem;">'+misc[i][1]+'</div>'+misc[i][2]+'<div style="opacity:.8;">'+misc[i][3]+'</div></div>';
   main+='</div></div>';
-  var basket='<div style="background:#f8f9fc;border-left:1px solid #dde;display:flex;flex-direction:column;padding:.5rem;"><div style="text-align:center;color:#aaa;font-size:.6rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;"><div style="font-size:1.4rem;">&#x1F6D2;</div><div style="font-weight:600;color:#555;font-size:.65rem;">Basket is empty</div></div><div style="border-top:1px solid #dde;padding-top:.4rem;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.65rem;font-weight:700;">Total</span><span style="color:#1565c0;font-weight:700;font-size:.75rem;">&#xa3;0.00</span></div><div style="background:#e8f0fe;border-radius:5px;text-align:center;padding:.3rem;font-size:.55rem;margin-bottom:.3rem;color:#555;">&#x1F5A8;&#xFE0F; Print</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;"><div style="background:#e8f5e9;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B5;</div><div style="background:#e8eaf6;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B3;</div><div style="background:#f3e5f5;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4CB;</div></div></div></div>';
+
+  var basket='<div class="mc" onclick="navToInstr(1,1,2)" title="Basket and payment panel" style="background:#f8f9fc;border-left:1px solid #dde;display:flex;flex-direction:column;padding:.5rem;">';
+  basket+='<div style="text-align:center;color:#aaa;font-size:.6rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;"><div style="font-size:1.4rem;">&#x1F6D2;</div><div style="font-weight:600;color:#555;font-size:.65rem;">Basket is empty</div></div>';
+  basket+='<div style="border-top:1px solid #dde;padding-top:.4rem;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.65rem;font-weight:700;">Total</span><span style="color:#1565c0;font-weight:700;font-size:.75rem;">&#xa3;0.00</span></div><div style="background:#e8f0fe;border-radius:5px;text-align:center;padding:.3rem;font-size:.55rem;margin-bottom:.3rem;color:#555;">&#x1F5A8;&#xFE0F; Print</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;"><div style="background:#e8f5e9;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B5;</div><div style="background:#e8eaf6;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B3;</div><div style="background:#f3e5f5;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4CB;</div></div></div></div>';
+
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+sb+main+basket+'</div>'+bugHtml+'</div></div>';
 }
 
 function renderXZ(){
-  return wrapMockup('epos.stockiq.uk/xzread','<div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;margin-bottom:.2rem;">X/Z Read</div><div style="font-size:.7rem;color:#888;">View shift summary or close out the till</div></div><div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong> - started today</div><div style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F4CA;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">X-Read - View Current Shift</div></div><div style="background:#e03535;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F512;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">Z-Read - Close Shift</div></div></div></div>');
+  return wrapMockup('epos.stockiq.uk/xzread','<div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;margin-bottom:.2rem;">X/Z Read</div><div style="font-size:.7rem;color:#888;">View shift summary or close out the till</div></div><div class="mc" onclick="navToInstr(1,2,0)" title="Shift status banner" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong> - started today</div><div class="mc" onclick="navToInstr(1,2,1)" title="X-Read" style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F4CA;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">X-Read - View Current Shift</div></div><div class="mc" onclick="navToInstr(1,2,2)" title="Z-Read" style="background:#e03535;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F512;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">Z-Read - Close Shift</div></div></div></div>');
 }
 
 function renderLabelsSearch(highlight){
   var qS=highlight==='queue'?'display:grid;grid-template-columns:1fr 160px;gap:.6rem;outline:3px solid #14b8a6;border-radius:10px;padding:.3rem;background:rgba(20,184,166,.05);':'display:grid;grid-template-columns:1fr 160px;gap:.6rem;';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div><div style="display:flex;gap:.4rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#555;font-weight:600;">Test Print</div><div style="background:#4a7ff5;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#fff;font-weight:600;">Print All (0)</div></div></div><div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"><div style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;">Search</div><div style="padding:.3rem .8rem;font-size:.65rem;color:#666;display:flex;align-items:center;gap:.3rem;">Price Changes <span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;">99+</span></div></div><div style="'+qS+'"><div style="display:flex;flex-direction:column;gap:.5rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.4rem .7rem;display:flex;align-items:center;gap:.4rem;"><span style="color:#aaa;">&#x1F50D;</span><span style="font-size:.65rem;color:#aaa;">Search products...</span></div><div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.7rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;min-height:120px;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;align-self:flex-start;">Label Queue (0 products)</div><div style="margin-top:.5rem;text-align:center;"><div style="font-size:1.4rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.62rem;font-weight:600;color:#555;margin-top:.2rem;">No labels in queue</div></div></div></div><div style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.6rem;display:flex;flex-direction:column;gap:.5rem;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;">Label Preview</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;"><div style="font-size:1.2rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.55rem;color:#aaa;text-align:center;">Select a product to preview</div></div></div></div></div></div>';
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div><div style="display:flex;gap:.4rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#555;font-weight:600;">Test Print</div><div style="background:#4a7ff5;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#fff;font-weight:600;">Print All (0)</div></div></div><div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"><div class="mc" onclick="navToInstr(1,3,1)" title="Search tab" style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;">Search</div><div class="mc" onclick="navToInstr(1,3,0)" title="Price Changes tab" style="padding:.3rem .8rem;font-size:.65rem;color:#666;display:flex;align-items:center;gap:.3rem;">Price Changes <span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;">99+</span></div></div><div style="'+qS+'"><div style="display:flex;flex-direction:column;gap:.5rem;"><div class="mc" onclick="navToInstr(1,3,1)" title="Search tab" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.4rem .7rem;display:flex;align-items:center;gap:.4rem;"><span style="color:#aaa;">&#x1F50D;</span><span style="font-size:.65rem;color:#aaa;">Search products...</span></div><div class="mc" onclick="navToInstr(1,3,2)" title="Label Queue" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.7rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;min-height:120px;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;align-self:flex-start;">Label Queue (0 products)</div><div style="margin-top:.5rem;text-align:center;"><div style="font-size:1.4rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.62rem;font-weight:600;color:#555;margin-top:.2rem;">No labels in queue</div></div></div></div><div class="mc" onclick="navToInstr(1,3,2)" title="Label Preview" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.6rem;display:flex;flex-direction:column;gap:.5rem;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;">Label Preview</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;"><div style="font-size:1.2rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.55rem;color:#aaa;text-align:center;">Select a product to preview</div></div></div></div></div></div>';
   return wrapMockup('epos.stockiq.uk/labels',inner);
 }
 
 function renderLabelsPriceChanges(){
   var rows=[['11408 items','Product rebuild - 11408 prices changed','26 Mar 2026 at 16:49'],['45 items','Product rebuild - 45 prices changed','26 Mar 2026 at 14:36'],['4069 items','Product rebuild - 4700 prices changed','26 Mar 2026 at 09:19'],['116 items','Product rebuild - 119 prices changed','26 Mar 2026 at 09:18'],['95 items','Product rebuild - 4322 prices changed','25 Mar 2026 at 22:30']];
   var rowsHtml='';
-  for(var i=0;i<rows.length;i++)rowsHtml+='<div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:.62rem;font-weight:700;color:#374151;background:#e5e7eb;border-radius:4px;padding:.1rem .3rem;">C&amp;D Sync</span><span style="font-size:.62rem;color:#555;">'+rows[i][1]+'</span><span style="font-size:.58rem;color:#aaa;">'+rows[i][2]+'</span></div><div style="display:flex;align-items:center;gap:.4rem;"><span style="font-size:.62rem;color:#4a7ff5;font-weight:600;">'+rows[i][0]+'</span><span style="color:#aaa;font-size:.7rem;">&#x25BC;</span></div></div>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div></div><div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"><div style="padding:.3rem .8rem;font-size:.65rem;color:#666;">Search</div><div style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;display:flex;align-items:center;gap:.3rem;">Price Changes <span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;">99+</span></div></div><div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.5rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:.65rem;color:#b45309;font-weight:600;">32924 products need new shelf edge labels</div><div style="background:#4a5568;border-radius:5px;padding:.25rem .5rem;font-size:.58rem;color:#fff;font-weight:600;">Print Selected (0)</div></div><div style="display:flex;flex-direction:column;gap:.3rem;">'+rowsHtml+'</div></div></div>';
+  for(var i=0;i<rows.length;i++)rowsHtml+='<div class="mc" onclick="navToInstr(1,3,0)" title="Price Changes" style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:.62rem;font-weight:700;color:#374151;background:#e5e7eb;border-radius:4px;padding:.1rem .3rem;">C&amp;D Sync</span><span style="font-size:.62rem;color:#555;">'+rows[i][1]+'</span><span style="font-size:.58rem;color:#aaa;">'+rows[i][2]+'</span></div><div style="display:flex;align-items:center;gap:.4rem;"><span style="font-size:.62rem;color:#4a7ff5;font-weight:600;">'+rows[i][0]+'</span><span style="color:#aaa;font-size:.7rem;">&#x25BC;</span></div></div>';
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div></div><div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"><div class="mc" onclick="navToInstr(1,3,1)" title="Search tab" style="padding:.3rem .8rem;font-size:.65rem;color:#666;">Search</div><div class="mc" onclick="navToInstr(1,3,0)" title="Price Changes tab" style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;display:flex;align-items:center;gap:.3rem;">Price Changes <span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;">99+</span></div></div><div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.5rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:.65rem;color:#b45309;font-weight:600;">32924 products need new shelf edge labels</div><div style="background:#4a5568;border-radius:5px;padding:.25rem .5rem;font-size:.58rem;color:#fff;font-weight:600;">Print Selected (0)</div></div><div style="display:flex;flex-direction:column;gap:.3rem;">'+rowsHtml+'</div></div></div>';
   return wrapMockup('epos.stockiq.uk/labels/price-changes',inner);
 }
 
@@ -335,23 +367,23 @@ function renderDashboard(idx){
   for(var i=0;i<bars.length;i++)barsHtml+='<div style="flex:1;"><div style="width:100%;background:'+(bars[i]===mx?'#3b6fd4':'#93b4f0')+';border-radius:2px 2px 0 0;height:'+Math.round((bars[i]/mx)*40)+'px;min-height:'+(bars[i]>0?'3':'0')+'px;"></div></div>';
   var hrsHtml='';
   for(var i=0;i<hrs.length;i++)hrsHtml+='<span style="font-size:.42rem;color:#aaa;flex:1;text-align:center;">'+hrs[i]+'</span>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('dashboard')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">'+topNavHtml('Dashboard')+'<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Dashboard</div></div><div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.2rem .5rem;font-size:.55rem;color:#555;">Refresh</div></div>';
-  inner+='<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:.35rem;'+hl(idx===0)+'">';
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('dashboard')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">'+topNavHtml('Dashboard');
+  inner+='<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Dashboard</div></div><div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.2rem .5rem;font-size:.55rem;color:#555;">Refresh</div></div>';
+  inner+='<div class="mc" onclick="navToInstr(1,4,0)" title="Summary cards" style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:.35rem;'+hl(idx===0)+'">';
   inner+='<div style="background:#3b6fd4;border-radius:7px;padding:.5rem .6rem;color:#fff;"><div style="font-size:.52rem;opacity:.8;margin-bottom:.2rem;">Total Sales</div><div style="font-size:.9rem;font-weight:700;">&#xa3;248.60</div></div>';
   inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Avg Basket</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;8.02</div></div>';
   inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">NHS Levy</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;89.10</div></div>';
   inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Refunds</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;9.90</div></div>';
   inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Discounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;5.00</div></div></div>';
-  inner+='<div style="display:grid;grid-template-columns:1fr 140px;gap:.35rem;">';
-  inner+='<div style="display:flex;flex-direction:column;gap:.35rem;">';
-  inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===1)+'"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.6rem;font-weight:700;color:#1a2e2d;">Sales by Hour</span></div><div style="display:flex;align-items:flex-end;gap:2px;height:44px;">'+barsHtml+'</div><div style="display:flex;justify-content:space-between;margin-top:.2rem;">'+hrsHtml+'</div></div>';
-  inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===2)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Payment Methods</div>';
+  inner+='<div style="display:grid;grid-template-columns:1fr 140px;gap:.35rem;"><div style="display:flex;flex-direction:column;gap:.35rem;">';
+  inner+='<div class="mc" onclick="navToInstr(1,4,1)" title="Sales by Hour" style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===1)+'"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.6rem;font-weight:700;color:#1a2e2d;">Sales by Hour</span></div><div style="display:flex;align-items:flex-end;gap:2px;height:44px;">'+barsHtml+'</div><div style="display:flex;justify-content:space-between;margin-top:.2rem;">'+hrsHtml+'</div></div>';
+  inner+='<div class="mc" onclick="navToInstr(1,4,2)" title="Payment Methods" style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===2)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Payment Methods</div>';
   var pm=[['Cash','#22c55e',32,'&#xa3;79.30'],['Card','#3b6fd4',85,'&#xa3;164.30'],['Account','#f59e0b',3,'&#xa3;5.00']];
   for(var i=0;i<pm.length;i++)inner+='<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.25rem;"><span style="width:6px;height:6px;border-radius:50%;background:'+pm[i][1]+';flex-shrink:0;"></span><span style="font-size:.58rem;color:#555;width:36px;">'+pm[i][0]+'</span><div style="flex:1;background:#f0f2f7;border-radius:999px;height:5px;"><div style="background:'+pm[i][1]+';height:100%;border-radius:999px;width:'+pm[i][2]+'%;"></div></div><span style="font-size:.58rem;font-weight:600;color:#1a2e2d;">'+pm[i][3]+'</span></div>';
   inner+='</div></div>';
   inner+='<div style="display:flex;flex-direction:column;gap:.35rem;">';
-  inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===3)+'"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;"><span style="font-size:.6rem;font-weight:700;color:#1a2e2d;">Current Shift</span><span style="background:#dcfce7;color:#16a34a;font-size:.48rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;">OPEN</span></div><div style="font-size:.55rem;color:#555;line-height:1.7;">Staff: <strong>J. Smith</strong><br>Opened: 08:30<br>Float: &#xa3;150.00</div></div>';
-  inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===4)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;">Top Products</div>';
+  inner+='<div class="mc" onclick="navToInstr(1,4,3)" title="Current Shift" style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===3)+'"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;"><span style="font-size:.6rem;font-weight:700;color:#1a2e2d;">Current Shift</span><span style="background:#dcfce7;color:#16a34a;font-size:.48rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;">OPEN</span></div><div style="font-size:.55rem;color:#555;line-height:1.7;">Staff: <strong>J. Smith</strong><br>Opened: 08:30<br>Float: &#xa3;150.00</div></div>';
+  inner+='<div class="mc" onclick="navToInstr(1,4,4)" title="Top Products" style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===4)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;">Top Products</div>';
   var prods=[['NHS Prescription','5 sold','&#xa3;49.50'],['Paracetamol 500mg','4 sold','&#xa3;7.96'],['Ibuprofen 400mg','3 sold','&#xa3;8.97']];
   for(var i=0;i<prods.length;i++)inner+='<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.2rem;"><span style="font-size:.55rem;color:#aaa;width:8px;">'+(i+1)+'</span><div style="flex:1;"><div style="font-size:.55rem;color:#1a2e2d;font-weight:600;">'+prods[i][0]+'</div><div style="font-size:.5rem;color:#aaa;">'+prods[i][1]+'</div></div><span style="font-size:.55rem;font-weight:600;color:#3b6fd4;">'+prods[i][2]+'</span></div>';
   inner+='</div></div></div></div></div>';
@@ -362,13 +394,14 @@ function renderAccounts(idx){
   var accs=[['Sunrise Care Home','Care Home','&#xa3;142.50','&#xa3;500.00',false],['J. Patel','Customer','&#xa3;28.40','&#xa3;100.00',false],['Maplewood Nursing','Care Home','&#xa3;389.00','&#xa3;350.00',true],['S. Thompson','Customer','&#xa3;0.00','&#xa3;50.00',false],['R. Okafor','Customer','&#xa3;15.90','&#xa3;100.00',false]];
   var listHtml='';
   for(var i=0;i<accs.length;i++)listHtml+='<div style="background:'+(i===0?'#eef3ff':'#fff')+';border:1px solid '+(i===0?'#c7d7f9':'#e5e7eb')+';border-radius:7px;padding:.4rem .6rem;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.62rem;font-weight:700;color:#1a2e2d;">'+accs[i][0]+'</div><div style="font-size:.52rem;color:#aaa;">'+accs[i][1]+'</div></div><div style="text-align:right;"><div style="font-size:.62rem;font-weight:700;color:'+(accs[i][4]?'#e03535':'#1a2e2d')+'">'+accs[i][2]+'</div>'+(accs[i][4]?'<div style="font-size:.48rem;color:#e03535;">Over limit</div>':'')+'</div></div></div>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('accounts')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">'+topNavHtml('Accounts')+'<div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Charge Accounts</div></div><div style="background:#3b6fd4;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;color:#fff;font-weight:700;'+(idx===2?'outline:3px solid #14b8a6;outline-offset:2px;border-radius:6px;':'')+'">+ New Account</div></div>';
-  inner+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;'+hl(idx===0)+'">';
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('accounts')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">'+topNavHtml('Accounts');
+  inner+='<div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Charge Accounts</div></div><div class="mc" onclick="navToInstr(1,5,2)" title="New Account" style="background:#3b6fd4;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;color:#fff;font-weight:700;'+(idx===2?'outline:3px solid #14b8a6;outline-offset:2px;':'')+'">+ New Account</div></div>';
+  inner+='<div class="mc" onclick="navToInstr(1,5,0)" title="Summary cards" style="display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;'+hl(idx===0)+'">';
   inner+='<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F4CA;</span><div><div style="font-size:.52rem;color:#888;">Total Outstanding</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;575.80</div></div></div>';
   inner+='<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F465;</span><div><div style="font-size:.52rem;color:#888;">Active Accounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">5</div></div></div>';
   inner+='<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x26A0;&#xFE0F;</span><div><div style="font-size:.52rem;color:#888;">Over Credit Limit</div><div style="font-size:.8rem;font-weight:700;color:#e03535;">1</div></div></div>';
   inner+='<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F5D3;&#xFE0F;</span><div><div style="font-size:.52rem;color:#888;">Total Accounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">5</div></div></div></div>';
-  inner+='<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:.35rem;'+hl(idx===1)+'"><div style="display:flex;flex-direction:column;gap:.3rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:7px;padding:.35rem .6rem;display:flex;align-items:center;gap:.35rem;"><span style="color:#aaa;">&#x1F50D;</span><span style="font-size:.6rem;color:#aaa;">Search accounts...</span></div>'+listHtml+'</div>';
+  inner+='<div class="mc" onclick="navToInstr(1,5,1)" title="Account list" style="display:grid;grid-template-columns:1fr 1.4fr;gap:.35rem;'+hl(idx===1)+'"><div style="display:flex;flex-direction:column;gap:.3rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:7px;padding:.35rem .6rem;display:flex;align-items:center;gap:.35rem;"><span style="color:#aaa;">&#x1F50D;</span><span style="font-size:.6rem;color:#aaa;">Search accounts...</span></div>'+listHtml+'</div>';
   inner+='<div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.4rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">Sunrise Care Home</div><div style="font-size:.55rem;color:#888;">Care Home</div></div><span style="background:#dcfce7;color:#16a34a;font-size:.5rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;">ACTIVE</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;"><div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.52rem;color:#888;">Outstanding</div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">&#xa3;142.50</div></div><div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.52rem;color:#888;">Credit Limit</div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">&#xa3;500.00</div></div></div><div style="font-size:.58rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;">Recent Transactions</div>';
   var txns=[['28 Mar','NHS Prescription x3','&#xa3;29.70'],['25 Mar','MDS Monthly','&#xa3;25.00'],['22 Mar','Delivery Charge','&#xa3;3.50']];
   for(var i=0;i<txns.length;i++)inner+='<div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid #f0f2f7;"><div><div style="font-size:.55rem;color:#1a2e2d;">'+txns[i][1]+'</div><div style="font-size:.48rem;color:#aaa;">'+txns[i][0]+'</div></div><div style="font-size:.58rem;font-weight:600;color:#3b6fd4;">'+txns[i][2]+'</div></div>';
@@ -385,18 +418,19 @@ function renderReports(idx){
   var cats=[['&#x1F4CA;','Sales Summary',true],['&#x1F4E6;','Product Performance',false],['&#x1F464;','Staff Performance',false],['&#x1F550;','Shift Reports',false],['&#x1F4B3;','Payment Analysis',false],['&#x1F3F7;&#xFE0F;','Discounts &amp; Refunds',false]];
   var catsHtml='';
   for(var i=0;i<cats.length;i++)catsHtml+='<div style="display:flex;align-items:center;gap:.4rem;padding:.35rem .5rem;border-radius:6px;background:'+(cats[i][2]?'#eef3ff':'transparent')+'"><span style="font-size:.75rem;">'+cats[i][0]+'</span><span style="font-size:.58rem;font-weight:'+(cats[i][2]?'700':'400')+';color:'+(cats[i][2]?'#3b6fd4':'#555')+';">'+cats[i][1]+'</span></div>';
-  var dfHtml='';
   var dfs=['Today','Yesterday','Week','Month','Custom'];
+  var dfHtml='';
   for(var i=0;i<dfs.length;i++)dfHtml+='<div style="background:'+(i===2?'#3b6fd4':'#fff')+';color:'+(i===2?'#fff':'#555')+';border:1px solid '+(i===2?'#3b6fd4':'#ddd')+';border-radius:5px;padding:.2rem .45rem;font-size:.55rem;font-weight:'+(i===2?'700':'400')+';">'+dfs[i]+'</div>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:-apple-system,sans-serif;">'+sidebarHtml('reports')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">'+topNavHtml('Reports')+'<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Reports</div></div><div style="display:flex;gap:.25rem;'+hl(idx===0)+'">'+dfHtml+'</div></div>';
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:-apple-system,sans-serif;">'+sidebarHtml('reports')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">'+topNavHtml('Reports');
+  inner+='<div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Reports</div></div><div class="mc" onclick="navToInstr(1,6,0)" title="Date range" style="display:flex;gap:.25rem;'+hl(idx===0)+'">'+dfHtml+'</div></div>';
   inner+='<div style="display:grid;grid-template-columns:140px 1fr;gap:.5rem;">';
-  inner+='<div style="background:#fff;border-radius:8px;padding:.4rem;display:flex;flex-direction:column;gap:.15rem;'+hl(idx===4)+'">'+catsHtml+'</div>';
+  inner+='<div class="mc" onclick="navToInstr(1,6,4)" title="Report categories" style="background:#fff;border-radius:8px;padding:.4rem;display:flex;flex-direction:column;gap:.15rem;'+hl(idx===4)+'">'+catsHtml+'</div>';
   inner+='<div style="display:flex;flex-direction:column;gap:.4rem;">';
-  inner+='<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;'+hl(idx===1)+'">';
+  inner+='<div class="mc" onclick="navToInstr(1,6,1)" title="Summary cards" style="display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;'+hl(idx===1)+'">';
   var cards=[['Total Sales','&#xa3;612.40',true],['Transactions','74',false],['Avg Basket','&#xa3;8.27',false],['Items Sold','118',false],['Discounts','&#xa3;3.20',false],['NHS Levy','&#xa3;89.10',false]];
   for(var i=0;i<cards.length;i++)inner+='<div style="background:'+(cards[i][2]?'#3b6fd4':'#fff')+';border-radius:6px;padding:.4rem .45rem;"><div style="font-size:.48rem;color:'+(cards[i][2]?'rgba(255,255,255,.8)':'#888')+';margin-bottom:.2rem;">'+cards[i][0]+'</div><div style="font-size:.75rem;font-weight:700;color:'+(cards[i][2]?'#fff':'#1a2e2d')+';">'+cards[i][1]+'</div></div>';
-  inner+='</div><div style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===2)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.5rem;">Daily Sales Trend</div><div style="display:flex;align-items:flex-end;gap:3px;height:52px;padding:0 .2rem;">'+barsHtml+'</div><div style="display:flex;gap:3px;margin-top:.25rem;padding:0 .2rem;">'+daysHtml+'</div></div>';
-  inner+='<div style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===3)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Payment Methods</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">';
+  inner+='</div><div class="mc" onclick="navToInstr(1,6,2)" title="Daily Sales Trend" style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===2)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.5rem;">Daily Sales Trend</div><div style="display:flex;align-items:flex-end;gap:3px;height:52px;padding:0 .2rem;">'+barsHtml+'</div><div style="display:flex;gap:3px;margin-top:.25rem;padding:0 .2rem;">'+daysHtml+'</div></div>';
+  inner+='<div class="mc" onclick="navToInstr(1,6,3)" title="Payment Methods" style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===3)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Payment Methods</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">';
   var pmr=[['&#x1F4B3;','Card','#3b6fd4','72.7%','&#xa3;445.30','54 transactions'],['&#x1F4B5;','Cash','#22c55e','27.3%','&#xa3;167.10','20 transactions']];
   for(var i=0;i<pmr.length;i++)inner+='<div style="border:1px solid #e5e7eb;border-radius:6px;padding:.4rem .5rem;"><div style="display:flex;justify-content:space-between;margin-bottom:.2rem;"><span style="font-size:.6rem;color:#555;">'+pmr[i][0]+' '+pmr[i][1]+'</span><span style="font-size:.58rem;font-weight:700;color:'+pmr[i][2]+';">'+pmr[i][3]+'</span></div><div style="font-size:.75rem;font-weight:700;color:#1a2e2d;">'+pmr[i][4]+'</div><div style="font-size:.5rem;color:#aaa;margin-bottom:.3rem;">'+pmr[i][5]+'</div><div style="background:#f0f2f7;border-radius:999px;height:4px;"><div style="background:'+pmr[i][2]+';height:100%;border-radius:999px;width:'+pmr[i][3]+';"></div></div></div>';
   inner+='</div></div></div></div></div></div>';
@@ -406,18 +440,18 @@ function renderReports(idx){
 function renderSettings(idx){
   var staff=[['A','Alice','Dispenser',false],['B','Ben','Dispenser',false],['J','James','Manager',true],['P','Priya','Dispenser',false],['R','Rachel','Dispenser',false],['T','Tom','Dispenser',false]];
   var staffHtml='';
-  for(var i=0;i<staff.length;i++)staffHtml+='<div style="border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .55rem;"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;"><div style="width:22px;height:22px;border-radius:50%;background:#3b6fd4;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0;">'+staff[i][0]+'</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:.3rem;"><span style="font-size:.62rem;font-weight:700;color:#1a2e2d;">'+staff[i][1]+'</span>'+(staff[i][3]?'<span style="background:#e8eaf0;border-radius:3px;font-size:.45rem;color:#555;padding:.05rem .25rem;">Manager</span>':'')+'</div><div style="font-size:.5rem;color:#aaa;">'+staff[i][2]+'</div></div><div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;margin-bottom:.35rem;"><div><div style="font-size:.45rem;color:#aaa;">PIN</div><div style="font-size:.55rem;color:#1a2e2d;">&#x2022;&#x2022;&#x2022;&#x2022;</div></div><div><div style="font-size:.45rem;color:#aaa;">Discount</div><div style="font-size:.55rem;color:#1a2e2d;">10.00%</div></div><div><div style="font-size:.45rem;color:#aaa;">Last Login</div><div style="font-size:.55rem;color:#1a2e2d;">Today</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;"><div style="background:#eef3ff;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#3b6fd4;font-weight:600;">Edit</div><div style="background:#fff0f0;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#e03535;font-weight:600;">Delete</div></div></div>';
-  var tabsHtml='<div style="display:flex;gap:.3rem;'+hl(idx===0)+'"><div style="background:#fff;border:1px solid #3b6fd4;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;font-weight:700;color:#3b6fd4;">Staff &amp; PINs</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Services</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Till Config</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Hardware</div></div>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:-apple-system,sans-serif;">'+sidebarHtml('settings')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">'+topNavHtml('Settings')+'<div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Settings</div></div>'+tabsHtml+'<div style="background:#fff;border-radius:8px;padding:.6rem .7rem;flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;"><span style="font-size:.68rem;font-weight:700;color:#1a2e2d;">Staff Members</span><div style="'+(idx===2?'outline:3px solid #14b8a6;outline-offset:2px;border-radius:6px;':'')+'"><div style="background:#3b6fd4;border-radius:6px;padding:.25rem .55rem;font-size:.58rem;color:#fff;font-weight:700;">+ Add Staff</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;'+hl(idx===1||idx===3)+'">'+staffHtml+'</div></div></div></div>';
+  for(var i=0;i<staff.length;i++)staffHtml+='<div style="border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .55rem;"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;"><div style="width:22px;height:22px;border-radius:50%;background:#3b6fd4;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0;">'+staff[i][0]+'</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:.3rem;"><span style="font-size:.62rem;font-weight:700;color:#1a2e2d;">'+staff[i][1]+'</span>'+(staff[i][3]?'<span style="background:#e8eaf0;border-radius:3px;font-size:.45rem;color:#555;padding:.05rem .25rem;">Manager</span>':'')+'</div><div style="font-size:.5rem;color:#aaa;">'+staff[i][2]+'</div></div><div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;margin-bottom:.35rem;"><div><div style="font-size:.45rem;color:#aaa;">PIN</div><div style="font-size:.55rem;color:#1a2e2d;">&#x2022;&#x2022;&#x2022;&#x2022;</div></div><div><div style="font-size:.45rem;color:#aaa;">Discount</div><div style="font-size:.55rem;color:#1a2e2d;">10.00%</div></div><div><div style="font-size:.45rem;color:#aaa;">Last Login</div><div style="font-size:.55rem;color:#1a2e2d;">Today</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;"><div class="mc" onclick="navToInstr(1,7,3)" style="background:#eef3ff;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#3b6fd4;font-weight:600;">Edit</div><div style="background:#fff0f0;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#e03535;font-weight:600;">Delete</div></div></div>';
+  var tabsHtml='<div class="mc" onclick="navToInstr(1,7,0)" title="Settings tabs" style="display:flex;gap:.3rem;'+hl(idx===0)+'"><div style="background:#fff;border:1px solid #3b6fd4;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;font-weight:700;color:#3b6fd4;">Staff &amp; PINs</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Services</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Till Config</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Hardware</div></div>';
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:-apple-system,sans-serif;">'+sidebarHtml('settings')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">'+topNavHtml('Settings')+'<div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Settings</div></div>'+tabsHtml;
+  inner+='<div style="background:#fff;border-radius:8px;padding:.6rem .7rem;flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;"><div class="mc" onclick="navToInstr(1,7,1)" title="Staff Members" style="font-size:.68rem;font-weight:700;color:#1a2e2d;">Staff Members</div><div class="mc" onclick="navToInstr(1,7,2)" title="Add Staff" style="'+(idx===2?'outline:3px solid #14b8a6;outline-offset:2px;border-radius:6px;':'')+'"><div style="background:#3b6fd4;border-radius:6px;padding:.25rem .55rem;font-size:.58rem;color:#fff;font-weight:700;">+ Add Staff</div></div></div>';
+  inner+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;'+hl(idx===1||idx===3)+'">'+staffHtml+'</div></div></div></div>';
   return wrapMockup('epos.stockiq.uk/settings',inner);
 }
 
 // ── Steps ──
-var steps = [
+var steps=[
   {
-    title:'Getting Started',
-    subtitle:'Logging in to StockIQ',
-    icon:'&#x1F511;',
+    title:'Getting Started',subtitle:'Logging in to StockIQ',icon:'&#x1F511;',
     subSteps:null,
     instructions:[
       {icon:'&#x1F5A5;&#xFE0F;',title:'Launch the application',text:'Double-click the StockIQ icon on your desktop or find it via the Start menu.'},
@@ -429,9 +463,7 @@ var steps = [
     getMockup:function(i){if(i<1)return '';if(i===2)return renderPin();return renderLogin();}
   },
   {
-    title:'Using the System',
-    subtitle:'A guide to each module in StockIQ',
-    icon:'&#x1F9FE;',
+    title:'Using the System',subtitle:'A guide to each module in StockIQ',icon:'&#x1F9FE;',
     subSteps:[
       {
         title:'Introduction',icon:'&#x1F44B;',subtitle:'Getting familiar with the StockIQ interface',
@@ -521,12 +553,8 @@ var steps = [
     ]
   },
   {
-    title:'FAQs',
-    subtitle:'Frequently asked questions',
-    icon:'&#x2753;',
-    subSteps:null,
-    instructions:[],
-    tip:null,
+    title:'FAQs',subtitle:'Frequently asked questions',icon:'&#x2753;',
+    subSteps:null,instructions:[],tip:null,
     getMockup:function(){return '';},
     isFAQ:true,
     faqs:[
@@ -541,9 +569,7 @@ var steps = [
     ]
   },
   {
-    title:'Cash Up Procedure',
-    subtitle:'End-of-day cash up steps',
-    icon:'&#x1F4B0;',
+    title:'Cash Up Procedure',subtitle:'End-of-day cash up steps',icon:'&#x1F4B0;',
     subSteps:null,
     instructions:[
       {icon:'&#x1F5C4;&#xFE0F;',title:'Open cash drawer (if needed)',text:'If the cash drawer is closed and you need to open it before starting, go to Main Page, then Settings, then Hardware, then Test Cash Drawer to Open.'},
@@ -561,20 +587,17 @@ var steps = [
 
 // ── Render ──
 function renderNav(){
-  var nav=document.getElementById('stepNav');
-  var html='';
+  var nav=document.getElementById('stepNav'),html='';
   for(var i=0;i<steps.length;i++){
     var s=steps[i],isActive=i===curStep,isDone=isDoneStep(i);
     html+='<div class="nav-item'+(isActive?' active':'')+(isDone&&!isActive?' completed':'')+'" onclick="goToStep('+i+')">';
-    html+='<div class="nav-num">'+(isDone&&!isActive?'&#x2713;':(i+1))+'</div>';
-    html+='<span>'+s.title+'</span></div>';
+    html+='<div class="nav-num">'+(isDone&&!isActive?'&#x2713;':(i+1))+'</div><span>'+s.title+'</span></div>';
     if(s.subSteps&&isActive){
       html+='<div class="sub-nav">';
       for(var j=0;j<s.subSteps.length;j++){
         var sub=s.subSteps[j],sa=j===curSub,sd=isDoneSub(i,j);
         html+='<div class="sub-nav-item'+(sa?' active':'')+(sd&&!sa?' completed':'')+'" onclick="goToSub('+j+')">';
-        html+='<div class="sub-nav-dot">'+(sd&&!sa?'&#x2713;':sub.icon)+'</div>';
-        html+='<span>'+sub.title+'</span></div>';
+        html+='<div class="sub-nav-dot">'+(sd&&!sa?'&#x2713;':sub.icon)+'</div><span>'+sub.title+'</span></div>';
       }
       html+='</div>';
     }
@@ -595,7 +618,6 @@ function renderContent(){
   var isLastSub=s.subSteps?curSub>=s.subSteps.length-1:true;
   var isLastStep=curStep>=steps.length-1;
   var isTillSF=sub&&sub.title==='Till'&&curInstr===0;
-
   var body='';
 
   if(s.isFAQ){
@@ -610,7 +632,7 @@ function renderContent(){
     }
     body+='</div>';
   } else if(instrs.length===0){
-    body='<div style="text-align:center;padding:3rem 2rem;color:var(--muted);"><div style="font-size:2.5rem;margin-bottom:1rem;">'+(sub?sub.icon:s.icon)+'</div><h3 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:.5rem;">'+title+'</h3><p style="font-size:.9rem;line-height:1.6;">Content for this section is coming soon.</p></div>';
+    body='<div style="text-align:center;padding:3rem 2rem;color:var(--muted);"><div style="font-size:2.5rem;margin-bottom:1rem;">'+(sub?sub.icon:s.icon)+'</div><h3 style="font-size:1.4rem;font-weight:700;color:var(--text);margin-bottom:.5rem;">'+title+'</h3><p>Content coming soon.</p></div>';
   } else {
     body+='<div id="stepMockup" style="display:'+(mockupHtml?'block':'none')+'">'+mockupHtml+'</div>';
     body+='<ul class="instructions">';
@@ -618,9 +640,7 @@ function renderContent(){
       body+='<li class="instr-item'+(i===curInstr?' active-instr':'')+'" onclick="switchMockup('+i+')">';
       body+='<div class="instr-icon">'+instrs[i].icon+'</div>';
       body+='<div class="instr-text"><strong>'+instrs[i].title+'</strong><p>'+instrs[i].text+'</p></div></li>';
-      if(isTillSF&&i===0){
-        body+='<li id="sf-panels" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;padding:.2rem 0 .4rem 2.5rem;"></li>';
-      }
+      if(isTillSF&&i===0)body+='<li id="sf-panels" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;padding:.2rem 0 .4rem 2.5rem;"></li>';
     }
     body+='</ul>';
     if(!hideBtn){
@@ -642,9 +662,7 @@ function render(noScroll){
   if(!noScroll)window.scrollTo({top:0,behavior:'smooth'});
 }
 
-window.addEventListener('DOMContentLoaded',function(){
-  render();
-});
+window.addEventListener('DOMContentLoaded',function(){render();});
 </script>
 </body>
 </html>
