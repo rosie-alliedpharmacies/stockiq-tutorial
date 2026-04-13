@@ -128,9 +128,10 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
 </div>
 <script>
 // ── State ──
-var activeSFPanel=null, curStep=0, curSub=0, curInstr=0;
+var activeSFPanel=null, activeMiscPanel=null, curStep=0, curSub=0, curInstr=0;
 var doneSteps=[], doneSubs={};
-var showPriceCheck=false, showCashCount=false, showReconcile=false;
+var showPriceCheck=false, showCashCount=false, showReconcile=false, showXRead=false;
+var showSalesHistory=false, showSalesReport=false, showCashOut=false, showRefund=false;
 
 var BUG='<div class="bug-btn" title="Report a problem">&#x1F41B;</div>';
 var BUG_HL='<div class="bug-btn" style="box-shadow:0 0 0 4px #14b8a6,0 2px 8px rgba(0,0,0,.3);transform:scale(1.2);" title="Report a problem">&#x1F41B;</div>';
@@ -139,6 +140,18 @@ var SF_PANELS=[
   {key:'nhs',label:'NHS Services',icon:'&#x1F3E5;',color:'#1a3a6b',text:'Provides access to NHS-funded services including Prescription Forwarding (PF), Community Pharmacist Consultation Service (CPCS), and New Medicine Service (NMS).'},
   {key:'misc',label:'Misc Items',icon:'&#x1F6D2;',color:'#4a4a4a',text:'Charge for miscellaneous items not in the product database, either with or without VAT.'},
   {key:'safe',label:'Safe',icon:'&#x1F512;',color:'#2e7d32',text:'Record cash drops into the safe or pickups from it, keeping an audit trail of safe movements throughout the day.'}
+];
+var MISC_PANELS=[
+  {key:'history',label:'Sales History',icon:'&#x1F4CB;',color:'#0288d1',text:'View a full list of every transaction processed in the current shift, or browse back through previous days. You can filter by payment method (Cash, Card, or Account) or search for a specific receipt number. Tap any transaction to reprint its receipt.'},
+  {key:'report',label:'Sales Report',icon:'&#x1F4CA;',color:'#6a3fa0',text:'Generates a ranked list of products sold over a selected period (Today, 7, 14, or 30 Days). Products are pre-selected and can be submitted directly to your ordering system in one tap, making it easy to reorder fast-moving stock.'},
+  {key:'cashout',label:'Cash Out (Petty Cash)',icon:'&#x1F4B5;',color:'#e65100',text:'Record cash taken from the till for petty cash purposes — for example, buying milk or paying for a small delivery. Enter the amount, select a category, and add an optional description. This keeps your cash reconciliation accurate at end of day.'},
+  {key:'refund',label:'Refund',icon:'&#x21A9;&#xFE0F;',color:'#c62828',text:'Process a return and refund a customer. You can look up the original transaction by scanning the receipt QR code or entering the receipt number, or enter a manual amount. Select whether the refund is issued as Cash, Card, or to a Charge Account, and add a reason before confirming.'}
+];
+var MISC_PANELS=[
+  {key:'history',label:'Sales History',icon:'&#x1F4CB;',color:'#0288d1',text:'View a full list of transactions from any previous day. You can filter by payment method (Cash, Card, or Account), search by receipt number, and navigate between days using the arrow buttons. Useful for looking up a past sale or resolving a customer query.'},
+  {key:'report',label:'Sales Report',icon:'&#x1F4CA;',color:'#6a3fa0',text:'Generates a ranked list of products sold over the last 7, 14, or 30 days. You can select individual items or use Select All, then submit directly to the ordering system. Use this at the end of the week to replenish stock based on what has actually sold.'},
+  {key:'cashout',label:'Cash Out',icon:'&#x1F4B5;',color:'#e65100',text:'Records a petty cash withdrawal from the till. Enter the amount, select a category (e.g. Staff Welfare, Cleaning, Fuel Expenses), and add an optional description. The withdrawal is logged against the shift so it appears in your end-of-day reconciliation.'},
+  {key:'refund',label:'Refund',icon:'&#x21A9;&#xFE0F;',color:'#c62828',text:'Process a return for a customer. Scan the QR code on their receipt or enter the receipt number to look it up, then enter the amount to refund and select the payment method. Add a reason for the refund before confirming. Refunds are recorded against the shift and will appear in your X/Z Read report.'}
 ];
 var sidebarSubMap={till:1,xz:2,labels:3,dashboard:4,accounts:5,reports:6,settings:7};
 
@@ -232,8 +245,8 @@ var FAQ_PRIVATE=(function(){
 var FAQ_UNKNOWN_PRODUCT=(function(){
   var desc='If you scan a barcode that is not in the system, an <strong>Unknown Product</strong> dialog will appear automatically. Type a description of the product and click <strong>AI Lookup</strong> \u2014 the AI will attempt to identify the product and suggest a price. You can edit the price if needed before adding it to the basket. The product will come through to Head Office for review and can be added to the system properly.';
   var tileBg='<div style="opacity:.25;font-size:.55rem;color:#666;margin-bottom:.3rem;font-weight:700;">SERVICES &amp; FUNCTIONS</div><div style="opacity:.25;display:grid;grid-template-columns:repeat(6,1fr);gap:.25rem;margin-bottom:.4rem;"><div style="background:#1a3a6b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">NHS SERVICES</div><div style="background:#4a4a4a;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">MISC ITEMS</div><div style="background:#6a3fa0;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">PRICE CHECK</div><div style="background:#00796b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">REPRINT LAST</div><div style="background:#2e7d32;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">SAFE</div><div style="background:#c62828;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">VOID SALE</div></div>';
-  var mockupWrap=function(modal){return '<div style="margin-top:.75rem;border-radius:10px;overflow:hidden;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);"><div style="background:#162b2a;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div><div style="margin-left:.4rem;background:#1e3534;border-radius:4px;padding:.15rem .6rem;color:#5f8a87;font-family:monospace;font-size:.65rem;">epos.stockiq.uk/till</div></div><div style="background:#e8eaf0;padding:.6rem;position:relative;">'+tileBg+'<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:.5rem;">'+modal+'</div></div></div>';};
-  var modalBase='<div style="background:#fff;border-radius:10px;width:100%;max-width:340px;padding:.8rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,.25);">';
+  var mockupWrap=function(modal){return '<div style="margin-top:.75rem;border-radius:10px;overflow:visible;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);"><div style="background:#162b2a;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;border-radius:10px 10px 0 0;"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div><div style="margin-left:.4rem;background:#1e3534;border-radius:4px;padding:.15rem .6rem;color:#5f8a87;font-family:monospace;font-size:.65rem;">epos.stockiq.uk/till</div></div><div style="background:#e8eaf0;padding:.6rem;border-radius:0 0 10px 10px;">'+tileBg+modal+'</div></div>';};
+  var modalBase='<div style="background:rgba(0,0,0,.45);border-radius:0 0 10px 10px;padding:.6rem;margin:-.6rem;display:flex;justify-content:center;"><div style="background:#fff;border-radius:10px;width:100%;max-width:340px;padding:.8rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,.25);">';
   var unknownModal=modalBase
     +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;"><div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">Unknown Product</div><div style="font-size:.6rem;color:#888;margin-top:.1rem;">Barcode: 5099872091059</div></div><div style="color:#aaa;font-size:.9rem;">&#x2715;</div></div>'
     +'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.5rem .7rem;font-size:.65rem;color:#92400e;margin-bottom:.6rem;line-height:1.5;">Product not found in external databases. Enter the product name below and AI will help format it and suggest a price.</div>'
@@ -241,7 +254,7 @@ var FAQ_UNKNOWN_PRODUCT=(function(){
     +'<div style="display:flex;gap:.4rem;margin-bottom:.5rem;"><div style="flex:1;border:1.5px solid #3b6fd4;border-radius:6px;padding:.35rem .6rem;font-size:.65rem;color:#1a2e2d;">Sure MotionSense Deodorant 250ml</div><div style="background:#6a3fa0;border-radius:6px;padding:.35rem .65rem;font-size:.6rem;font-weight:700;color:#fff;white-space:nowrap;">AI Lookup</div></div>'
     +'<div style="font-size:.6rem;color:#555;margin-bottom:.25rem;">Or enter price manually</div>'
     +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.7rem;color:#aaa;display:flex;align-items:center;gap:.3rem;"><span style="color:#888;">&#xa3;</span> 0.00</div>'
-    +'</div>';
+    +'</div></div>';
   var foundModal=modalBase
     +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;"><div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">Product Found</div><div style="font-size:.6rem;color:#888;margin-top:.1rem;">Barcode: 5099872091059</div></div><div style="color:#aaa;font-size:.9rem;">&#x2715;</div></div>'
     +'<div style="display:flex;gap:.4rem;margin-bottom:.6rem;"><span style="background:#e0f2fe;color:#0369a1;font-size:.55rem;border-radius:4px;padding:.15rem .4rem;font-weight:600;">Source: AI Enhanced</span><span style="background:#dcfce7;color:#15803d;font-size:.55rem;border-radius:4px;padding:.15rem .4rem;font-weight:600;">High confidence (85%)</span></div>'
@@ -251,7 +264,7 @@ var FAQ_UNKNOWN_PRODUCT=(function(){
     +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.75rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;"><span style="color:#888;font-weight:400;font-size:.65rem;">&#xa3;</span>3.49</div>'
     +'<div style="font-size:.55rem;color:#aaa;margin-bottom:.5rem;">Found in 0.9s</div>'
     +'<div style="background:#22c55e;border-radius:7px;padding:.45rem;text-align:center;font-size:.65rem;font-weight:700;color:#fff;">Add to Basket &#x2014; &#xa3;3.49</div>'
-    +'</div>';
+    +'</div></div>';
   return desc+mockupWrap(unknownModal)+mockupWrap(foundModal);
 })();
 
@@ -267,6 +280,7 @@ function aSub(){var s=aStep();return s.subSteps?s.subSteps[curSub]:null;}
 function aInstrs(){var sub=aSub();return sub?sub.instructions:aStep().instructions;}
 function aTip(){var sub=aSub();return(sub!==null&&sub!==undefined)?sub.tip:aStep().tip;}
 function aTip2(){return aStep().tip2||null;}
+function aTip3(){return aStep().tip3||null;}
 function aMockup(){var sub=aSub();return sub?sub.getMockup(curInstr):aStep().getMockup(curInstr);}
 
 // ── Price Check helpers ──
@@ -296,6 +310,11 @@ function togglePriceCheckBox(){
 }
 
 // ── Cash up mockup helpers ──
+function showXReadMockup(){
+  showXRead=true;showCashCount=false;showReconcile=false;
+  var el=document.getElementById('stepMockup');
+  if(el){el.innerHTML=renderXRead();el.style.display='block';}
+}
 function showCashCountMockup(){
   showCashCount=true;showReconcile=false;
   var el=document.getElementById('stepMockup');
@@ -307,18 +326,18 @@ function showReconcileMockup(){
   if(el){el.innerHTML=renderReconcile();el.style.display='block';}
 }
 function closeShiftMockup(){
-  showCashCount=false;showReconcile=false;
+  showCashCount=false;showReconcile=false;showXRead=false;
   var el=document.getElementById('stepMockup');
   if(el){el.innerHTML=renderXZ();el.style.display='block';}
 }
 function closeCashOverlay(){
-  showCashCount=false;showReconcile=false;
+  showCashCount=false;showReconcile=false;showXRead=false;
   var el=document.getElementById('stepMockup');
   if(el){el.innerHTML=renderXZ();el.style.display='block';}
 }
 
 // ── Navigation ──
-function resetFlags(){activeSFPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;}
+function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;}
 function goToStep(i){curStep=i;curSub=0;curInstr=0;resetFlags();render();}
 function goToSub(j){curSub=j;curInstr=0;resetFlags();render();}
 function navTo(si,sj){curStep=si;curSub=sj!==undefined?sj:0;curInstr=0;resetFlags();render();}
@@ -369,6 +388,23 @@ function updateInlineBtn(){
   var s=aStep(),lastSub=s.subSteps?curSub>=s.subSteps.length-1:true,lastStep=curStep>=steps.length-1;
   btn.textContent=(isLast&&lastSub&&lastStep)?'Finish':isLast?'Next Section':'Next';
 }
+function miscRender(){
+  var panels=document.getElementById('misc-panels');if(!panels)return;
+  var html='';
+  for(var p=0;p<MISC_PANELS.length;p++){
+    var pn=MISC_PANELS[p],open=activeMiscPanel===pn.key;
+    html+='<div><button type="button" onmousedown="miscClick(\''+pn.key+'\')" style="display:flex;align-items:center;gap:.6rem;width:100%;background-color:'+(open?pn.color:'#fff')+';border:2px solid '+pn.color+';border-radius:'+(open?'8px 8px 0 0':'8px')+';padding:.5rem .8rem;cursor:pointer;text-align:left;">';
+    html+='<span style="font-size:1rem;">'+pn.icon+'</span><span style="font-size:.85rem;font-weight:600;color:'+(open?'#fff':pn.color)+';flex:1;">'+pn.label+'</span>';
+    html+='<span style="font-size:.75rem;color:'+(open?'rgba(255,255,255,.7)':pn.color)+';">'+(open?'&#x25B2;':'&#x25BC;')+'</span></button>';
+    if(open)html+='<div style="background:#f8f9fc;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:.8rem 1rem;font-size:.84rem;color:#444;line-height:1.6;">'+pn.text+'<div style="margin-top:.6rem;"><button onmousedown="showTillModal(\''+pn.key+'\')" style="background:'+pn.color+';color:#fff;border:none;border-radius:6px;padding:.25rem .7rem;font-size:.82rem;font-weight:600;cursor:pointer;">Try it &#x2192;</button></div></div>';
+    html+='</div>';
+  }
+  panels.innerHTML=html;
+}
+function miscClick(key){
+  activeMiscPanel=activeMiscPanel===key?null:key;
+  miscRender();
+}
 function sfRender(){
   var panels=document.getElementById('sf-panels');if(!panels)return;
   var html='';
@@ -408,6 +444,219 @@ function buildTillSidebar(navHL){
   h+='</div>';return h;
 }
 
+function openMiscPanel(key){
+  activeMiscPanel=key;
+  miscRender();
+  setTimeout(function(){
+    var panels=document.getElementById('misc-panels');
+    if(panels)panels.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },60);
+}
+function showTillModal(which){
+  showSalesHistory=which==='history';showSalesReport=which==='report';
+  showCashOut=which==='cashout';showRefund=which==='refund';
+  var el=document.getElementById('stepMockup');
+  if(el){
+    var h=which==='history'?renderTillSalesHistory():which==='report'?renderTillSalesReport():which==='cashout'?renderTillCashOut():renderTillRefund();
+    el.innerHTML=h;el.style.display='block';
+  }
+}
+function closeTillModal(){
+  var key=showSalesHistory?'history':showSalesReport?'report':showCashOut?'cashout':showRefund?'refund':null;
+  showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;
+  var el=document.getElementById('stepMockup');
+  if(el){el.innerHTML=renderTill(null);el.style.display='block';}
+  if(key){activeMiscPanel=key;miscRender();setTimeout(function(){var panels=document.getElementById('misc-panels');if(panels)panels.scrollIntoView({behavior:'smooth',block:'nearest'});},60);}
+}
+
+function renderTillSalesHistory(){
+  var txns=[
+    ['#20260413-0009','CARD','11:47','J. Smith','&#xa3;18.40'],
+    ['#20260413-0008','CASH','11:32','J. Smith','&#xa3;9.90'],
+    ['#20260413-0007','ACCOUNT','11:15','J. Smith','&#xa3;29.70'],
+    ['#20260413-0006','CARD','10:58','J. Smith','&#xa3;4.49'],
+    ['#20260413-0005','CARD','10:34','J. Smith','&#xa3;2.50'],
+    ['#20260413-0004','CARD','10:30','J. Smith','&#xa3;2.25'],
+    ['#20260413-0003','CASH','10:16','J. Smith','&#xa3;5.99'],
+    ['#20260413-0002','CARD','09:14','J. Smith','&#xa3;5.99'],
+    ['#20260413-0001','CASH','09:02','J. Smith','&#xa3;9.90']
+  ];
+  var rows='';
+  for(var i=0;i<txns.length;i++){
+    var t=txns[i],col=t[1]==='CARD'?'#3b6fd4':t[1]==='CASH'?'#22c55e':'#f59e0b';
+    rows+='<div style="padding:.5rem .6rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;">'
+      +'<div><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.15rem;">'
+      +'<span style="font-size:.62rem;font-weight:700;color:#fff;">'+t[0]+'</span>'
+      +'<span style="background:'+col+';color:#fff;font-size:.45rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;">'+t[1]+'</span>'
+      +'</div><div style="font-size:.55rem;color:#8a9bb0;">'+t[2]+' \u2014 '+t[3]+'</div></div>'
+      +'<span style="font-size:.75rem;font-weight:700;color:#fff;">'+t[4]+'</span>'
+      +'</div>';
+  }
+  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:12px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.5);display:flex;flex-direction:column;max-height:95%;">'
+    // header
+    +'<div style="padding:.7rem .9rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:flex-start;flex-shrink:0;">'
+    +'<div><div style="color:#fff;font-size:.8rem;font-weight:700;">Sales History</div><div style="color:#8a9bb0;font-size:.55rem;margin-top:.1rem;">9 transactions</div></div>'
+    +'<div class="mc" onclick="closeTillModal()" style="background:rgba(255,255,255,.1);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.7rem;">&#x2715;</div>'
+    +'</div>'
+    // date nav
+    +'<div style="padding:.5rem .9rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:.5rem;flex-shrink:0;">'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.65rem;">&#x2190;</div>'
+    +'<div style="flex:1;text-align:center;font-size:.65rem;font-weight:700;color:#fff;">Today</div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.65rem;">&#x2192;</div>'
+    +'</div>'
+    // search
+    +'<div style="padding:.5rem .9rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;gap:.4rem;flex-shrink:0;">'
+    +'<div style="flex:1;background:rgba(255,255,255,.08);border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#8a9bb0;">Search receipt # (e.g. 20260413-0001)</div>'
+    +'<div style="background:#3b6fd4;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;font-weight:700;color:#fff;">Find</div>'
+    +'</div>'
+    // filter pills
+    +'<div style="padding:.4rem .9rem;display:flex;gap:.3rem;flex-shrink:0;">'
+    +'<span style="background:#3b6fd4;color:#fff;border-radius:20px;font-size:.58rem;font-weight:700;padding:.2rem .65rem;">All</span>'
+    +'<span style="background:rgba(255,255,255,.08);color:#aaa;border-radius:20px;font-size:.58rem;padding:.2rem .65rem;">Cash</span>'
+    +'<span style="background:rgba(255,255,255,.08);color:#aaa;border-radius:20px;font-size:.58rem;padding:.2rem .65rem;">Card</span>'
+    +'<span style="background:rgba(255,255,255,.08);color:#aaa;border-radius:20px;font-size:.58rem;padding:.2rem .65rem;">Account</span>'
+    +'</div>'
+    // list
+    +'<div style="overflow-y:auto;">'+rows+'</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;padding:.6rem;opacity:.3;font-size:.55rem;color:#555;">Till</div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
+}
+
+function renderTillSalesReport(){
+  var products=[
+    ['NHS Prescription','PIP: NHS-RX','28'],
+    ['Paracetamol 500mg Tabs 32','PIP: 5024071210194','22'],
+    ['Ibuprofen 400mg Caps 24','PIP: 5000158070560','18'],
+    ['Omeprazole 20mg Caps 28','PIP: 3114111000001','14'],
+    ['Cetirizine 10mg Tabs 30','PIP: 3106111000001','12'],
+    ['Co-Codamol 8/500mg Tabs 32','PIP: 1255058','11'],
+    ['Amoxicillin 500mg Caps 21','PIP: 0301011000001','9'],
+    ['Loratadine 10mg Tabs 30','PIP: 3701011000001','8'],
+    ['Simvastatin 20mg Tabs 28','PIP: 0902011000001','7'],
+    ['Fluoxetine 20mg Caps 30','PIP: 0403010P0','6']
+  ];
+  var rows='';
+  for(var i=0;i<products.length;i++){
+    var p=products[i];
+    rows+='<div style="padding:.4rem .7rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:.5rem;">'
+      +'<div style="background:#6a3fa0;border-radius:4px;width:14px;height:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:#fff;font-size:.45rem;">&#x2713;</span></div>'
+      +'<div style="flex:1;"><div style="font-size:.6rem;color:#fff;">'+p[0]+'</div>'+(p[1]?'<div style="font-size:.5rem;color:#8a9bb0;">'+p[1]+'</div>':'')+'</div>'
+      +'<div style="text-align:right;"><div style="font-size:.72rem;font-weight:700;color:#c084fc;">'+p[2]+'</div><div style="font-size:.48rem;color:#8a9bb0;">sold</div></div>'
+      +'</div>';
+  }
+  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:12px;width:100%;max-width:460px;box-shadow:0 8px 40px rgba(0,0,0,.5);display:flex;flex-direction:column;max-height:95%;">'
+    // header
+    +'<div style="padding:.7rem .9rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">'
+    +'<div style="display:flex;align-items:center;gap:.4rem;"><span style="font-size:.9rem;">&#x1F4E6;</span><span style="color:#fff;font-size:.78rem;font-weight:700;">Sales Report \u2014 Submit to Ordering</span></div>'
+    +'<div class="mc" onclick="closeTillModal()" style="background:rgba(255,255,255,.1);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.7rem;">&#x2715;</div>'
+    +'</div>'
+    // date pills
+    +'<div style="padding:.5rem .9rem;display:flex;gap:.35rem;align-items:center;flex-shrink:0;">'
+    +'<span style="background:rgba(255,255,255,.08);color:#aaa;border-radius:6px;font-size:.58rem;padding:.25rem .55rem;">Today</span>'
+    +'<span style="background:#6a3fa0;color:#fff;border-radius:6px;font-size:.58rem;font-weight:700;padding:.25rem .55rem;">7 Days</span>'
+    +'<span style="background:rgba(255,255,255,.08);color:#aaa;border-radius:6px;font-size:.58rem;padding:.25rem .55rem;">14 Days</span>'
+    +'<span style="background:rgba(255,255,255,.08);color:#aaa;border-radius:6px;font-size:.58rem;padding:.25rem .55rem;">30 Days</span>'
+    +'<div style="margin-left:auto;background:#6a3fa0;border-radius:6px;padding:.25rem .55rem;font-size:.58rem;color:#fff;font-weight:700;">Refresh</div>'
+    +'</div>'
+    // summary cards
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;padding:.4rem .9rem;flex-shrink:0;">'
+    +'<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:.5rem;text-align:center;"><div style="font-size:.85rem;font-weight:800;color:#c084fc;">10</div><div style="font-size:.48rem;color:#8a9bb0;">Products Sold</div></div>'
+    +'<div style="background:rgba(13,148,136,.2);border-radius:8px;padding:.5rem;text-align:center;"><div style="font-size:.85rem;font-weight:800;color:#5eead4;">135</div><div style="font-size:.48rem;color:#8a9bb0;">Total Units</div></div>'
+    +'<div style="background:rgba(59,111,212,.2);border-radius:8px;padding:.5rem;text-align:center;"><div style="font-size:.85rem;font-weight:800;color:#90caf9;">10</div><div style="font-size:.48rem;color:#8a9bb0;">Selected</div></div>'
+    +'</div>'
+    // select buttons
+    +'<div style="padding:.3rem .9rem;display:flex;gap:.4rem;flex-shrink:0;">'
+    +'<span style="background:rgba(255,255,255,.1);color:#fff;border-radius:6px;font-size:.58rem;padding:.2rem .55rem;">Select All</span>'
+    +'<span style="background:rgba(255,255,255,.1);color:#fff;border-radius:6px;font-size:.58rem;padding:.2rem .55rem;">Select None</span>'
+    +'</div>'
+    // list
+    +'<div style="overflow-y:auto;flex:1;">'+rows+'</div>'
+    // footer
+    +'<div style="padding:.6rem .9rem;flex-shrink:0;"><div style="background:#6a3fa0;border-radius:8px;padding:.6rem;text-align:center;font-size:.65rem;font-weight:700;color:#fff;">Submit 10 Products to Ordering</div></div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;padding:.6rem;opacity:.3;font-size:.55rem;color:#555;">Till</div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
+}
+
+function renderTillCashOut(){
+  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:12px;width:100%;max-width:360px;box-shadow:0 8px 40px rgba(0,0,0,.5);display:flex;flex-direction:column;">'
+    // header
+    +'<div style="padding:.7rem .9rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;">'
+    +'<div style="display:flex;align-items:center;gap:.4rem;"><span style="font-size:.9rem;">&#x1F4B0;</span><span style="color:#fff;font-size:.78rem;font-weight:700;">Cash Out \u2014 Petty Cash</span></div>'
+    +'<div class="mc" onclick="closeTillModal()" style="background:rgba(255,255,255,.1);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.7rem;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="padding:.7rem .9rem;display:flex;flex-direction:column;gap:.6rem;">'
+    // amount display
+    +'<div style="background:rgba(224,100,0,.15);border-radius:8px;padding:.7rem;text-align:center;">'
+    +'<div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.2rem;">Amount</div>'
+    +'<div style="font-size:1.3rem;font-weight:800;color:#fb923c;">&#xa3;0.00</div>'
+    +'</div>'
+    // numpad
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;">'
+    +['1','2','3','4','5','6','7','8','9','.','0','&#x232B;'].map(function(k){return '<div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.45rem;text-align:center;font-size:.72rem;color:#fff;font-weight:600;">'+k+'</div>';}).join('')
+    +'</div>'
+    // category
+    +'<div><div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.3rem;">Category</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:.3rem;">'
+    +['Fuel Expenses','Postage &amp; Stationery','Staff Welfare','Cleaning','Maintenance &amp; Repairs','Motor Vehicle','Miscellaneous'].map(function(c){return '<span style="background:rgba(255,255,255,.08);color:#ccc;border-radius:6px;font-size:.55rem;padding:.2rem .45rem;">'+c+'</span>';}).join('')
+    +'</div></div>'
+    // description
+    +'<div><div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.2rem;">Description (optional)</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:6px;padding:.35rem .6rem;font-size:.6rem;color:#555;">e.g. Milk and biscuits</div>'
+    +'</div>'
+    // buttons
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.5rem;text-align:center;font-size:.62rem;color:#fff;font-weight:600;">Cancel</div>'
+    +'<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:.5rem;text-align:center;font-size:.62rem;color:#555;font-weight:600;">Record Cash Out</div>'
+    +'</div>'
+    +'</div></div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;padding:.6rem;opacity:.3;font-size:.55rem;color:#555;">Till</div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
+}
+
+function renderTillRefund(){
+  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:12px;width:100%;max-width:340px;box-shadow:0 8px 40px rgba(0,0,0,.5);display:flex;flex-direction:column;">'
+    // header
+    +'<div style="padding:.7rem .9rem;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;">'
+    +'<span style="color:#fff;font-size:.78rem;font-weight:700;">Process Refund</span>'
+    +'<div class="mc" onclick="closeTillModal()" style="background:rgba(255,255,255,.1);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.7rem;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="padding:.7rem .9rem;display:flex;flex-direction:column;gap:.5rem;">'
+    // receipt search
+    +'<div><div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.2rem;">Scan receipt QR code or enter receipt number</div>'
+    +'<div style="display:flex;gap:.3rem;">'
+    +'<div style="flex:1;background:rgba(255,255,255,.08);border-radius:6px;padding:.35rem .6rem;font-size:.6rem;color:#555;">e.g. 20260413-0001</div>'
+    +'<div style="background:#3b6fd4;border-radius:6px;padding:.35rem .65rem;font-size:.6rem;font-weight:700;color:#fff;">Look up</div>'
+    +'</div></div>'
+    // amount display
+    +'<div style="display:flex;gap:.3rem;">'
+    +'<div style="flex:1;background:rgba(224,53,53,.15);border:1px solid rgba(224,53,53,.3);border-radius:6px;padding:.4rem .6rem;font-size:.8rem;font-weight:700;color:#fff;text-align:right;">&#xa3;0.00</div>'
+    +'<div style="background:rgba(224,53,53,.3);border-radius:6px;width:28px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#f87171;">&#x232B;</div>'
+    +'<div style="background:#3b6fd4;border-radius:6px;width:28px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#fff;font-weight:700;">#</div>'
+    +'</div>'
+    // numpad
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.25rem;">'
+    +[['1',''],['2',''],['3',''],['C','#7f1d1d'],['4',''],['5',''],['6',''],['.',''],[  '7',''],['8',''],['9',''],['0','']].map(function(k){return '<div style="background:'+(k[1]||'rgba(255,255,255,.08)')+';border-radius:6px;padding:.4rem;text-align:center;font-size:.7rem;color:'+(k[1]?'#f87171':'#fff')+';font-weight:600;">'+k[0]+'</div>';}).join('')
+    +'</div>'
+    // payment method
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;">'
+    +'<div style="background:#e03535;border-radius:6px;padding:.4rem;text-align:center;font-size:.62rem;color:#fff;font-weight:700;">Cash</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:6px;padding:.4rem;text-align:center;font-size:.62rem;color:#aaa;">Card</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:6px;padding:.4rem;text-align:center;font-size:.62rem;color:#aaa;">Account</div>'
+    +'</div>'
+    // reason
+    +'<div style="display:flex;gap:.3rem;">'
+    +'<div style="flex:1;background:rgba(255,255,255,.08);border-radius:6px;padding:.35rem .6rem;font-size:.6rem;color:#555;">Reason for refund...</div>'
+    +'<div style="background:rgba(255,255,255,.06);border-radius:6px;width:28px;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#555;">&#x1F5A8;</div>'
+    +'</div>'
+    // refund button
+    +'<div style="background:rgba(224,53,53,.4);border-radius:8px;padding:.55rem;text-align:center;font-size:.65rem;font-weight:700;color:rgba(255,255,255,.4);">Refund &#xa3;0.00</div>'
+    +'</div></div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;padding:.6rem;opacity:.3;font-size:.55rem;color:#555;">Till</div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
+}
+
 // ── Mockup renderers ──
 function renderLogin(){
   return '<div class="mockup"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">stockiq.local/login</div></div><div class="mockup-inner"><div class="login-mockup"><div class="login-logo-wrap"><div style="font-size:1.5rem;font-weight:900;color:#fff;">StockIQ</div><div class="login-epos-label">EPOS System - Branch Login</div></div><div class="login-card"><div class="login-card-title">Branch Authentication</div><div class="login-card-sub">Login with your branch manager account</div><div class="login-field-wrap"><div class="login-field-label">Email</div><input class="login-field filled" value="manager@pharmacy.com" readonly/></div><div class="login-field-wrap"><div class="login-field-label">Password</div><input class="login-field" type="password" placeholder="Enter password" readonly/></div><button class="login-btn">Login to Branch</button></div><div class="login-footer">Use a manager or admin account with EPOS permission</div></div>'+BUG+'</div></div>';
@@ -435,8 +684,8 @@ function renderTill(highlight){
   var qk=[['&#x1F489;','FLU JAB','&#xa3;20.00'],['&#x1F697;','DELIVERY','&#xa3;3.50'],['&#x1F48A;','MDS MONTHLY','&#xa3;25.00'],['&#x1F464;','PRIVATE CONSULT','&#xa3;15.00'],['&#x1F6CD;&#xFE0F;','CARRIER BAG','&#xa3;0.20'],['NHS','RX CHARGE','&#xa3;9.90'],['&#x21A9;&#xFE0F;','FP57 REFUND','-&#xa3;9.90'],['&#x1F4B3;','PRIVATE RX','Enter &#xa3;']];
   for(var i=0;i<qk.length;i++)main+='<div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;"><div style="font-size:.7rem;">'+qk[i][0]+'</div>'+qk[i][1]+'<div style="color:#1565c0;font-weight:700;">'+qk[i][2]+'</div></div>';
   main+='</div><div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">MISC</div><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;">';
-  var misc=[['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold'],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked'],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply'],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return']];
-  for(var i=0;i<misc.length;i++)main+='<div style="background:'+misc[i][0]+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;color:#fff;"><div style="font-size:.7rem;">'+misc[i][1]+'</div>'+misc[i][2]+'<div style="opacity:.8;">'+misc[i][3]+'</div></div>';
+  var misc=[['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold',null],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked',null],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply',null],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales','openMiscPanel(\'history\')'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary','openMiscPanel(\'report\')'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash','openMiscPanel(\'cashout\')'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return','openMiscPanel(\'refund\')']];
+  for(var i=0;i<misc.length;i++)main+='<div '+(misc[i][4]?'class="mc" onclick="'+misc[i][4]+'"':'')+' style="background:'+misc[i][0]+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;color:#fff;'+(misc[i][4]?'cursor:pointer;':'')+'"><div style="font-size:.7rem;">'+misc[i][1]+'</div>'+misc[i][2]+'<div style="opacity:.8;">'+misc[i][3]+'</div></div>';
   main+='</div></div>';
   var basket='<div class="mc" onclick="navToInstrNoPC(1,1,2)" style="background:#f8f9fc;border-left:1px solid #dde;display:flex;flex-direction:column;padding:.5rem;"><div style="text-align:center;color:#aaa;font-size:.6rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;"><div style="font-size:1.4rem;">&#x1F6D2;</div><div style="font-weight:600;color:#555;font-size:.65rem;">Basket is empty</div></div><div style="border-top:1px solid #dde;padding-top:.4rem;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.65rem;font-weight:700;">Total</span><span style="color:#1565c0;font-weight:700;font-size:.75rem;">&#xa3;0.00</span></div><div style="background:#e8f0fe;border-radius:5px;text-align:center;padding:.3rem;font-size:.55rem;margin-bottom:.3rem;color:#555;">&#x1F5A8;&#xFE0F; Print</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;"><div style="background:#e8f5e9;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B5;</div><div style="background:#e8eaf6;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B3;</div><div style="background:#f3e5f5;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4CB;</div></div></div></div>';
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+sb+main+basket+'</div>'+bugHtml+'</div></div>';
@@ -449,9 +698,60 @@ function renderPriceCheck(){
   main+='<div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.5rem;"><div style="font-size:.78rem;font-weight:700;color:#1a2e2d;">Paracetamol Capsules 500mg 100</div><div style="font-size:.6rem;color:#888;">Pack: 100 &nbsp;|&nbsp; Barcode: 5024071260069</div><div style="background:#f8f9fc;border-radius:8px;padding:.7rem;text-align:center;"><div style="font-size:.6rem;color:#888;margin-bottom:.2rem;">Retail Price</div><div style="font-size:1.5rem;font-weight:800;color:#3b6fd4;">&#xa3;2.41</div></div><div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:.5rem .8rem;text-align:center;font-size:.65rem;font-weight:700;color:#b45309;">&#x26A0;&#xFE0F; Flag Price Issue</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;"><div style="background:#3b6fd4;border-radius:7px;padding:.4rem;text-align:center;font-size:.62rem;font-weight:700;color:#fff;">Add to Basket</div><div style="background:#f0f2f7;border-radius:7px;padding:.4rem;text-align:center;font-size:.62rem;font-weight:600;color:#555;">Scan Another</div></div></div>';
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till/price-check</div></div><div class="mockup-inner"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sb+main+'</div>'+BUG+'</div></div>';
 }
+function renderXRead(){
+  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.8rem;">'
+    +'<div style="background:#162032;border-radius:14px;width:100%;max-width:400px;padding:1.2rem;display:flex;flex-direction:column;gap:.7rem;box-shadow:0 8px 40px rgba(0,0,0,.5);">'
+    // header
+    +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+    +'<div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:1rem;">&#x1F4CA;</span><span style="color:#fff;font-size:.85rem;font-weight:700;">X-Read Report</span></div>'
+    +'<div class="mc" onclick="closeCashOverlay()" style="background:rgba(255,255,255,.12);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.75rem;">&#x2715;</div>'
+    +'</div>'
+    // shift started
+    +'<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:.6rem .8rem;">'
+    +'<div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.2rem;">Shift Started</div>'
+    +'<div style="font-size:.72rem;color:#fff;font-weight:600;">13/04/2026, 08:30:00</div>'
+    +'</div>'
+    // total sales + refunds
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">'
+    +'<div style="background:rgba(13,148,136,.25);border:1px solid rgba(13,148,136,.4);border-radius:8px;padding:.6rem .8rem;">'
+    +'<div style="font-size:.52rem;color:#5eead4;margin-bottom:.3rem;">Total Sales</div>'
+    +'<div style="font-size:1.1rem;font-weight:800;color:#fff;">&#xa3;248.60</div>'
+    +'</div>'
+    +'<div style="background:rgba(224,53,53,.18);border:1px solid rgba(224,53,53,.35);border-radius:8px;padding:.6rem .8rem;">'
+    +'<div style="font-size:.52rem;color:#f87171;margin-bottom:.3rem;">Total Refunds</div>'
+    +'<div style="font-size:1.1rem;font-weight:800;color:#fff;">&#xa3;9.90</div>'
+    +'</div>'
+    +'</div>'
+    // payment methods
+    +'<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:.6rem .8rem;display:flex;flex-direction:column;gap:.35rem;">'
+    +'<div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.1rem;">Sales by Payment Method</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.65rem;color:#fff;">&#x1F4B5; Cash</span><span style="font-size:.65rem;font-weight:700;color:#fff;">&#xa3;79.30</span></div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.65rem;color:#fff;">&#x1F4B3; Card</span><span style="font-size:.65rem;font-weight:700;color:#fff;">&#xa3;164.30</span></div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.65rem;color:#fff;">&#x1F4CB; Account</span><span style="font-size:.65rem;font-weight:700;color:#fff;">&#xa3;5.00</span></div>'
+    +'</div>'
+    // transactions + NHS
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">'
+    +'<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:.6rem .8rem;">'
+    +'<div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.2rem;">Transactions</div>'
+    +'<div style="font-size:.9rem;font-weight:700;color:#fff;">31</div>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:.6rem .8rem;">'
+    +'<div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.2rem;">NHS Items</div>'
+    +'<div style="font-size:.9rem;font-weight:700;color:#fff;">12</div>'
+    +'</div>'
+    +'</div>'
+    // expected cash
+    +'<div style="background:rgba(59,111,212,.2);border:1px solid rgba(59,111,212,.4);border-radius:8px;padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;">'
+    +'<span style="font-size:.62rem;color:#90caf9;">Expected Cash in Till</span>'
+    +'<span style="font-size:.95rem;font-weight:800;color:#90caf9;">&#xa3;79.30</span>'
+    +'</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/xzread</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;opacity:.4;"><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">X/Z Read</div><div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong></div><div style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">X-Read</div><div style="background:#e03535;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">Z-Read</div></div></div>'+modal+BUG+'</div></div>';
+}
 function renderXZ(){
+  var onXRead=curStep===3?'showXReadMockup()':'navToInstr(1,2,1)';
   var onZRead=curStep===3?'showCashCountMockup()':'navToInstr(1,2,2)';
-  return wrapMockup('epos.stockiq.uk/xzread','<div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;margin-bottom:.2rem;">X/Z Read</div><div style="font-size:.7rem;color:#888;">View shift summary or close out the till</div></div><div class="mc" onclick="navToInstr(1,2,0)" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong> - started today</div><div class="mc" onclick="navToInstr(1,2,1)" style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F4CA;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">X-Read - View Current Shift</div></div><div class="mc" onclick="'+onZRead+'" style="background:#e03535;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F512;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">Z-Read - Close Shift</div></div></div></div>');
+  return wrapMockup('epos.stockiq.uk/xzread','<div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;margin-bottom:.2rem;">X/Z Read</div><div style="font-size:.7rem;color:#888;">View shift summary or close out the till</div></div><div class="mc" onclick="navToInstr(1,2,0)" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong> - started today</div><div class="mc" onclick="'+onXRead+'" style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F4CA;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">X-Read - View Current Shift</div></div><div class="mc" onclick="'+onZRead+'" style="background:#e03535;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F512;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">Z-Read - Close Shift</div></div></div></div>');
 }
 function renderCashCount(){
   var denoms=[['&#xa3;50','&#xa3;20'],['&#xa3;10','&#xa3;5'],['&#xa3;2','&#xa3;1'],['50p','20p'],['10p','5p'],['2p','1p']];
@@ -739,10 +1039,7 @@ var steps=[
         q:'What do I do if a product is not scanning?',
         a:(function(){
           var desc='If you scan a barcode that is not in the system, an <strong>Unknown Product</strong> dialog will appear automatically. Type a description of the product and click <strong>AI Lookup</strong> \u2014 the AI will attempt to identify the product and suggest a price. You can edit the price if needed before adding it to the basket. The product will come through to Head Office for review and can be added to the system properly.';
-          var mockup='<div style="margin-top:.75rem;border-radius:10px;overflow:hidden;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);">'
-            +'<div style="background:#162b2a;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div><div style="margin-left:.4rem;background:#1e3534;border-radius:4px;padding:.15rem .6rem;color:#5f8a87;font-family:monospace;font-size:.65rem;">epos.stockiq.uk/till</div></div>'
-            +'<div style="background:#e8eaf0;padding:.6rem;position:relative;">'
-            +'<div style="opacity:.25;font-size:.55rem;color:#666;margin-bottom:.3rem;font-weight:700;">SERVICES &amp; FUNCTIONS</div>'
+          var tileBg='<div style="opacity:.25;font-size:.55rem;color:#666;margin-bottom:.3rem;font-weight:700;">SERVICES &amp; FUNCTIONS</div>'
             +'<div style="opacity:.25;display:grid;grid-template-columns:repeat(6,1fr);gap:.25rem;margin-bottom:.4rem;">'
             +'<div style="background:#1a3a6b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">NHS SERVICES</div>'
             +'<div style="background:#4a4a4a;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">MISC ITEMS</div>'
@@ -750,8 +1047,13 @@ var steps=[
             +'<div style="background:#00796b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">REPRINT LAST</div>'
             +'<div style="background:#2e7d32;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">SAFE</div>'
             +'<div style="background:#c62828;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">VOID SALE</div>'
-            +'</div>'
-            +'<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:.5rem;">'
+            +'</div>';
+          var bar='<div style="background:#162b2a;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;border-radius:10px 10px 0 0;"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div><div style="margin-left:.4rem;background:#1e3534;border-radius:4px;padding:.15rem .6rem;color:#5f8a87;font-family:monospace;font-size:.65rem;">epos.stockiq.uk/till</div></div>';
+          var mockup='<div style="margin-top:.75rem;border-radius:10px;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);">'
+            +bar
+            +'<div style="background:#e8eaf0;padding:.6rem;border-radius:0 0 10px 10px;">'
+            +tileBg
+            +'<div style="background:rgba(0,0,0,.45);border-radius:6px;padding:.5rem;display:flex;justify-content:center;">'
             +'<div style="background:#fff;border-radius:10px;width:100%;max-width:340px;padding:.8rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,.25);">'
             +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;"><div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">Unknown Product</div><div style="font-size:.6rem;color:#888;margin-top:.1rem;">Barcode: 5099872091059</div></div><div style="color:#aaa;font-size:.9rem;">&#x2715;</div></div>'
             +'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.5rem .7rem;font-size:.65rem;color:#92400e;margin-bottom:.6rem;line-height:1.5;">Product not found. Enter the product name below and AI will help format it and suggest a price.</div>'
@@ -760,19 +1062,11 @@ var steps=[
             +'<div style="font-size:.6rem;color:#555;margin-bottom:.25rem;">Or enter price manually</div>'
             +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.7rem;color:#aaa;">&#xa3; 0.00</div>'
             +'</div></div></div></div>';
-          var foundMockup='<div style="margin-top:.75rem;border-radius:10px;overflow:hidden;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);">'
-            +'<div style="background:#162b2a;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div><div style="margin-left:.4rem;background:#1e3534;border-radius:4px;padding:.15rem .6rem;color:#5f8a87;font-family:monospace;font-size:.65rem;">epos.stockiq.uk/till</div></div>'
-            +'<div style="background:#e8eaf0;padding:.6rem;position:relative;">'
-            +'<div style="opacity:.25;font-size:.55rem;color:#666;margin-bottom:.3rem;font-weight:700;">SERVICES &amp; FUNCTIONS</div>'
-            +'<div style="opacity:.25;display:grid;grid-template-columns:repeat(6,1fr);gap:.25rem;margin-bottom:.4rem;">'
-            +'<div style="background:#1a3a6b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">NHS SERVICES</div>'
-            +'<div style="background:#4a4a4a;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">MISC ITEMS</div>'
-            +'<div style="background:#6a3fa0;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">PRICE CHECK</div>'
-            +'<div style="background:#00796b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">REPRINT LAST</div>'
-            +'<div style="background:#2e7d32;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">SAFE</div>'
-            +'<div style="background:#c62828;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">VOID SALE</div>'
-            +'</div>'
-            +'<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:.5rem;">'
+          var foundMockup='<div style="margin-top:.75rem;border-radius:10px;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);">'
+            +bar
+            +'<div style="background:#e8eaf0;padding:.6rem;border-radius:0 0 10px 10px;">'
+            +tileBg
+            +'<div style="background:rgba(0,0,0,.45);border-radius:6px;padding:.5rem;display:flex;justify-content:center;">'
             +'<div style="background:#fff;border-radius:10px;width:100%;max-width:340px;padding:.8rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,.25);">'
             +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;"><div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">Product Found</div><div style="font-size:.6rem;color:#888;margin-top:.1rem;">Barcode: 5099872091059</div></div><div style="color:#aaa;font-size:.9rem;">&#x2715;</div></div>'
             +'<div style="display:flex;gap:.4rem;margin-bottom:.6rem;"><span style="background:#e0f2fe;color:#0369a1;font-size:.55rem;border-radius:4px;padding:.15rem .4rem;font-weight:600;">Source: AI Enhanced</span><span style="background:#dcfce7;color:#15803d;font-size:.55rem;border-radius:4px;padding:.15rem .4rem;font-weight:600;">High confidence (85%)</span></div>'
@@ -808,6 +1102,7 @@ var steps=[
       {icon:'&#x2705;',title:'Close shift',text:'Confirm all figures are correct, then press the red Close Shift button to complete the cash up.'}
     ],
     tip:'Always check the To Deposit in Safe figure carefully before removing cash - leave the &#xa3;60 float in the till every night.',
+    tip3:'To manage variance, make sure to cash up at least once every day.',
     getMockup:function(i){
       if(i===1||i===2)return renderCashCount();
       if(i===3||i===4||i===5||i===6)return renderReconcile();
@@ -840,7 +1135,7 @@ function renderContent(){
   if(curStep>=steps.length){
     return '<div class="step-card"><div class="complete-screen"><div class="complete-badge">&#x1F389;</div><h2>Tutorial Complete!</h2><p>You have successfully covered all sections. You are ready to start using StockIQ in your pharmacy.</p><button class="restart-btn" onclick="restart()">Restart Tutorial</button></div></div>';
   }
-  var s=aStep(),sub=aSub(),instrs=aInstrs(),tip=aTip(),tip2=aTip2();
+  var s=aStep(),sub=aSub(),instrs=aInstrs(),tip=aTip(),tip2=aTip2(),tip3=aTip3();
   var mockupHtml=(curStep===0&&curInstr<1)?'':aMockup();
   var title=sub?sub.title:s.title,subtitle=sub?sub.subtitle:s.subtitle;
   var badge=sub?(s.title+' - '+(curSub+1)+' of '+s.subSteps.length+' '+sub.icon):('Step '+(curStep+1)+' of '+steps.length+' '+s.icon);
@@ -883,6 +1178,7 @@ function renderContent(){
           +'<div id="priceCheckContent" style="display:none;background:#f8f9fc;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;padding:.8rem 1rem;font-size:.84rem;color:#444;line-height:1.6;">If a price looks incorrect, use the <strong>Flag Price Issue</strong> button inside Price Check and we will review it and make any necessary adjustments.</div>'
           +'</div></li>';
       }
+      if(isTill&&i===2)body+='<li id="misc-panels" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;padding:.2rem 0 0 2.5rem;"></li>';
     }
     body+='</ul>';
     if(!hideBtn){
@@ -891,6 +1187,7 @@ function renderContent(){
     }
     if(tip)body+='<div class="tip-box"><div class="tip-icon">&#x1F4A1;</div><p>'+tip+'</p></div>';
     if(tip2)body+='<div class="tip-box" style="margin-top:.75rem;"><div class="tip-icon">&#x1F4A1;</div><p>'+tip2+'</p></div>';
+    if(tip3)body+='<div class="tip-box" style="margin-top:.75rem;"><div class="tip-icon">&#x203C;&#xFE0F;</div><p>'+tip3+'</p></div>';
     var xtraBtn=sub?sub.extraBtn:(s.extraBtn||null);
     if(xtraBtn)body+='<div style="margin-top:1.5rem;"><button class="btn btn-primary" onclick="'+xtraBtn.action+'">'+xtraBtn.label+' &#x2192;</button></div>';
   }
@@ -901,7 +1198,7 @@ function renderContent(){
 
 function render(noScroll){
   document.getElementById('mainContent').innerHTML=renderContent();
-  renderNav();sfRender();
+  renderNav();sfRender();miscRender();
   if(!noScroll)window.scrollTo({top:0,behavior:'smooth'});
 }
 window.addEventListener('DOMContentLoaded',function(){render();});
