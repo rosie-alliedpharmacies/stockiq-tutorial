@@ -127,11 +127,14 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
   <main class="main" id="mainContent"></main>
 </div>
 <script>
-var activeSFPanel=null,curStep=0,curSub=0,curInstr=0;
-var doneSteps=[],doneSubs={};
-var showPriceCheck=false;
+// ── State ──
+var activeSFPanel=null, curStep=0, curSub=0, curInstr=0;
+var doneSteps=[], doneSubs={};
+var showPriceCheck=false, showCashCount=false, showReconcile=false;
+
 var BUG='<div class="bug-btn" title="Report a problem">&#x1F41B;</div>';
 var BUG_HL='<div class="bug-btn" style="box-shadow:0 0 0 4px #14b8a6,0 2px 8px rgba(0,0,0,.3);transform:scale(1.2);" title="Report a problem">&#x1F41B;</div>';
+
 var SF_PANELS=[
   {key:'nhs',label:'NHS Services',icon:'&#x1F3E5;',color:'#1a3a6b',text:'Provides access to NHS-funded services including Prescription Forwarding (PF), Community Pharmacist Consultation Service (CPCS), and New Medicine Service (NMS).'},
   {key:'misc',label:'Misc Items',icon:'&#x1F6D2;',color:'#4a4a4a',text:'Charge for miscellaneous items not in the product database, either with or without VAT.'},
@@ -139,239 +142,122 @@ var SF_PANELS=[
 ];
 var sidebarSubMap={till:1,xz:2,labels:3,dashboard:4,accounts:5,reports:6,settings:7};
 
-// ── Private services FAQ answer ──
+// ── Private services FAQ ──
 function buildPrivateTable(){
+  var t='<div style="overflow-x:auto;margin-top:1rem;"><table class="priv-table">';
+  t+='<thead><tr><th>Category</th><th>Service / Product</th><th>Item</th><th style="text-align:right;">Price</th></tr></thead><tbody>';
   var rows=[
-    {cat:'Travel',rowspan:14,end:false},
-    ['Altitude Sickness','Acetazolamide 250mg x 10','10.00'],
-    ['Anti-malarial','Malarone (12 tabs)','35.00'],
-    ['Cholera (2\u20133 needed)','Dukoral','60.00'],
-    ['Diphtheria, Tetanus &amp; Polio','Revaxis','40.00'],
-    ['Hepatitis A','Havrix monodose','60.00'],
-    ['Hepatitis B (3 needed)','Engerix B 20mcg','50.00'],
-    ['Japanese Encephalitis (2 needed)','IXIARO','104.99'],
-    ['Meningitis ACWY','Menveo','45.00'],
-    {span2:'Period Delay',rowspan:2},
-    ['','Norethisterone 5mg x 30','25.00'],
-    ['','Norethisterone 5mg x 60','35.00'],
-    ['Pneumococcal','Pneumovax 23','70.00'],
-    ['Rabies (3 needed)','Rabipur','75.00'],
-    ['Tick-Borne Encephalitis (3 needed)','TicoVac','65.00'],
-    {catEnd:true},
-    ['Typhoid','Typhoid Vi Polysaccharide','35.00'],
-    {cat:'Vaccinations',rowspan:8,end:false},
-    ['Chicken Pox (2 needed)','Varilrix','75.00'],
-    ['Covid','Comirnaty (BioNTech-Pfizer)','95.00'],
-    ['Dengue Fever (2 needed)','Qdenga','99.99'],
-    ['Flu Vaccine','','25.00'],
-    ['Vitamin B12','Hydroxycobalamin 1mg/1ml','25.00'],
-    ['HPV (1\u20133 needed)','Gardasil','180.00'],
-    ['Measles, Mumps &amp; Rubella (2 needed)','MMRVaxPRO','45.00'],
-    {catEnd:true},
-    ['Shingles (2 needed)','Shingrix','200.00'],
-    {cat:'Weight Management',rowspan:14,end:false},
-    {span2:'Wegovy',rowspan:5},
-    ['','0.25mg','125.00'],
-    ['','0.5mg','158.00'],
-    ['','1.0mg','167.00'],
-    ['','1.7mg','193.00'],
-    ['','2.4mg','206.00'],
-    {span2:'Saxenda',rowspan:2},
-    ['','3 x 3ml','260.00'],
-    ['','5 x 3ml','180.00'],
-    ['Orlistat','84 caps','37.99'],
-    ['Mysimba','112 tabs','99.99'],
-    {span2:'Mounjaro',rowspan:6},
-    ['','2.5mg','180.00'],
-    ['','5mg','200.00'],
-    ['','7.5mg','278.00'],
-    ['','10mg','315.00'],
-    ['','12.5mg','340.00'],
-    {catEnd:true},
-    ['','15mg','370.00'],
-    {cat:'Minor Ailments',rowspan:7,end:false},
-    ['Back Pain','Naproxen 250mg x 28','15.00'],
-    ['Ear Infection','Otomize','20.00'],
-    {span2:'Haemorrhoids',rowspan:2},
-    ['','Proctosedyl ointment x 30g','24.99'],
-    ['','Proctosedyl suppositories x 12','25.00'],
-    ['Hayfever','Dymista','29.99'],
-    ['Period Pain','Naproxen 250mg x 28','15.00'],
-    {catEnd:true},
-    ['Hair Loss','Finasteride 1mg x 30','22.00'],
-    {cat:'Sexual Health',rowspan:2,end:false},
-    {span2:'Erectile Dysfunction',rowspan:2},
-    ['','Tadalafil x 4','19.99'],
-    {catEnd:true},
-    ['','Sildenafil x 4','10.00']
+    ['Travel',14,null,null,null],
+    [null,null,'Altitude Sickness','Acetazolamide 250mg x 10','10.00'],
+    [null,null,'Anti-malarial','Malarone (12 tabs)','35.00'],
+    [null,null,'Cholera (2\u20133 needed)','Dukoral','60.00'],
+    [null,null,'Diphtheria, Tetanus &amp; Polio','Revaxis','40.00'],
+    [null,null,'Hepatitis A','Havrix monodose','60.00'],
+    [null,null,'Hepatitis B (3 needed)','Engerix B 20mcg','50.00'],
+    [null,null,'Japanese Encephalitis (2 needed)','IXIARO','104.99'],
+    [null,null,'Meningitis ACWY','Menveo','45.00'],
+    [null,'Period Delay',2,null,null],
+    [null,null,null,'Norethisterone 5mg x 30','25.00'],
+    [null,null,null,'Norethisterone 5mg x 60','35.00'],
+    [null,null,'Pneumococcal','Pneumovax 23','70.00'],
+    [null,null,'Rabies (3 needed)','Rabipur','75.00'],
+    [null,null,'Tick-Borne Encephalitis (3 needed)','TicoVac','65.00'],
+    ['END',null,'Typhoid','Typhoid Vi Polysaccharide','35.00'],
+    ['Vaccinations',8,null,null,null],
+    [null,null,'Chicken Pox (2 needed)','Varilrix','75.00'],
+    [null,null,'Covid','Comirnaty (BioNTech-Pfizer)','95.00'],
+    [null,null,'Dengue Fever (2 needed)','Qdenga','99.99'],
+    [null,null,'Flu Vaccine','','25.00'],
+    [null,null,'Vitamin B12','Hydroxycobalamin 1mg/1ml','25.00'],
+    [null,null,'HPV (1\u20133 needed)','Gardasil','180.00'],
+    [null,null,'Measles, Mumps &amp; Rubella (2 needed)','MMRVaxPRO','45.00'],
+    ['END',null,'Shingles (2 needed)','Shingrix','200.00'],
+    ['Weight Management',14,null,null,null],
+    [null,'Wegovy',5,null,null],
+    [null,null,null,'0.25mg','125.00'],
+    [null,null,null,'0.5mg','158.00'],
+    [null,null,null,'1.0mg','167.00'],
+    [null,null,null,'1.7mg','193.00'],
+    [null,null,null,'2.4mg','206.00'],
+    [null,'Saxenda',2,null,null],
+    [null,null,null,'3 x 3ml','260.00'],
+    [null,null,null,'5 x 3ml','180.00'],
+    [null,null,'Orlistat','84 caps','37.99'],
+    [null,null,'Mysimba','112 tabs','99.99'],
+    [null,'Mounjaro',6,null,null],
+    [null,null,null,'2.5mg','180.00'],
+    [null,null,null,'5mg','200.00'],
+    [null,null,null,'7.5mg','278.00'],
+    [null,null,null,'10mg','315.00'],
+    [null,null,null,'12.5mg','340.00'],
+    ['END',null,null,'15mg','370.00'],
+    ['Minor Ailments',7,null,null,null],
+    [null,null,'Back Pain','Naproxen 250mg x 28','15.00'],
+    [null,null,'Ear Infection','Otomize','20.00'],
+    [null,'Haemorrhoids',2,null,null],
+    [null,null,null,'Proctosedyl ointment x 30g','24.99'],
+    [null,null,null,'Proctosedyl suppositories x 12','25.00'],
+    [null,null,'Hayfever','Dymista','29.99'],
+    [null,null,'Period Pain','Naproxen 250mg x 28','15.00'],
+    ['END',null,'Hair Loss','Finasteride 1mg x 30','22.00'],
+    ['Sexual Health',2,null,null,null],
+    [null,'Erectile Dysfunction',2,null,null],
+    [null,null,null,'Tadalafil x 4','19.99'],
+    ['END',null,null,'Sildenafil x 4','10.00']
   ];
-
-  var html='<div style="overflow-x:auto;margin-top:1rem;"><table class="priv-table">';
-  html+='<thead><tr><th>Category</th><th>Service / Product</th><th>Item</th><th style="text-align:right;">Price</th></tr></thead><tbody>';
-
-  var catCell=null,prodCell=null,catEndNext=false,prodEndNext=false;
-
+  var catCell=null, prodCell=null;
   for(var i=0;i<rows.length;i++){
     var r=rows[i];
-    if(Array.isArray(r)){
-      var isEnd=(i+1<rows.length&&rows[i+1]&&rows[i+1].catEnd);
-      html+='<tr'+(isEnd?' class="cat-end"':'')+'>';
-      if(catCell){html+=catCell;catCell=null;}
-      if(prodCell){html+=prodCell;prodCell=null;}
-      html+='<td>'+(r[0]||'')+'</td>';
-      html+='<td class="item">'+(r[1]||'')+'</td>';
-      html+='<td class="price">&#xa3;'+r[2]+'</td>';
-      html+='</tr>';
-    } else if(r.cat!==undefined){
-      catCell='<td class="cat" rowspan="'+r.rowspan+'">'+r.cat+'</td>';
-    } else if(r.span2!==undefined){
-      prodCell='<td rowspan="'+r.rowspan+'">'+r.span2+'</td>';
-    } else if(r.catEnd){
-      // skip marker
-    }
+    if(r[0]!==null&&r[0]!=='END'){catCell='<td class="cat" rowspan="'+r[1]+'">'+r[0]+'</td>';continue;}
+    if(r[1]!==null&&typeof r[1]==='string'&&r[2]!==null&&typeof r[2]==='number'){prodCell='<td rowspan="'+r[2]+'">'+r[1]+'</td>';continue;}
+    var isEnd=r[0]==='END';
+    t+='<tr'+(isEnd?' class="cat-end"':'')+'>';
+    if(catCell){t+=catCell;catCell=null;}
+    if(prodCell){t+=prodCell;prodCell=null;}
+    t+='<td>'+(r[2]||'')+'</td>';
+    t+='<td class="item">'+(r[3]||'')+'</td>';
+    t+='<td class="price">&#xa3;'+r[4]+'</td>';
+    t+='</tr>';
   }
-  html+='</tbody></table></div>';
-  return html;
+  t+='</tbody></table></div>';
+  return t;
 }
 
-var FAQ_PRIVATE = (function(){
-  var btn = '<button onclick="navTo(1,1);setTimeout(function(){switchMockup(0);},50);" style="background:#0d9488;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Misc Items</button>';
-  var note = '<div style="margin-top:1rem;background:#e6f7f6;border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;font-size:.84rem;color:var(--muted);">&#x1F527; A <strong>Private Services</strong> quick key will be added soon to streamline this process.</div>';
-  return 'Use the ' + btn + ' button on the Till page and input the relevant item price from the private prices list below.' + buildPrivateTable() + note;
+var FAQ_PRIVATE=(function(){
+  var btn='<button onclick="navTo(1,1);setTimeout(function(){switchMockup(0);},50);" style="background:#0d9488;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Misc Items</button>';
+  var note='<div style="margin-top:1rem;background:#e6f7f6;border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;font-size:.84rem;color:var(--muted);">&#x1F527; A <strong>Private Services</strong> quick key will be added soon to streamline this process.</div>';
+  return 'Use the '+btn+' button on the Till page and input the relevant item price from the private prices list below.'+buildPrivateTable()+note;
 })();
 
-var showCashCount=false;
-var showReconcile=false;
+var FAQ_UNKNOWN_PRODUCT=(function(){
+  var desc='If you scan a barcode that is not in the system, an <strong>Unknown Product</strong> dialog will appear automatically. Type a description of the product and click <strong>AI Lookup</strong> \u2014 the AI will attempt to identify the product and suggest a price. You can edit the price if needed before adding it to the basket. The product will come through to Head Office for review and can be added to the system properly.';
+  var tileBg='<div style="opacity:.25;font-size:.55rem;color:#666;margin-bottom:.3rem;font-weight:700;">SERVICES &amp; FUNCTIONS</div><div style="opacity:.25;display:grid;grid-template-columns:repeat(6,1fr);gap:.25rem;margin-bottom:.4rem;"><div style="background:#1a3a6b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">NHS SERVICES</div><div style="background:#4a4a4a;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">MISC ITEMS</div><div style="background:#6a3fa0;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">PRICE CHECK</div><div style="background:#00796b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">REPRINT LAST</div><div style="background:#2e7d32;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">SAFE</div><div style="background:#c62828;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">VOID SALE</div></div>';
+  var mockupWrap=function(modal){return '<div style="margin-top:.75rem;border-radius:10px;overflow:hidden;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);"><div style="background:#162b2a;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div><div style="margin-left:.4rem;background:#1e3534;border-radius:4px;padding:.15rem .6rem;color:#5f8a87;font-family:monospace;font-size:.65rem;">epos.stockiq.uk/till</div></div><div style="background:#e8eaf0;padding:.6rem;position:relative;">'+tileBg+'<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:.5rem;">'+modal+'</div></div></div>';};
+  var modalBase='<div style="background:#fff;border-radius:10px;width:100%;max-width:340px;padding:.8rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,.25);">';
+  var unknownModal=modalBase
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;"><div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">Unknown Product</div><div style="font-size:.6rem;color:#888;margin-top:.1rem;">Barcode: 5099872091059</div></div><div style="color:#aaa;font-size:.9rem;">&#x2715;</div></div>'
+    +'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.5rem .7rem;font-size:.65rem;color:#92400e;margin-bottom:.6rem;line-height:1.5;">Product not found in external databases. Enter the product name below and AI will help format it and suggest a price.</div>'
+    +'<div style="font-size:.6rem;color:#555;margin-bottom:.3rem;">What is this product?</div>'
+    +'<div style="display:flex;gap:.4rem;margin-bottom:.5rem;"><div style="flex:1;border:1.5px solid #3b6fd4;border-radius:6px;padding:.35rem .6rem;font-size:.65rem;color:#1a2e2d;">Sure MotionSense Deodorant 250ml</div><div style="background:#6a3fa0;border-radius:6px;padding:.35rem .65rem;font-size:.6rem;font-weight:700;color:#fff;white-space:nowrap;">AI Lookup</div></div>'
+    +'<div style="font-size:.6rem;color:#555;margin-bottom:.25rem;">Or enter price manually</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.7rem;color:#aaa;display:flex;align-items:center;gap:.3rem;"><span style="color:#888;">&#xa3;</span> 0.00</div>'
+    +'</div>';
+  var foundModal=modalBase
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;"><div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">Product Found</div><div style="font-size:.6rem;color:#888;margin-top:.1rem;">Barcode: 5099872091059</div></div><div style="color:#aaa;font-size:.9rem;">&#x2715;</div></div>'
+    +'<div style="display:flex;gap:.4rem;margin-bottom:.6rem;"><span style="background:#e0f2fe;color:#0369a1;font-size:.55rem;border-radius:4px;padding:.15rem .4rem;font-weight:600;">Source: AI Enhanced</span><span style="background:#dcfce7;color:#15803d;font-size:.55rem;border-radius:4px;padding:.15rem .4rem;font-weight:600;">High confidence (85%)</span></div>'
+    +'<div style="font-size:.6rem;color:#555;margin-bottom:.25rem;">Product Name</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.68rem;color:#1a2e2d;margin-bottom:.5rem;">Sure MotionSense Deodorant 250ml</div>'
+    +'<div style="font-size:.6rem;color:#555;margin-bottom:.25rem;">Price</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.75rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;"><span style="color:#888;font-weight:400;font-size:.65rem;">&#xa3;</span>3.49</div>'
+    +'<div style="font-size:.55rem;color:#aaa;margin-bottom:.5rem;">Found in 0.9s</div>'
+    +'<div style="background:#22c55e;border-radius:7px;padding:.45rem;text-align:center;font-size:.65rem;font-weight:700;color:#fff;">Add to Basket &#x2014; &#xa3;3.49</div>'
+    +'</div>';
+  return desc+mockupWrap(unknownModal)+mockupWrap(foundModal);
+})();
 
-function toggleCashCount(show){
-  showCashCount=show!==undefined?show:!showCashCount;
-  if(showCashCount)showReconcile=false;
-  var el=document.getElementById('stepMockup');
-  if(el){el.innerHTML=showCashCount?renderCashCount():showReconcile?renderReconcile():renderXZ();el.style.display='block';}
-}
-
-function toggleReconcile(show){
-  showReconcile=show!==undefined?show:!showReconcile;
-  if(showReconcile)showCashCount=false;
-  var el=document.getElementById('stepMockup');
-  if(el){el.innerHTML=showReconcile?renderReconcile():renderXZ();el.style.display='block';}
-}
-
-function renderCashCount(){
-  var denoms=[['&#xa3;50','&#xa3;20'],['&#xa3;10','&#xa3;5'],['&#xa3;2','&#xa3;1'],['50p','20p'],['10p','5p'],['2p','1p']];
-  var vals=[['3','&#xa3;150.00','1','&#xa3;20.00'],['2','&#xa3;20.00','3','&#xa3;15.00'],['4','&#xa3;8.00','5','&#xa3;5.00'],['6','&#xa3;3.00','4','&#xa3;0.80'],['2','&#xa3;0.20','3','&#xa3;0.15'],['4','&#xa3;0.08','5','&#xa3;0.05']];
-  var rows='';
-  for(var i=0;i<denoms.length;i++){
-    rows+='<div style="background:'+(i===0?'rgba(59,111,212,.35)':'transparent')+';border:'+(i===0?'1px solid #3b6fd4':'1px solid transparent')+';border-radius:6px;padding:.35rem .5rem;display:flex;justify-content:space-between;align-items:center;"><span style="color:#fff;font-size:.65rem;font-weight:600;">'+denoms[i][0]+'</span><span style="color:#aaa;font-size:.6rem;">'+vals[i][0]+'</span><span style="color:#90caf9;font-size:.6rem;">'+vals[i][1]+'</span></div>'
-      +'<div style="background:transparent;border:1px solid transparent;border-radius:6px;padding:.35rem .5rem;display:flex;justify-content:space-between;align-items:center;"><span style="color:#fff;font-size:.65rem;font-weight:600;">'+denoms[i][1]+'</span><span style="color:#aaa;font-size:.6rem;">'+vals[i][2]+'</span><span style="color:#90caf9;font-size:.6rem;">'+vals[i][3]+'</span></div>';
-  }
-  var left='<div style="display:flex;flex-direction:column;gap:.5rem;padding:.7rem .8rem;">'
-    +'<div style="font-size:.55rem;font-weight:700;letter-spacing:.06em;color:#8a9bb0;text-transform:uppercase;margin-bottom:.2rem;">Count Your Till</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;">'+rows+'</div>'
-    +'<div style="border-top:1px solid rgba(255,255,255,.1);padding-top:.5rem;display:flex;flex-direction:column;gap:.25rem;">'
-    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Counted Total</span><span style="font-size:.65rem;font-weight:700;color:#3b6fd4;">&#xa3;222.28</span></div>'
-    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">To deposit</span><span style="font-size:.65rem;font-weight:700;color:#22c55e;">&#xa3;162.28</span></div>'
-    +'</div></div>';
-  var right='<div style="display:flex;flex-direction:column;gap:.4rem;padding:.7rem .6rem;">'
-    +'<div style="background:rgba(59,111,212,.25);border-radius:8px;padding:.5rem .6rem;text-align:center;">'
-    +'<div style="font-size:.6rem;color:#90caf9;margin-bottom:.1rem;">&#xa3;50</div>'
-    +'<div style="font-size:1.4rem;font-weight:800;color:#fff;">3</div>'
-    +'<div style="font-size:.55rem;color:#3b6fd4;">= &#xa3;150.00</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.25rem;">'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">1</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">2</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">3</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">4</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">5</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">6</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">7</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">8</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">9</div>'
-    +'<div style="background:#7f1d1d;border-radius:6px;padding:.35rem;text-align:center;color:#f87171;font-size:.6rem;font-weight:700;">CLR</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">0</div>'
-    +'<div style="background:#78610a;border-radius:6px;padding:.35rem;text-align:center;color:#fbbf24;font-size:.7rem;">&#x232B;</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;margin-top:.1rem;">'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:600;">Next &#x2193;</div>'
-    +'<div class="mc" onclick="toggleReconcile(true)" style="background:#e03535;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:700;">Continue &#x2192;</div>'
-    +'</div>'
-    +'</div>';
-  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;">'
-    +'<div style="background:#162032;border-radius:12px;width:90%;max-width:480px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,.1);">'
-    +'<span style="color:#fff;font-size:.75rem;font-weight:700;">&#x1F512; Z-Read &#x2014; Close Shift</span>'
-    +'<div onclick="toggleCashCount(false)" style="cursor:pointer;color:#aaa;font-size:.8rem;background:rgba(255,255,255,.1);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;">&#x2715;</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 140px;">'+left+right+'</div>'
-    +'</div>'
-    +'</div>';
-  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/xzread</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;opacity:.4;"><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">X/Z Read</div><div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong></div><div style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">X-Read</div><div style="background:#e03535;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">Z-Read</div></div></div>'+modal+BUG+'</div></div>';
-}
-
-function renderReconcile(){
-  var left='<div style="display:flex;flex-direction:column;gap:.4rem;padding:.7rem .8rem;">'
-    +'<div style="font-size:.55rem;font-weight:700;letter-spacing:.06em;color:#8a9bb0;text-transform:uppercase;margin-bottom:.2rem;">Reconciliation</div>'
-    +'<div style="display:flex;flex-direction:column;gap:.2rem;">'
-    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.62rem;color:#fff;font-weight:600;">Total Sales</span><span style="font-size:.62rem;color:#3b6fd4;font-weight:700;">&#xa3;248.60</span></div>'
-    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Cash Counted</span><span style="font-size:.6rem;color:#fff;">&#xa3;222.28</span></div>'
-    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">&#x2013; Float Kept</span><span style="font-size:.6rem;color:#fff;">&#x2013;&#xa3;60.00</span></div>'
-    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">= Cash Banked</span><span style="font-size:.6rem;color:#fff;">&#xa3;162.28</span></div>'
-    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Card Machine (PDQ)</span><span style="font-size:.6rem;color:#fff;">&#xa3;86.32</span></div>'
-    +'<div style="border-top:1px solid rgba(255,255,255,.1);margin-top:.2rem;padding-top:.2rem;display:flex;justify-content:space-between;"><span style="font-size:.62rem;color:#fff;font-weight:600;">Accounted For</span><span style="font-size:.62rem;color:#f87171;font-weight:700;">&#xa3;248.60</span></div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;">'
-    +'<div style="background:rgba(30,45,69,.8);border-radius:6px;padding:.4rem .5rem;"><div style="font-size:.5rem;color:#8a9bb0;margin-bottom:.15rem;">Counted</div><div style="font-size:.8rem;font-weight:700;color:#fff;">&#xa3;222.28</div></div>'
-    +'<div style="background:rgba(120,60,10,.4);border-radius:6px;padding:.4rem .5rem;"><div style="font-size:.5rem;color:#fbbf24;margin-bottom:.15rem;">Variance</div><div style="font-size:.8rem;font-weight:700;color:#f59e0b;">&#xa3;0.00</div></div>'
-    +'</div>'
-    +'<div>'
-    +'<div style="font-size:.55rem;font-weight:700;letter-spacing:.06em;color:#8a9bb0;text-transform:uppercase;margin-bottom:.3rem;">Card Machine (PDQ) Total</div>'
-    +'<div style="background:rgba(59,111,212,.2);border:1px solid #3b6fd4;border-radius:6px;padding:.4rem .6rem;text-align:center;font-size:.75rem;font-weight:700;color:#fff;">&#xa3;86.32</div>'
-    +'</div>'
-    +'<div style="background:rgba(30,45,69,.6);border-radius:6px;padding:.35rem .5rem;font-size:.6rem;color:#555;">Variance notes (required for &gt;50p)...</div>'
-    +'<div style="background:rgba(22,160,133,.15);border:1px solid rgba(22,160,133,.4);border-radius:6px;padding:.4rem .6rem;display:flex;justify-content:space-between;align-items:center;">'
-    +'<span style="font-size:.6rem;color:#5eead4;">To deposit in safe</span><span style="font-size:.65rem;font-weight:700;color:#2dd4bf;">&#xa3;162.28</span>'
-    +'</div>'
-    +'</div>';
-  var right='<div style="display:flex;flex-direction:column;gap:.4rem;padding:.7rem .6rem;">'
-    +'<div style="background:rgba(59,111,212,.25);border-radius:8px;padding:.5rem .6rem;text-align:center;">'
-    +'<div style="font-size:.6rem;color:#90caf9;margin-bottom:.1rem;">Card Total</div>'
-    +'<div style="font-size:1.3rem;font-weight:800;color:#fff;">&#xa3;86</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.25rem;">'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">1</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">2</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">3</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">4</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">5</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">6</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">7</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">8</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">9</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#aaa;font-size:.7rem;">.</div>'
-    +'<div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">0</div>'
-    +'<div style="background:#78610a;border-radius:6px;padding:.35rem;text-align:center;color:#fbbf24;font-size:.7rem;">&#x232B;</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;">'
-    +'<div style="background:#7f1d1d;border-radius:6px;padding:.35rem;text-align:center;color:#f87171;font-size:.6rem;font-weight:700;">Clear</div>'
-    +'<div style="background:#3b6fd4;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:700;">Done &#x2713;</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;margin-top:.1rem;">'
-    +'<div class="mc" onclick="toggleCashCount(true)" style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:600;">&#x2190; Back</div>'
-    +'<div class="mc" onclick="showReconcile=false;showCashCount=false;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderXZ();el.style.display=\'block\';}" style="background:#e03535;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:700;">Close Shift</div>'
-    +'</div>'
-    +'</div>';
-  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;">'
-    +'<div style="background:#162032;border-radius:12px;width:90%;max-width:480px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,.1);">'
-    +'<span style="color:#fff;font-size:.75rem;font-weight:700;">&#x1F512; Z-Read &#x2014; Close Shift</span>'
-    +'<div onclick="toggleReconcile(false)" style="cursor:pointer;color:#aaa;font-size:.8rem;background:rgba(255,255,255,.1);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;">&#x2715;</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 140px;">'+left+right+'</div>'
-    +'</div>'
-    +'</div>';
-  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/xzread</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;opacity:.4;"><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">X/Z Read</div><div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong></div><div style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">X-Read</div><div style="background:#e03535;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">Z-Read</div></div></div>'+modal+BUG+'</div></div>';
-}function hlBtn(key){return activeSFPanel===key?'box-shadow:0 0 0 3px #14b8a6;':'';}
+// ── Helpers ──
+function hl(on){return on?'outline:3px solid #14b8a6;border-radius:7px;background:rgba(20,184,166,.06);':'';}
+function hlBtn(key){return activeSFPanel===key?'box-shadow:0 0 0 3px #14b8a6;':'';}
 function isDoneStep(i){for(var j=0;j<doneSteps.length;j++){if(doneSteps[j]===i)return true;}return false;}
 function isDoneSub(si,sj){if(!doneSubs[si])return false;for(var k=0;k<doneSubs[si].length;k++){if(doneSubs[si][k]===sj)return true;}return false;}
 function markDoneStep(i){if(!isDoneStep(i))doneSteps.push(i);}
@@ -383,6 +269,7 @@ function aTip(){var sub=aSub();return(sub!==null&&sub!==undefined)?sub.tip:aStep
 function aTip2(){return aStep().tip2||null;}
 function aMockup(){var sub=aSub();return sub?sub.getMockup(curInstr):aStep().getMockup(curInstr);}
 
+// ── Price Check helpers ──
 function closePriceCheckBox(){
   var c=document.getElementById('priceCheckContent'),b=document.getElementById('priceCheckBox');
   if(!c||!b)return;
@@ -407,12 +294,37 @@ function togglePriceCheckBox(){
   if(c.style.display==='block'){showPriceCheck=false;closePriceCheckBox();var el=document.getElementById('stepMockup');if(el){el.innerHTML=renderTill(null);el.style.display='block';}}
   else{goToPriceCheck();}
 }
-function goToStep(i){curStep=i;curSub=0;curInstr=0;activeSFPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;render();}
-function goToSub(j){curSub=j;curInstr=0;activeSFPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;render();}
-function navTo(si,sj){curStep=si;curSub=sj!==undefined?sj:0;curInstr=0;activeSFPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;render();}
+
+// ── Cash up mockup helpers ──
+function showCashCountMockup(){
+  showCashCount=true;showReconcile=false;
+  var el=document.getElementById('stepMockup');
+  if(el){el.innerHTML=renderCashCount();el.style.display='block';}
+}
+function showReconcileMockup(){
+  showReconcile=true;showCashCount=false;
+  var el=document.getElementById('stepMockup');
+  if(el){el.innerHTML=renderReconcile();el.style.display='block';}
+}
+function closeShiftMockup(){
+  showCashCount=false;showReconcile=false;
+  var el=document.getElementById('stepMockup');
+  if(el){el.innerHTML=renderXZ();el.style.display='block';}
+}
+function closeCashOverlay(){
+  showCashCount=false;showReconcile=false;
+  var el=document.getElementById('stepMockup');
+  if(el){el.innerHTML=renderXZ();el.style.display='block';}
+}
+
+// ── Navigation ──
+function resetFlags(){activeSFPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;}
+function goToStep(i){curStep=i;curSub=0;curInstr=0;resetFlags();render();}
+function goToSub(j){curSub=j;curInstr=0;resetFlags();render();}
+function navTo(si,sj){curStep=si;curSub=sj!==undefined?sj:0;curInstr=0;resetFlags();render();}
 function navToInstr(si,sj,ii){
   var same=curStep===si&&curSub===(sj!==undefined?sj:0);
-  curStep=si;curSub=sj!==undefined?sj:0;curInstr=ii||0;activeSFPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;
+  curStep=si;curSub=sj!==undefined?sj:0;curInstr=ii||0;resetFlags();
   render(true);
   if(!same)setTimeout(function(){var it=document.querySelectorAll('.instr-item');if(it[curInstr])it[curInstr].scrollIntoView({behavior:'smooth',block:'center'});},80);
 }
@@ -471,8 +383,9 @@ function sfRender(){
   panels.innerHTML=html;
 }
 function closeMobileNav(){}
-function restart(){curStep=0;curSub=0;curInstr=0;doneSteps=[];doneSubs={};activeSFPanel=null;showPriceCheck=false;render();}
+function restart(){curStep=0;curSub=0;curInstr=0;doneSteps=[];doneSubs={};resetFlags();render();}
 
+// ── Shared sidebar / nav HTML ──
 function sidebarHtml(active){
   var items=[{key:'till',icon:'&#x1F9FE;',label:'Till'},{key:'xz',icon:'&#x1F4CB;',label:'X/Z Read'},{key:'labels',icon:'&#x1F3F7;&#xFE0F;',label:'Labels',badge:true},{key:'dashboard',icon:'&#x1F4CA;',label:'Dashboard'},{key:'accounts',icon:'&#x1F465;',label:'Accounts'},{key:'reports',icon:'&#x1F4C8;',label:'Reports'},{key:'settings',icon:'&#x2699;&#xFE0F;',label:'Settings'}];
   var h='<div style="background:#1e2235;display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.3rem;"><div style="color:#fff;font-weight:900;font-size:.75rem;margin-bottom:.3rem;background:#2d3250;border-radius:6px;padding:.2rem .4rem;">SiQ</div><div style="background:#3a3f5c;border-radius:6px;padding:.3rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;">AP-46</div>';
@@ -487,14 +400,15 @@ function topNavHtml(active){
 }
 function wrapMockup(url,inner){return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">'+url+'</div></div><div class="mockup-inner">'+inner+BUG+'</div></div>';}
 
-function buildTillSidebar(navHighlight){
+function buildTillSidebar(navHL){
   var items=[{key:'till',icon:'&#x1F9FE;',label:'Till',act:true},{key:'xz',icon:'&#x1F4CB;',label:'X/Z Read',act:false},{key:'labels',icon:'&#x1F3F7;&#xFE0F;',label:'Labels',act:false,badge:true},{key:'dashboard',icon:'&#x1F4CA;',label:'Dashboard',act:false},{key:'accounts',icon:'&#x1F465;',label:'Accounts',act:false},{key:'reports',icon:'&#x1F4C8;',label:'Reports',act:false},{key:'settings',icon:'&#x2699;&#xFE0F;',label:'Settings',act:false}];
-  var navS=navHighlight?'outline:3px solid #14b8a6;outline-offset:-3px;':'';
+  var navS=navHL?'outline:3px solid #14b8a6;outline-offset:-3px;':'';
   var h='<div style="background:#1e2235;display:flex;flex-direction:column;align-items:center;padding:.5rem 0;gap:.3rem;'+navS+'"><div style="color:#fff;font-weight:900;font-size:.75rem;margin-bottom:.3rem;background:#2d3250;border-radius:6px;padding:.2rem .4rem;">SiQ</div><div style="background:#3a3f5c;border-radius:6px;padding:.3rem .5rem;color:#fff;font-size:.55rem;text-align:center;width:48px;">AP-46</div>';
   for(var i=0;i<items.length;i++){var s=items[i];h+='<div class="mc" onclick="sidebarClick(\''+s.key+'\')" style="'+(s.act?'background:#4a6fa5;border-radius:6px;':'')+'padding:.4rem .5rem;color:'+(s.act?'#fff':'#8a9bb0')+';font-size:.55rem;text-align:center;width:48px;position:relative;"><div style="font-size:.9rem;">'+s.icon+'</div>'+s.label+(s.badge?'<span style="position:absolute;top:0;right:4px;background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .25rem;">99+</span>':'')+'</div>';}
   h+='</div>';return h;
 }
 
+// ── Mockup renderers ──
 function renderLogin(){
   return '<div class="mockup"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">stockiq.local/login</div></div><div class="mockup-inner"><div class="login-mockup"><div class="login-logo-wrap"><div style="font-size:1.5rem;font-weight:900;color:#fff;">StockIQ</div><div class="login-epos-label">EPOS System - Branch Login</div></div><div class="login-card"><div class="login-card-title">Branch Authentication</div><div class="login-card-sub">Login with your branch manager account</div><div class="login-field-wrap"><div class="login-field-label">Email</div><input class="login-field filled" value="manager@pharmacy.com" readonly/></div><div class="login-field-wrap"><div class="login-field-label">Password</div><input class="login-field" type="password" placeholder="Enter password" readonly/></div><button class="login-btn">Login to Branch</button></div><div class="login-footer">Use a manager or admin account with EPOS permission</div></div>'+BUG+'</div></div>';
 }
@@ -532,22 +446,108 @@ function renderPriceCheck(){
   var main='<div style="background:#f0f2f7;padding:.6rem;display:flex;flex-direction:column;gap:.5rem;">';
   main+='<div><button class="mc" onclick="showPriceCheck=false;closePriceCheckBox();var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderTill(null);el.style.display=\'block\';}" style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:.3rem .7rem;font-size:.6rem;color:#555;cursor:pointer;">&#x2190; Back to Till</button></div>';
   main+='<div style="background:#fff;border:1.5px solid #3b6fd4;border-radius:8px;padding:.4rem .8rem;font-size:.65rem;color:#aaa;display:flex;align-items:center;gap:.4rem;"><span>&#x1F50D;</span>Enter barcode or product name...</div>';
-  main+='<div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.5rem;"><div style="font-size:.78rem;font-weight:700;color:#1a2e2d;">Paracetamol Capsules 500mg 100</div><div style="font-size:.6rem;color:#888;">Pack: 100 &nbsp;|&nbsp; Barcode: 5024071260069</div><div style="background:#f8f9fc;border-radius:8px;padding:.7rem;text-align:center;"><div style="font-size:.6rem;color:#888;margin-bottom:.2rem;">Retail Price</div><div style="font-size:1.5rem;font-weight:800;color:#3b6fd4;">&#xa3;2.41</div></div><div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:.5rem .8rem;text-align:center;font-size:.65rem;font-weight:700;color:#b45309;">&#x26A0;&#xFE0F; Flag Price Issue</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;"><div style="background:#3b6fd4;border-radius:7px;padding:.4rem;text-align:center;font-size:.62rem;font-weight:700;color:#fff;">Add to Basket</div><div style="background:#f0f2f7;border-radius:7px;padding:.4rem;text-align:center;font-size:.62rem;font-weight:600;color:#555;">Scan Another</div></div></div></div>';
+  main+='<div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.5rem;"><div style="font-size:.78rem;font-weight:700;color:#1a2e2d;">Paracetamol Capsules 500mg 100</div><div style="font-size:.6rem;color:#888;">Pack: 100 &nbsp;|&nbsp; Barcode: 5024071260069</div><div style="background:#f8f9fc;border-radius:8px;padding:.7rem;text-align:center;"><div style="font-size:.6rem;color:#888;margin-bottom:.2rem;">Retail Price</div><div style="font-size:1.5rem;font-weight:800;color:#3b6fd4;">&#xa3;2.41</div></div><div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:.5rem .8rem;text-align:center;font-size:.65rem;font-weight:700;color:#b45309;">&#x26A0;&#xFE0F; Flag Price Issue</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;"><div style="background:#3b6fd4;border-radius:7px;padding:.4rem;text-align:center;font-size:.62rem;font-weight:700;color:#fff;">Add to Basket</div><div style="background:#f0f2f7;border-radius:7px;padding:.4rem;text-align:center;font-size:.62rem;font-weight:600;color:#555;">Scan Another</div></div></div>';
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till/price-check</div></div><div class="mockup-inner"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sb+main+'</div>'+BUG+'</div></div>';
 }
 function renderXZ(){
-  var onZRead=curStep===3?'toggleCashCount(true)':'navToInstr(1,2,2)';
+  var onZRead=curStep===3?'showCashCountMockup()':'navToInstr(1,2,2)';
   return wrapMockup('epos.stockiq.uk/xzread','<div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;margin-bottom:.2rem;">X/Z Read</div><div style="font-size:.7rem;color:#888;">View shift summary or close out the till</div></div><div class="mc" onclick="navToInstr(1,2,0)" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong> - started today</div><div class="mc" onclick="navToInstr(1,2,1)" style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F4CA;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">X-Read - View Current Shift</div></div><div class="mc" onclick="'+onZRead+'" style="background:#e03535;border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.7rem;"><div style="font-size:1.1rem;">&#x1F512;</div><div style="color:#fff;font-weight:700;font-size:.82rem;">Z-Read - Close Shift</div></div></div></div>');
+}
+function renderCashCount(){
+  var denoms=[['&#xa3;50','&#xa3;20'],['&#xa3;10','&#xa3;5'],['&#xa3;2','&#xa3;1'],['50p','20p'],['10p','5p'],['2p','1p']];
+  var vals=[['3','&#xa3;150.00','1','&#xa3;20.00'],['2','&#xa3;20.00','3','&#xa3;15.00'],['4','&#xa3;8.00','5','&#xa3;5.00'],['6','&#xa3;3.00','4','&#xa3;0.80'],['2','&#xa3;0.20','3','&#xa3;0.15'],['4','&#xa3;0.08','5','&#xa3;0.05']];
+  var rows='';
+  for(var i=0;i<denoms.length;i++){
+    rows+='<div style="background:'+(i===0?'rgba(59,111,212,.35)':'transparent')+';border:'+(i===0?'1px solid #3b6fd4':'1px solid transparent')+';border-radius:6px;padding:.35rem .5rem;display:flex;justify-content:space-between;align-items:center;"><span style="color:#fff;font-size:.65rem;font-weight:600;">'+denoms[i][0]+'</span><span style="color:#aaa;font-size:.6rem;">'+vals[i][0]+'</span><span style="color:#90caf9;font-size:.6rem;">'+vals[i][1]+'</span></div>';
+    rows+='<div style="background:transparent;border:1px solid transparent;border-radius:6px;padding:.35rem .5rem;display:flex;justify-content:space-between;align-items:center;"><span style="color:#fff;font-size:.65rem;font-weight:600;">'+denoms[i][1]+'</span><span style="color:#aaa;font-size:.6rem;">'+vals[i][2]+'</span><span style="color:#90caf9;font-size:.6rem;">'+vals[i][3]+'</span></div>';
+  }
+  var left='<div style="display:flex;flex-direction:column;gap:.5rem;padding:.7rem .8rem;"><div style="font-size:.55rem;font-weight:700;letter-spacing:.06em;color:#8a9bb0;text-transform:uppercase;margin-bottom:.2rem;">Count Your Till</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;">'+rows+'</div><div style="border-top:1px solid rgba(255,255,255,.1);padding-top:.5rem;display:flex;flex-direction:column;gap:.25rem;"><div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Counted Total</span><span style="font-size:.65rem;font-weight:700;color:#3b6fd4;">&#xa3;222.28</span></div><div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">To deposit</span><span style="font-size:.65rem;font-weight:700;color:#22c55e;">&#xa3;162.28</span></div></div></div>';
+  var right='<div style="display:flex;flex-direction:column;gap:.4rem;padding:.7rem .6rem;"><div style="background:rgba(59,111,212,.25);border-radius:8px;padding:.5rem .6rem;text-align:center;"><div style="font-size:.6rem;color:#90caf9;margin-bottom:.1rem;">&#xa3;50</div><div style="font-size:1.4rem;font-weight:800;color:#fff;">3</div><div style="font-size:.55rem;color:#3b6fd4;">= &#xa3;150.00</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.25rem;"><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">1</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">2</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">3</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">4</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">5</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">6</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">7</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">8</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">9</div><div style="background:#7f1d1d;border-radius:6px;padding:.35rem;text-align:center;color:#f87171;font-size:.6rem;font-weight:700;">CLR</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">0</div><div style="background:#78610a;border-radius:6px;padding:.35rem;text-align:center;color:#fbbf24;font-size:.7rem;">&#x232B;</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;margin-top:.1rem;"><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:600;">Next &#x2193;</div><div class="mc" onclick="showReconcileMockup()" style="background:#e03535;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:700;">Continue &#x2192;</div></div></div>';
+  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;"><div style="background:#162032;border-radius:12px;width:90%;max-width:480px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);"><div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,.1);"><span style="color:#fff;font-size:.75rem;font-weight:700;">&#x1F512; Z-Read &#x2014; Close Shift</span><div class="mc" onclick="closeCashOverlay()" style="color:#aaa;font-size:.8rem;background:rgba(255,255,255,.1);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;">&#x2715;</div></div><div style="display:grid;grid-template-columns:1fr 140px;">'+left+right+'</div></div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/xzread</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;opacity:.4;"><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">X/Z Read</div><div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong></div><div style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">X-Read</div><div style="background:#e03535;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">Z-Read</div></div></div>'+modal+BUG+'</div></div>';
+}
+function renderReconcile(){
+  var left='<div style="display:flex;flex-direction:column;gap:.4rem;padding:.7rem .8rem;"><div style="font-size:.55rem;font-weight:700;letter-spacing:.06em;color:#8a9bb0;text-transform:uppercase;margin-bottom:.2rem;">Reconciliation</div><div style="display:flex;flex-direction:column;gap:.2rem;"><div style="display:flex;justify-content:space-between;"><span style="font-size:.62rem;color:#fff;font-weight:600;">Total Sales</span><span style="font-size:.62rem;color:#3b6fd4;font-weight:700;">&#xa3;248.60</span></div><div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Cash Counted</span><span style="font-size:.6rem;color:#fff;">&#xa3;222.28</span></div><div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">&#x2013; Float Kept</span><span style="font-size:.6rem;color:#fff;">&#x2013;&#xa3;60.00</span></div><div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">= Cash Banked</span><span style="font-size:.6rem;color:#fff;">&#xa3;162.28</span></div><div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Card Machine (PDQ)</span><span style="font-size:.6rem;color:#fff;">&#xa3;86.32</span></div><div style="border-top:1px solid rgba(255,255,255,.1);margin-top:.2rem;padding-top:.2rem;display:flex;justify-content:space-between;"><span style="font-size:.62rem;color:#fff;font-weight:600;">Accounted For</span><span style="font-size:.62rem;color:#22c55e;font-weight:700;">&#xa3;248.60</span></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;"><div style="background:rgba(30,45,69,.8);border-radius:6px;padding:.4rem .5rem;"><div style="font-size:.5rem;color:#8a9bb0;margin-bottom:.15rem;">Counted</div><div style="font-size:.8rem;font-weight:700;color:#fff;">&#xa3;222.28</div></div><div style="background:rgba(30,45,69,.8);border-radius:6px;padding:.4rem .5rem;"><div style="font-size:.5rem;color:#8a9bb0;margin-bottom:.15rem;">Variance</div><div style="font-size:.8rem;font-weight:700;color:#22c55e;">&#xa3;0.00</div></div></div><div><div style="font-size:.55rem;font-weight:700;letter-spacing:.06em;color:#8a9bb0;text-transform:uppercase;margin-bottom:.3rem;">Card Machine (PDQ) Total</div><div style="background:rgba(59,111,212,.2);border:1px solid #3b6fd4;border-radius:6px;padding:.4rem .6rem;text-align:center;font-size:.75rem;font-weight:700;color:#fff;">&#xa3;86.32</div></div><div style="background:rgba(30,45,69,.6);border-radius:6px;padding:.35rem .5rem;font-size:.6rem;color:#555;">Variance notes (required for &gt;50p)...</div><div style="background:rgba(22,160,133,.15);border:1px solid rgba(22,160,133,.4);border-radius:6px;padding:.4rem .6rem;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.6rem;color:#5eead4;">To deposit in safe</span><span style="font-size:.65rem;font-weight:700;color:#2dd4bf;">&#xa3;162.28</span></div></div>';
+  var right='<div style="display:flex;flex-direction:column;gap:.4rem;padding:.7rem .6rem;"><div style="background:rgba(59,111,212,.25);border-radius:8px;padding:.5rem .6rem;text-align:center;"><div style="font-size:.6rem;color:#90caf9;margin-bottom:.1rem;">Card Total</div><div style="font-size:1.3rem;font-weight:800;color:#fff;">&#xa3;86</div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.25rem;"><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">1</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">2</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">3</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">4</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">5</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">6</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">7</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">8</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">9</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#aaa;font-size:.7rem;">.</div><div style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.7rem;font-weight:600;">0</div><div style="background:#78610a;border-radius:6px;padding:.35rem;text-align:center;color:#fbbf24;font-size:.7rem;">&#x232B;</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;"><div style="background:#7f1d1d;border-radius:6px;padding:.35rem;text-align:center;color:#f87171;font-size:.6rem;font-weight:700;">Clear</div><div style="background:#3b6fd4;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:700;">Done &#x2713;</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;margin-top:.1rem;"><div class="mc" onclick="showCashCountMockup()" style="background:#1e2d45;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:600;">&#x2190; Back</div><div class="mc" onclick="closeShiftMockup()" style="background:#e03535;border-radius:6px;padding:.35rem;text-align:center;color:#fff;font-size:.6rem;font-weight:700;">Close Shift</div></div></div>';
+  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;"><div style="background:#162032;border-radius:12px;width:90%;max-width:480px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);"><div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,.1);"><span style="color:#fff;font-size:.75rem;font-weight:700;">&#x1F512; Z-Read &#x2014; Close Shift</span><div class="mc" onclick="closeCashOverlay()" style="color:#aaa;font-size:.8rem;background:rgba(255,255,255,.1);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;">&#x2715;</div></div><div style="display:grid;grid-template-columns:1fr 140px;">'+left+right+'</div></div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/xzread</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#fff;padding:1.2rem 1.5rem;display:flex;flex-direction:column;gap:.8rem;opacity:.4;"><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">X/Z Read</div><div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.6rem 1rem;font-size:.72rem;color:#166534;">Shift is <strong>open</strong></div><div style="background:#3b6fd4;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">X-Read</div><div style="background:#e03535;border-radius:10px;padding:.75rem 1rem;color:#fff;font-weight:700;font-size:.82rem;">Z-Read</div></div></div>'+modal+BUG+'</div></div>';
+}
+function labelsTabsHtml(active){
+  var tabs=[{k:'search',l:'Search'},{k:'pricechanges',l:'Price Changes',badge:true},{k:'priceadj',l:'Price Adjustment'},{k:'submissions',l:'My Submissions'}];
+  var h='<div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;gap:.1rem;">';
+  for(var i=0;i<tabs.length;i++){
+    var t=tabs[i],isAct=t.k===active;
+    var onclick='';
+    if(t.k==='search')onclick='navToInstr(1,3,1)';
+    else if(t.k==='pricechanges')onclick='navToInstr(1,3,0)';
+    else if(t.k==='priceadj')onclick='navToInstr(1,3,3)';
+    else if(t.k==='submissions')onclick='navToInstr(1,3,4)';
+    h+='<div class="mc" onclick="'+onclick+'" style="'+(isAct?'background:#fff;border-radius:6px;font-weight:700;color:#1a2e2d;':'color:#666;')+'padding:.3rem .65rem;font-size:.6rem;display:flex;align-items:center;gap:.25rem;">';
+    h+=t.l;
+    if(t.badge)h+='<span style="background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .3rem;">99+</span>';
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+function renderLabelsPriceAdjustment(){
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;">'
+    +'<div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div>'
+    +labelsTabsHtml('priceadj')
+    +'<div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:.7rem .9rem;display:flex;flex-direction:column;gap:.5rem;">'
+    +'<div style="font-size:.52rem;font-weight:700;letter-spacing:.08em;color:#888;text-transform:uppercase;">Scan or Enter Barcode</div>'
+    +'<div style="display:flex;gap:.4rem;align-items:center;"><div style="flex:1;background:#fff;border:1.5px solid #3b6fd4;border-radius:6px;padding:.35rem .6rem;font-size:.65rem;color:#1a2e2d;">5029115011263</div><div style="background:#3b6fd4;border-radius:6px;padding:.35rem .65rem;font-size:.6rem;font-weight:700;color:#fff;white-space:nowrap;">&#x1F50D; Look Up</div></div>'
+    +'<div style="font-size:.55rem;color:#aaa;">Tip: Use your handheld scanner &#x2014; the barcode field is auto-focused</div>'
+    +'</div>'
+    +'<div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:.7rem .9rem;display:flex;flex-direction:column;gap:.5rem;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.7rem;font-weight:700;color:#1a2e2d;">A &amp; E unicorn plasters 1.9cm x 7.2cm 15</div><div style="font-size:.55rem;color:#aaa;margin-top:.1rem;">5029115011263 &middot; PIP 4226247</div></div><div style="text-align:right;"><div style="font-size:.48rem;color:#888;text-transform:uppercase;letter-spacing:.06em;">Current Price</div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">&#xa3;1.79</div></div></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;"><div><div style="font-size:.48rem;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem;">Suggested Price</div><div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.65rem;color:#aaa;background:#fafafa;">&#xa3; 0.00</div></div><div><div style="font-size:.48rem;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.25rem;">Reason</div><div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.6rem;color:#aaa;background:#fafafa;">Select a reason... (optional)</div></div></div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:.4rem;margin-top:.2rem;"><div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;color:#555;background:#fff;">Cancel</div><div style="background:#22c55e;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;font-weight:700;color:#fff;">Submit for Approval</div></div>'
+    +'</div></div></div>';
+  return wrapMockup('epos.stockiq.uk/labels/price-adjustment',inner);
+}
+function renderLabelsMySubmissions(){
+  var rows=[
+    ['A &amp; E unicorn plasters 1.9cm x 7.2cm 15','5029115011263','&#xa3;12.84','&#xa3;1.79','Other','2026-04-09 10:25','Approved','#dcfce7','#16a34a'],
+    ['Paracetamol 500mg Tabs 32','5000158119276','&#xa3;3.49','&#xa3;2.29','Pricing error','2026-04-10 09:14','Pending','#fef9c3','#b45309'],
+    ['Ibuprofen 400mg Caps 24','5000158070560','&#xa3;5.20','&#xa3;3.99','Competitor price','2026-04-11 14:02','Rejected','#fee2e2','#dc2626']
+  ];
+  var rowsHtml='';
+  for(var i=0;i<rows.length;i++){
+    var r=rows[i];
+    rowsHtml+='<tr style="border-bottom:1px solid #f0f2f7;">'
+      +'<td style="padding:.35rem .5rem;"><div style="font-size:.6rem;font-weight:600;color:#1a2e2d;">'+r[0]+'</div><div style="font-size:.5rem;color:#aaa;">'+r[1]+'</div></td>'
+      +'<td style="padding:.35rem .5rem;font-size:.6rem;color:#555;">'+r[2]+'</td>'
+      +'<td style="padding:.35rem .5rem;font-size:.6rem;color:#22c55e;font-weight:700;">'+r[3]+'</td>'
+      +'<td style="padding:.35rem .5rem;font-size:.58rem;color:#888;">'+r[4]+'</td>'
+      +'<td style="padding:.35rem .5rem;font-size:.55rem;color:#aaa;">'+r[5]+'</td>'
+      +'<td style="padding:.35rem .5rem;"><span style="background:'+r[7]+';color:'+r[8]+';font-size:.52rem;font-weight:700;border-radius:4px;padding:.1rem .35rem;">'+r[6]+'</span></td>'
+      +'</tr>';
+  }
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;">'
+    +'<div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div>'
+    +labelsTabsHtml('submissions')
+    +'<div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;">'
+    +'<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8f9fc;border-bottom:2px solid #e5e7eb;">'
+    +'<th style="text-align:left;padding:.35rem .5rem;font-size:.52rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Product</th>'
+    +'<th style="text-align:left;padding:.35rem .5rem;font-size:.52rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Current</th>'
+    +'<th style="text-align:left;padding:.35rem .5rem;font-size:.52rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Suggested</th>'
+    +'<th style="text-align:left;padding:.35rem .5rem;font-size:.52rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Reason</th>'
+    +'<th style="text-align:left;padding:.35rem .5rem;font-size:.52rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Submitted</th>'
+    +'<th style="text-align:left;padding:.35rem .5rem;font-size:.52rem;color:#888;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Status</th>'
+    +'</tr></thead><tbody>'+rowsHtml+'</tbody></table></div>'
+    +'</div></div>';
+  return wrapMockup('epos.stockiq.uk/labels/submissions',inner);
 }
 function renderLabelsSearch(highlight){
   var qS=highlight==='queue'?'display:grid;grid-template-columns:1fr 160px;gap:.6rem;outline:3px solid #14b8a6;border-radius:10px;padding:.3rem;background:rgba(20,184,166,.05);':'display:grid;grid-template-columns:1fr 160px;gap:.6rem;';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div><div style="display:flex;gap:.4rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#555;font-weight:600;">Test Print</div><div style="background:#4a7ff5;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#fff;font-weight:600;">Print All (0)</div></div></div><div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"><div class="mc" onclick="navToInstr(1,3,1)" style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;">Search</div><div class="mc" onclick="navToInstr(1,3,0)" style="padding:.3rem .8rem;font-size:.65rem;color:#666;display:flex;align-items:center;gap:.3rem;">Price Changes <span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;">99+</span></div></div><div style="'+qS+'"><div style="display:flex;flex-direction:column;gap:.5rem;"><div class="mc" onclick="navToInstr(1,3,1)" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.4rem .7rem;display:flex;align-items:center;gap:.4rem;"><span style="color:#aaa;">&#x1F50D;</span><span style="font-size:.65rem;color:#aaa;">Search products...</span></div><div class="mc" onclick="navToInstr(1,3,2)" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.7rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;min-height:120px;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;align-self:flex-start;">Label Queue (0 products)</div><div style="margin-top:.5rem;text-align:center;"><div style="font-size:1.4rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.62rem;font-weight:600;color:#555;margin-top:.2rem;">No labels in queue</div></div></div></div><div class="mc" onclick="navToInstr(1,3,2)" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.6rem;display:flex;flex-direction:column;gap:.5rem;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;">Label Preview</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;"><div style="font-size:1.2rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.55rem;color:#aaa;text-align:center;">Select a product to preview</div></div></div></div></div></div>';
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div><div style="display:flex;gap:.4rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#555;font-weight:600;">Test Print</div><div style="background:#4a7ff5;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;color:#fff;font-weight:600;">Print All (0)</div></div></div>'+labelsTabsHtml('search')+'<div style="'+qS+'"><div style="display:flex;flex-direction:column;gap:.5rem;"><div class="mc" onclick="navToInstr(1,3,1)" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.4rem .7rem;display:flex;align-items:center;gap:.4rem;"><span style="color:#aaa;">&#x1F50D;</span><span style="font-size:.65rem;color:#aaa;">Search products...</span></div><div class="mc" onclick="navToInstr(1,3,2)" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.7rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;min-height:120px;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;align-self:flex-start;">Label Queue (0 products)</div><div style="margin-top:.5rem;text-align:center;"><div style="font-size:1.4rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.62rem;font-weight:600;color:#555;margin-top:.2rem;">No labels in queue</div></div></div></div><div class="mc" onclick="navToInstr(1,3,2)" style="background:#fff;border:1px solid #ddd;border-radius:8px;padding:.6rem;display:flex;flex-direction:column;gap:.5rem;"><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;">Label Preview</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;"><div style="font-size:1.2rem;">&#x1F3F7;&#xFE0F;</div><div style="font-size:.55rem;color:#aaa;text-align:center;">Select a product to preview</div></div></div></div></div></div>';
   return wrapMockup('epos.stockiq.uk/labels',inner);
 }
 function renderLabelsPriceChanges(){
   var rows=[['11408 items','Product rebuild - 11408 prices changed','26 Mar 2026 at 16:49'],['45 items','Product rebuild - 45 prices changed','26 Mar 2026 at 14:36'],['4069 items','Product rebuild - 4700 prices changed','26 Mar 2026 at 09:19'],['116 items','Product rebuild - 119 prices changed','26 Mar 2026 at 09:18'],['95 items','Product rebuild - 4322 prices changed','25 Mar 2026 at 22:30']];
   var rH='';for(var i=0;i<rows.length;i++)rH+='<div class="mc" onclick="navToInstr(1,3,0)" style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="display:flex;align-items:center;gap:.5rem;"><span style="font-size:.62rem;font-weight:700;color:#374151;background:#e5e7eb;border-radius:4px;padding:.1rem .3rem;">C&amp;D Sync</span><span style="font-size:.62rem;color:#555;">'+rows[i][1]+'</span><span style="font-size:.58rem;color:#aaa;">'+rows[i][2]+'</span></div><div style="display:flex;align-items:center;gap:.4rem;"><span style="font-size:.62rem;color:#4a7ff5;font-weight:600;">'+rows[i][0]+'</span><span style="color:#aaa;font-size:.7rem;">&#x25BC;</span></div></div>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div></div><div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;"><div class="mc" onclick="navToInstr(1,3,1)" style="padding:.3rem .8rem;font-size:.65rem;color:#666;">Search</div><div class="mc" onclick="navToInstr(1,3,0)" style="background:#fff;border-radius:6px;padding:.3rem .8rem;font-size:.65rem;font-weight:700;color:#1a2e2d;display:flex;align-items:center;gap:.3rem;">Price Changes <span style="background:#ef4444;color:#fff;font-size:.5rem;border-radius:999px;padding:.05rem .3rem;">99+</span></div></div><div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.5rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:.65rem;color:#b45309;font-weight:600;">32924 products need new shelf edge labels</div><div style="background:#4a5568;border-radius:5px;padding:.25rem .5rem;font-size:.58rem;color:#fff;font-weight:600;">Print Selected (0)</div></div><div style="display:flex;flex-direction:column;gap:.3rem;">'+rH+'</div></div></div>';
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')+'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;"><div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div>'+labelsTabsHtml('pricechanges')+'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:.5rem .8rem;display:flex;justify-content:space-between;align-items:center;"><div style="font-size:.65rem;color:#b45309;font-weight:600;">32924 products need new shelf edge labels</div><div style="background:#4a5568;border-radius:5px;padding:.25rem .5rem;font-size:.58rem;color:#fff;font-weight:600;">Print Selected (0)</div></div><div style="display:flex;flex-direction:column;gap:.3rem;">'+rH+'</div></div></div>';
   return wrapMockup('epos.stockiq.uk/labels/price-changes',inner);
 }
 function renderDashboard(idx){
@@ -610,6 +610,7 @@ function renderSettings(idx){
   return wrapMockup('epos.stockiq.uk/settings',inner);
 }
 
+// ── Steps ──
 var steps=[
   {
     title:'Getting Started',subtitle:'Logging in to StockIQ',icon:'&#x1F511;',subSteps:null,
@@ -661,10 +662,17 @@ var steps=[
         instructions:[
           {icon:'&#x1F514;',title:'Price Changes tab',text:'The Price Changes tab shows batches of products whose prices have been updated via a C&D Sync. The yellow banner shows how many products in total need new shelf edge labels. You can expand each sync batch, select individual items or use Select All, then click Print Selected to print labels in bulk.'},
           {icon:'&#x1F50D;',title:'Search tab',text:'Use the Search tab to find any product by name or barcode. Located items are added to the Label Queue. Once your queue is ready, click Print All in the top right to send them to your thermal printer. A Test Print button is also available to check your printer connection.'},
-          {icon:'&#x1F3F7;&#xFE0F;',title:'Label Queue and Preview',text:'The Label Queue shows all products queued for printing. Select a product to see a preview of its label on the right-hand side. If a price is showing as &#xa3;0.00, click it to edit before printing.'}
+          {icon:'&#x1F3F7;&#xFE0F;',title:'Label Queue and Preview',text:'The Label Queue shows all products queued for printing. Select a product to see a preview of its label on the right-hand side. If a price is showing as &#xa3;0.00, click it to edit before printing.'},
+          {icon:'&#x1F4B2;',title:'Price Adjustment tab',text:'If a product price looks incorrect on the system, use the Price Adjustment tab to submit a correction. Scan or enter the barcode, enter the suggested price and an optional reason, then click Submit for Approval. Head Office will review it and apply any necessary changes.'},
+          {icon:'&#x1F4CB;',title:'My Submissions tab',text:'My Submissions shows a history of all the price adjustments you have submitted, along with their current status \u2014 Pending, Approved, or Rejected. Approved submissions will be reflected in a future C&D Sync.'}
         ],
         tip:'Labels print via ESC/POS to a thermal printer. If nothing prints, check your printer connection in Settings.',
-        getMockup:function(i){return i===0?renderLabelsPriceChanges():renderLabelsSearch(i===2?'queue':null);}
+        getMockup:function(i){
+          if(i===0)return renderLabelsPriceChanges();
+          if(i===3)return renderLabelsPriceAdjustment();
+          if(i===4)return renderLabelsMySubmissions();
+          return renderLabelsSearch(i===2?'queue':null);
+        }
       },
       {
         title:'Dashboard',icon:'&#x1F4CA;',subtitle:'Monitor today\'s sales performance at a glance',
@@ -720,12 +728,71 @@ var steps=[
     isFAQ:true,
     faqs:[
       {
+        q:'How do I charge for private services?',
+        a:FAQ_PRIVATE
+      },
+      {
         q:'How do I print shelf-edge labels?',
         a:'Select the Labels page from the sidebar. Choose the <button onclick="navTo(1,3);setTimeout(function(){switchMockup(1);},50);" style="background:#0d9488;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Search tab</button> and click in the search box. Scan as many items as you would like to print labels for and then press Print All to print.'
       },
       {
-        q:'How do I charge for private services?',
-        a:FAQ_PRIVATE
+        q:'What do I do if a product is not scanning?',
+        a:(function(){
+          var desc='If you scan a barcode that is not in the system, an <strong>Unknown Product</strong> dialog will appear automatically. Type a description of the product and click <strong>AI Lookup</strong> \u2014 the AI will attempt to identify the product and suggest a price. You can edit the price if needed before adding it to the basket. The product will come through to Head Office for review and can be added to the system properly.';
+          var mockup='<div style="margin-top:.75rem;border-radius:10px;overflow:hidden;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);">'
+            +'<div style="background:#162b2a;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div><div style="margin-left:.4rem;background:#1e3534;border-radius:4px;padding:.15rem .6rem;color:#5f8a87;font-family:monospace;font-size:.65rem;">epos.stockiq.uk/till</div></div>'
+            +'<div style="background:#e8eaf0;padding:.6rem;position:relative;">'
+            +'<div style="opacity:.25;font-size:.55rem;color:#666;margin-bottom:.3rem;font-weight:700;">SERVICES &amp; FUNCTIONS</div>'
+            +'<div style="opacity:.25;display:grid;grid-template-columns:repeat(6,1fr);gap:.25rem;margin-bottom:.4rem;">'
+            +'<div style="background:#1a3a6b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">NHS SERVICES</div>'
+            +'<div style="background:#4a4a4a;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">MISC ITEMS</div>'
+            +'<div style="background:#6a3fa0;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">PRICE CHECK</div>'
+            +'<div style="background:#00796b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">REPRINT LAST</div>'
+            +'<div style="background:#2e7d32;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">SAFE</div>'
+            +'<div style="background:#c62828;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">VOID SALE</div>'
+            +'</div>'
+            +'<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:.5rem;">'
+            +'<div style="background:#fff;border-radius:10px;width:100%;max-width:340px;padding:.8rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,.25);">'
+            +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5rem;"><div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">Unknown Product</div><div style="font-size:.6rem;color:#888;margin-top:.1rem;">Barcode: 5099872091059</div></div><div style="color:#aaa;font-size:.9rem;">&#x2715;</div></div>'
+            +'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.5rem .7rem;font-size:.65rem;color:#92400e;margin-bottom:.6rem;line-height:1.5;">Product not found. Enter the product name below and AI will help format it and suggest a price.</div>'
+            +'<div style="font-size:.6rem;color:#555;margin-bottom:.3rem;">What is this product?</div>'
+            +'<div style="display:flex;gap:.4rem;margin-bottom:.5rem;"><div style="flex:1;border:1.5px solid #3b6fd4;border-radius:6px;padding:.35rem .6rem;font-size:.65rem;color:#1a2e2d;">Sure MotionSense Deodorant 250ml</div><div style="background:#6a3fa0;border-radius:6px;padding:.35rem .65rem;font-size:.6rem;font-weight:700;color:#fff;white-space:nowrap;">AI Lookup</div></div>'
+            +'<div style="font-size:.6rem;color:#555;margin-bottom:.25rem;">Or enter price manually</div>'
+            +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.7rem;color:#aaa;">&#xa3; 0.00</div>'
+            +'</div></div></div></div>';
+          var foundMockup='<div style="margin-top:.75rem;border-radius:10px;overflow:hidden;border:1px solid #1a3332;box-shadow:0 4px 16px rgba(0,0,0,.15);">'
+            +'<div style="background:#162b2a;padding:.4rem .8rem;display:flex;align-items:center;gap:.4rem;"><div style="width:8px;height:8px;border-radius:50%;background:#ef4444;"></div><div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;"></div><div style="width:8px;height:8px;border-radius:50%;background:#22c55e;"></div><div style="margin-left:.4rem;background:#1e3534;border-radius:4px;padding:.15rem .6rem;color:#5f8a87;font-family:monospace;font-size:.65rem;">epos.stockiq.uk/till</div></div>'
+            +'<div style="background:#e8eaf0;padding:.6rem;position:relative;">'
+            +'<div style="opacity:.25;font-size:.55rem;color:#666;margin-bottom:.3rem;font-weight:700;">SERVICES &amp; FUNCTIONS</div>'
+            +'<div style="opacity:.25;display:grid;grid-template-columns:repeat(6,1fr);gap:.25rem;margin-bottom:.4rem;">'
+            +'<div style="background:#1a3a6b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">NHS SERVICES</div>'
+            +'<div style="background:#4a4a4a;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">MISC ITEMS</div>'
+            +'<div style="background:#6a3fa0;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">PRICE CHECK</div>'
+            +'<div style="background:#00796b;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">REPRINT LAST</div>'
+            +'<div style="background:#2e7d32;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">SAFE</div>'
+            +'<div style="background:#c62828;border-radius:4px;padding:.25rem;text-align:center;color:#fff;font-size:.42rem;font-weight:700;">VOID SALE</div>'
+            +'</div>'
+            +'<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:.5rem;">'
+            +'<div style="background:#fff;border-radius:10px;width:100%;max-width:340px;padding:.8rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,.25);">'
+            +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;"><div><div style="font-size:.85rem;font-weight:800;color:#1a2e2d;">Product Found</div><div style="font-size:.6rem;color:#888;margin-top:.1rem;">Barcode: 5099872091059</div></div><div style="color:#aaa;font-size:.9rem;">&#x2715;</div></div>'
+            +'<div style="display:flex;gap:.4rem;margin-bottom:.6rem;"><span style="background:#e0f2fe;color:#0369a1;font-size:.55rem;border-radius:4px;padding:.15rem .4rem;font-weight:600;">Source: AI Enhanced</span><span style="background:#dcfce7;color:#15803d;font-size:.55rem;border-radius:4px;padding:.15rem .4rem;font-weight:600;">High confidence (85%)</span></div>'
+            +'<div style="font-size:.6rem;color:#555;margin-bottom:.25rem;">Product Name</div>'
+            +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.68rem;color:#1a2e2d;margin-bottom:.5rem;">Sure MotionSense Deodorant 250ml</div>'
+            +'<div style="font-size:.6rem;color:#555;margin-bottom:.25rem;">Price</div>'
+            +'<div style="border:1px solid #ddd;border-radius:6px;padding:.35rem .6rem;font-size:.75rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;"><span style="color:#888;font-weight:400;font-size:.65rem;">&#xa3;</span>3.49</div>'
+            +'<div style="font-size:.55rem;color:#aaa;margin-bottom:.5rem;">Found in 0.9s</div>'
+            +'<div style="background:#22c55e;border-radius:7px;padding:.45rem;text-align:center;font-size:.65rem;font-weight:700;color:#fff;">Add to Basket &#x2014; &#xa3;3.49</div>'
+            +'</div></div></div></div>';
+          return desc+mockup+foundMockup;
+        })()
+      },
+      {
+        q:'How do I report an incorrect price?',
+        a:(function(){
+          var paBtn='<button onclick="navTo(1,3);setTimeout(function(){switchMockup(3);},50);" style="background:#0d9488;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Price Adjustment</button>';
+          var msBtn='<button onclick="navTo(1,3);setTimeout(function(){switchMockup(4);},50);" style="background:#0d9488;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">My Submissions</button>';
+          return 'Go to the '+paBtn+' tab on the Labels page. Scan or enter the product barcode, enter your suggested price and an optional reason, then click Submit for Approval. Head Office will review your submission and apply any necessary changes. You can track the status of your submissions in the '+msBtn+' tab.';
+        })()
       }
     ]
   },
@@ -749,6 +816,7 @@ var steps=[
   }
 ];
 
+// ── Render ──
 function renderNav(){
   var nav=document.getElementById('stepNav'),html='';
   for(var i=0;i<steps.length;i++){
