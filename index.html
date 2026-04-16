@@ -94,7 +94,17 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
 .complete-screen p{color:var(--muted);max-width:360px;margin:0 auto 2rem;line-height:1.6;}
 .restart-btn{background:transparent;border:2px solid var(--teal);color:var(--teal);padding:.7rem 2rem;border-radius:var(--pill-r);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s;}
 .restart-btn:hover{background:var(--teal);color:#fff;}
-.sidebar-toggle{display:none;}
+.sidebar-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;cursor:pointer;padding:.4rem .2rem;margin-bottom:.75rem;color:var(--muted);}
+.sidebar-toggle:hover{color:var(--teal);}
+.sidebar-toggle-label{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;}
+.sidebar-toggle-icon{font-size:1.1rem;transition:transform .25s;}
+.shell.sidebar-collapsed{grid-template-columns:48px 1fr;}
+.shell.sidebar-collapsed .sidebar-title{display:none;}
+.shell.sidebar-collapsed .step-nav{display:none;}
+.shell.sidebar-collapsed .sidebar-toggle-label{display:none;}
+.shell.sidebar-collapsed .sidebar-toggle{justify-content:center;margin-bottom:0;}
+.shell.sidebar-collapsed .sidebar-toggle-icon{transform:rotate(180deg);}
+.shell.sidebar-collapsed .sidebar{overflow:hidden;}
 .priv-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:1rem;}
 .priv-table th{text-align:left;padding:.5rem .7rem;border-bottom:2px solid var(--border);color:var(--text);background:#f0f2f7;}
 .priv-table th:last-child{text-align:right;}
@@ -119,9 +129,12 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
   <span style="color:#fff;font-weight:800;font-size:1.2rem;">StockIQ</span>
   <div class="header-pill">Tutorial Mode</div>
 </header>
-<div class="shell">
+<div class="shell" id="shell">
   <aside class="sidebar">
-    <div class="sidebar-title">Tutorial Steps</div>
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+      <span class="sidebar-toggle-label">Tutorial Steps</span>
+      <span class="sidebar-toggle-icon">&#x25C4;</span>
+    </button>
     <div class="step-nav" id="stepNav"></div>
   </aside>
   <main class="main" id="mainContent"></main>
@@ -419,6 +432,7 @@ function sfRender(){
   panels.innerHTML=html;
 }
 function closeMobileNav(){}
+function toggleSidebar(){document.getElementById('shell').classList.toggle('sidebar-collapsed');}
 function restart(){curStep=0;curSub=0;curInstr=0;doneSteps=[];doneSubs={};resetFlags();render();}
 
 // ── Shared sidebar / nav HTML ──
