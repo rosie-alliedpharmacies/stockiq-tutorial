@@ -165,6 +165,7 @@ var showPriceCheck=false, showCashCount=false, showReconcile=false, showXRead=fa
 var showSalesHistory=false, showSalesReport=false, showCashOut=false, showRefund=false;
 var showSafe=false, showSafeBanking=false;
 var showNHS=false, showMiscItems=false;
+var showSettingsTab='staff';
 
 var BUG='<div class="bug-btn" title="Report a problem">&#x1F41B;</div>';
 var BUG_HL='<div class="bug-btn" style="box-shadow:0 0 0 4px #14b8a6,0 2px 8px rgba(0,0,0,.3);transform:scale(1.2);" title="Report a problem">&#x1F41B;</div>';
@@ -370,7 +371,12 @@ function closeCashOverlay(){
 }
 
 // ── Navigation ──
-function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;}
+function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showSettingsTab='staff';}
+function switchSettingsTab(tab){
+  showSettingsTab=tab;
+  var el=document.getElementById('stepMockup');
+  if(el){el.innerHTML=renderSettings(0);el.style.display='block';}
+}
 function goToStep(i){curStep=i;curSub=0;curInstr=0;resetFlags();render();}
 function goToSub(j){curSub=j;curInstr=0;resetFlags();render();}
 function navTo(si,sj){curStep=si;curSub=sj!==undefined?sj:0;curInstr=0;resetFlags();render();}
@@ -1118,12 +1124,183 @@ function renderReports(idx){
   return wrapMockup('epos.stockiq.uk/reports',inner);
 }
 function renderSettings(idx){
-  var staff=[['A','Alice','Dispenser',false],['B','Ben','Dispenser',false],['J','James','Manager',true],['P','Priya','Dispenser',false],['R','Rachel','Dispenser',false],['T','Tom','Dispenser',false]];
-  var sH='';for(var i=0;i<staff.length;i++)sH+='<div style="border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .55rem;"><div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;"><div style="width:22px;height:22px;border-radius:50%;background:#3b6fd4;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0;">'+staff[i][0]+'</div><div style="flex:1;"><div style="display:flex;align-items:center;gap:.3rem;"><span style="font-size:.62rem;font-weight:700;color:#1a2e2d;">'+staff[i][1]+'</span>'+(staff[i][3]?'<span style="background:#e8eaf0;border-radius:3px;font-size:.45rem;color:#555;padding:.05rem .25rem;">Manager</span>':'')+'</div><div style="font-size:.5rem;color:#aaa;">'+staff[i][2]+'</div></div><div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div></div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;margin-bottom:.35rem;"><div><div style="font-size:.45rem;color:#aaa;">PIN</div><div style="font-size:.55rem;color:#1a2e2d;">&#x2022;&#x2022;&#x2022;&#x2022;</div></div><div><div style="font-size:.45rem;color:#aaa;">Discount</div><div style="font-size:.55rem;color:#1a2e2d;">10.00%</div></div><div><div style="font-size:.45rem;color:#aaa;">Last Login</div><div style="font-size:.55rem;color:#1a2e2d;">Today</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;"><div class="mc" onclick="navToInstr(1,7,3)" style="background:#eef3ff;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#3b6fd4;font-weight:600;">Edit</div><div style="background:#fff0f0;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#e03535;font-weight:600;">Delete</div></div></div>';
-  var tH='<div class="mc" onclick="navToInstr(1,7,0)" style="display:flex;gap:.3rem;'+hl(idx===0)+'"><div style="background:#fff;border:1px solid #3b6fd4;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;font-weight:700;color:#3b6fd4;">Staff &amp; PINs</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Services</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Till Config</div><div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.28rem .65rem;font-size:.6rem;color:#aaa;">Hardware</div></div>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:-apple-system,sans-serif;">'+sidebarHtml('settings')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">'+topNavHtml('Settings')+'<div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Settings</div>'+tH;
-  inner+='<div style="background:#fff;border-radius:8px;padding:.6rem .7rem;flex:1;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;"><div class="mc" onclick="navToInstr(1,7,1)" style="font-size:.68rem;font-weight:700;color:#1a2e2d;">Staff Members</div><div class="mc" onclick="navToInstr(1,7,2)" style="'+(idx===2?'outline:3px solid #14b8a6;outline-offset:2px;border-radius:6px;':'')+'"><div style="background:#3b6fd4;border-radius:6px;padding:.25rem .55rem;font-size:.58rem;color:#fff;font-weight:700;">+ Add Staff</div></div></div>';
-  inner+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;'+hl(idx===1||idx===3)+'">'+sH+'</div></div></div></div>';
+  var tab=showSettingsTab||'staff';
+  var tabs=[
+    {k:'staff',l:'Staff &amp; PINs'},
+    {k:'services',l:'Services'},
+    {k:'tillconfig',l:'Till Config'},
+    {k:'terminal',l:'Terminal'},
+    {k:'hardware',l:'Hardware'},
+    {k:'storage',l:'Storage &amp; Cache'}
+  ];
+  var tH='<div style="display:flex;gap:.3rem;flex-wrap:wrap;">';
+  for(var t=0;t<tabs.length;t++){
+    var active=tabs[t].k===tab;
+    tH+='<div class="mc" onclick="switchSettingsTab(\''+tabs[t].k+'\')" style="background:'+(active?'#fff':'#fff')+';border:1px solid '+(active?'#3b6fd4':'#e5e7eb')+';border-radius:6px;padding:.28rem .65rem;font-size:.6rem;font-weight:'+(active?'700':'400')+';color:'+(active?'#3b6fd4':'#aaa')+';">'+tabs[t].l+'</div>';
+  }
+  tH+='</div>';
+
+  var content='';
+  if(tab==='staff'){
+    var staff=[['A','Alice','Dispenser',false],['B','Bob','Dispenser',false],['C','Carol','Manager',true],['D','David','Dispenser',false],['E','Emma','Dispenser',false],['F','Frank','Dispenser',false]];
+    var sH='';
+    for(var i=0;i<staff.length;i++){
+      sH+='<div style="border:1px solid #e5e7eb;border-radius:7px;padding:.45rem .55rem;">'
+        +'<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.35rem;">'
+        +'<div style="width:22px;height:22px;border-radius:50%;background:#3b6fd4;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;color:#fff;flex-shrink:0;">'+staff[i][0]+'</div>'
+        +'<div style="flex:1;"><div style="display:flex;align-items:center;gap:.3rem;"><span style="font-size:.62rem;font-weight:700;color:#1a2e2d;">'+staff[i][1]+'</span>'+(staff[i][3]?'<span style="background:#e8eaf0;border-radius:3px;font-size:.45rem;color:#555;padding:.05rem .25rem;">Manager</span>':'')+'</div>'
+        +'<div style="font-size:.5rem;color:#aaa;">'+staff[i][2]+'</div></div>'
+        +'<div style="width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;"></div></div>'
+        +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;margin-bottom:.35rem;">'
+        +'<div><div style="font-size:.45rem;color:#aaa;">PIN</div><div style="font-size:.55rem;color:#1a2e2d;">&#x2022;&#x2022;&#x2022;&#x2022;</div></div>'
+        +'<div><div style="font-size:.45rem;color:#aaa;">Staff Discount</div><div style="font-size:.55rem;color:#1a2e2d;">10.00%</div></div>'
+        +'<div><div style="font-size:.45rem;color:#aaa;">Last Login</div><div style="font-size:.55rem;color:#1a2e2d;">Never</div></div></div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem;">'
+        +'<div style="background:#eef3ff;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#3b6fd4;font-weight:600;">Edit</div>'
+        +'<div style="background:#fff0f0;border-radius:4px;text-align:center;padding:.2rem;font-size:.55rem;color:#e03535;font-weight:600;">Delete</div>'
+        +'</div></div>';
+    }
+    content='<div style="background:#fff;border-radius:8px;padding:.6rem .7rem;flex:1;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;">'
+      +'<div style="font-size:.68rem;font-weight:700;color:#1a2e2d;">Staff Members</div>'
+      +'<div style="background:#3b6fd4;border-radius:6px;padding:.25rem .55rem;font-size:.58rem;color:#fff;font-weight:700;">+ Add Staff</div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">'+sH+'</div>'
+      +'</div>';
+  } else if(tab==='services'){
+    content='<div style="background:#fff;border-radius:8px;padding:.6rem .7rem;flex:1;display:flex;justify-content:space-between;align-items:center;">'
+      +'<div style="font-size:.68rem;font-weight:700;color:#1a2e2d;">Services &amp; Quick Keys</div>'
+      +'<div style="background:#3b6fd4;border-radius:6px;padding:.25rem .55rem;font-size:.58rem;color:#fff;font-weight:700;">+ Add Service</div>'
+      +'</div>';
+  } else if(tab==='tillconfig'){
+    content='<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;flex:1;">'
+      // Receipt Settings
+      +'<div style="background:#fff;border-radius:8px;padding:.55rem .7rem;">'
+      +'<div style="font-size:.65rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Receipt Settings</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.3rem;">'
+      +'<div><div style="font-size:.6rem;font-weight:600;color:#1a2e2d;">Auto-Print Receipts</div><div style="font-size:.5rem;color:#aaa;">Automatically print receipt after each sale</div></div>'
+      +'<div style="width:22px;height:12px;border-radius:6px;background:#ccc;flex-shrink:0;"></div>'
+      +'</div>'
+      +'<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:.35rem .5rem;font-size:.5rem;color:#92400e;line-height:1.4;">Receipts will NOT print automatically. Cash drawer still opens for cash sales.</div>'
+      +'</div>'
+      // Opening Float
+      +'<div style="background:#fff;border-radius:8px;padding:.55rem .7rem;">'
+      +'<div style="font-size:.65rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Opening Float</div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:.2rem;"><div><div style="font-size:.6rem;font-weight:600;color:#1a2e2d;">Default Opening Float</div><div style="font-size:.5rem;color:#aaa;">Configured by admin in branch settings</div></div><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;">&#xa3;60.00</div></div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:.3rem;"><div><div style="font-size:.6rem;font-weight:600;color:#1a2e2d;">Float Status</div><div style="font-size:.5rem;color:#aaa;">Staff cannot change the opening float</div></div><span style="background:#dcfce7;color:#16a34a;font-size:.5rem;font-weight:700;border-radius:4px;padding:.1rem .35rem;">Locked</span></div>'
+      +'<div style="font-size:.5rem;color:#3b6fd4;">Float settings are managed centrally by admin.</div>'
+      +'</div>'
+      // Safe Status
+      +'<div style="background:#fff;border-radius:8px;padding:.55rem .7rem;">'
+      +'<div style="font-size:.65rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Safe Status</div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:.2rem;"><div><div style="font-size:.6rem;color:#1a2e2d;">Current Balance</div><div style="font-size:.5rem;color:#aaa;">Total cash held in safe</div></div><div style="font-size:.65rem;font-weight:700;color:#e03535;">&#xa3;648.50</div></div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:.2rem;"><div><div style="font-size:.6rem;color:#1a2e2d;">Max Recommended</div><div style="font-size:.5rem;color:#aaa;">Recommended maximum safe holding</div></div><div style="font-size:.65rem;color:#555;">&#xa3;800.00</div></div>'
+      +'<div style="display:flex;justify-content:space-between;"><div><div style="font-size:.6rem;color:#1a2e2d;">Status</div><div style="font-size:.5rem;color:#aaa;">No banking recorded yet</div></div><span style="background:#dcfce7;color:#16a34a;font-size:.5rem;font-weight:700;border-radius:4px;padding:.1rem .35rem;">Within Limit</span></div>'
+      +'</div>'
+      // Product Database
+      +'<div style="background:#fff;border-radius:8px;padding:.55rem .7rem;">'
+      +'<div style="font-size:.65rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Product Database</div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:.2rem;"><div><div style="font-size:.6rem;color:#1a2e2d;">Cached Products</div><div style="font-size:.5rem;color:#aaa;">Products stored locally for barcode scanning</div></div><div style="font-size:.65rem;font-weight:700;color:#1a2e2d;">119,408</div></div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:.2rem;"><div><div style="font-size:.6rem;color:#1a2e2d;">Storage Used</div></div><div style="font-size:.6rem;color:#555;">229MB / 78643MB</div></div>'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:.3rem;"><div><div style="font-size:.6rem;color:#1a2e2d;">Last Synced</div></div><div style="font-size:.6rem;color:#555;">17/04/2026, 11:17</div></div>'
+      +'<div style="display:grid;grid-template-columns:1fr auto;gap:.3rem;">'
+      +'<div style="background:#3b6fd4;border-radius:5px;padding:.3rem;text-align:center;font-size:.55rem;color:#fff;font-weight:700;">Sync Products</div>'
+      +'<div style="background:#fff;border:1px solid #e03535;border-radius:5px;padding:.3rem .5rem;font-size:.55rem;color:#e03535;font-weight:700;">Full Re-sync</div>'
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  } else if(tab==='terminal'){
+    content='<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;flex:1;">'
+      +'<div style="background:#fff;border-radius:8px;padding:.55rem .7rem;">'
+      +'<div style="font-size:.65rem;font-weight:700;color:#1a2e2d;margin-bottom:.5rem;">This Terminal</div>'
+      +'<div style="margin-bottom:.4rem;"><div style="font-size:.55rem;color:#555;margin-bottom:.2rem;">Terminal ID</div>'
+      +'<div style="border:1px solid #e5e7eb;border-radius:6px;padding:.3rem .5rem;font-size:.62rem;color:#1a2e2d;display:flex;justify-content:space-between;align-items:center;">T1<span style="color:#aaa;font-size:.7rem;">&#x25BC;</span></div></div>'
+      +'<div style="margin-bottom:.4rem;"><div style="font-size:.55rem;color:#555;margin-bottom:.2rem;">Device Name (optional)</div>'
+      +'<div style="border:1px solid #e5e7eb;border-radius:6px;padding:.3rem .5rem;font-size:.55rem;color:#aaa;">e.g. iPad Till 1</div></div>'
+      +'<div style="display:flex;align-items:center;gap:.3rem;margin-bottom:.4rem;">'
+      +'<div style="width:10px;height:10px;border:1.5px solid #ccc;border-radius:2px;flex-shrink:0;"></div>'
+      +'<span style="font-size:.55rem;color:#555;">Primary terminal (for this branch)</span></div>'
+      +'<div style="background:#3b6fd4;border-radius:6px;padding:.35rem;text-align:center;font-size:.6rem;color:#fff;font-weight:700;">Save Terminal Config</div>'
+      +'</div>'
+      +'<div style="background:#fff;border-radius:8px;padding:.55rem .7rem;">'
+      +'<div style="font-size:.65rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Registered Terminals</div>'
+      +'<div style="font-size:.58rem;color:#aaa;">No terminals registered yet.</div>'
+      +'</div>'
+      +'</div>';
+  } else if(tab==='hardware'){
+    content='<div style="display:flex;flex-direction:column;gap:.4rem;flex:1;">'
+      // Hardware Mode
+      +'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.5rem .65rem;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+      +'<div style="display:flex;align-items:center;gap:.4rem;">'
+      +'<div style="background:#22c55e;border-radius:6px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff;font-weight:800;">H</div>'
+      +'<div><div style="font-size:.62rem;font-weight:700;color:#1a2e2d;">Hardware Mode</div><div style="font-size:.5rem;color:#555;">StockIQ Print Server for receipts</div></div>'
+      +'</div>'
+      +'<div style="width:22px;height:12px;border-radius:6px;background:#22c55e;flex-shrink:0;"></div>'
+      +'</div>'
+      +'<div style="font-size:.5rem;color:#555;font-style:italic;margin-top:.3rem;">Hardware mode: StockIQ Print Server handles printing and cash drawer.</div>'
+      +'</div>'
+      // Receipt Printer
+      +'<div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:.5rem .65rem;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;">'
+      +'<div style="display:flex;align-items:center;gap:.4rem;">'
+      +'<div style="background:#3b6fd4;border-radius:6px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff;font-weight:800;">P</div>'
+      +'<div><div style="font-size:.62rem;font-weight:700;color:#1a2e2d;">Receipt Printer</div><div style="font-size:.5rem;color:#555;">Thermal receipt printer via StockIQ Print Server</div></div>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:.2rem;"><div style="width:6px;height:6px;border-radius:50%;background:#22c55e;"></div><span style="font-size:.52rem;color:#555;">Print Server Active</span></div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;">'
+      +'<div style="background:#22c55e;border-radius:6px;padding:.35rem;text-align:center;font-size:.58rem;color:#fff;font-weight:700;">&#x1F5A8;&#xFE0F; Test Print</div>'
+      +'<div style="background:#22c55e;border-radius:6px;padding:.35rem;text-align:center;font-size:.58rem;color:#fff;font-weight:700;">&#x1F4B0; Test Cash Drawer</div>'
+      +'</div>'
+      +'</div>'
+      // Print Server info
+      +'<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.5rem .65rem;">'
+      +'<div style="font-size:.6rem;font-weight:600;color:#1a2e2d;margin-bottom:.25rem;">StockIQ Print Server</div>'
+      +'<div style="display:flex;flex-direction:column;gap:.15rem;">'
+      +['No certificates or trust prompts','Automatically selects your thermal printer','Works with any Windows printer','Runs silently in system tray','Auto-reconnects if disconnected'].map(function(t){return '<div style="font-size:.5rem;color:#555;">&#x2022; '+t+'</div>';}).join('')
+      +'</div>'
+      +'</div>'
+      +'</div>';
+  } else if(tab==='storage'){
+    var cacheItems=[
+      {l:'App Cache &amp; Service Worker',sub:'Cached pages, scripts, styles, and API responses.',info:'2 cache(s)'},
+      {l:'Product Catalog',sub:'Offline product database for barcode lookup. Will re-download on next sync.',info:'119,410 products'},
+      {l:'Sales &amp; Receipts',sub:'Completed sales and printed receipt data stored locally.',info:'12 sales, 0 receipts'},
+      {l:'Pending Sync Queue',sub:'Transactions and API calls waiting to be sent to the server.',info:'0 pending'},
+      {l:'App Preferences',sub:'Till settings, basket state, shift data, and feature flags.',info:'2 stored key(s)'}
+    ];
+    var cH='';
+    for(var c=0;c<cacheItems.length;c++){
+      cH+='<div style="border:1px solid #e5e7eb;border-radius:8px;padding:.5rem .65rem;display:flex;justify-content:space-between;align-items:center;">'
+        +'<div><div style="font-size:.6rem;font-weight:600;color:#1a2e2d;margin-bottom:.1rem;">'+cacheItems[c].l+'</div>'
+        +'<div style="font-size:.48rem;color:#888;margin-bottom:.2rem;">'+cacheItems[c].sub+'</div>'
+        +'<div style="font-size:.52rem;color:#3b6fd4;font-weight:600;">'+cacheItems[c].info+'</div></div>'
+        +'<div style="background:#fb923c;border-radius:5px;padding:.25rem .5rem;font-size:.55rem;color:#fff;font-weight:700;flex-shrink:0;margin-left:.5rem;">Clear</div>'
+        +'</div>';
+    }
+    content='<div style="display:flex;flex-direction:column;gap:.4rem;flex:1;">'
+      +'<div style="background:#fff;border-radius:8px;padding:.55rem .7rem;">'
+      +'<div style="font-size:.65rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;">Storage Usage</div>'
+      +'<div style="font-size:.6rem;color:#1a2e2d;margin-bottom:.1rem;">Total Used</div>'
+      +'<div style="font-size:.5rem;color:#aaa;margin-bottom:.3rem;">229.2 MB of 78643 MB quota</div>'
+      +'<div style="background:#e5e7eb;border-radius:999px;height:4px;"><div style="background:#3b6fd4;height:100%;border-radius:999px;width:.3%;"></div></div>'
+      +'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">'+cH+'</div>'
+      +'</div>';
+  }
+
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:340px;font-family:-apple-system,sans-serif;">'
+    +sidebarHtml('settings')
+    +'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">'
+    +topNavHtml('Settings')
+    +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+    +'<div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Settings</div>'
+    +'<div style="font-size:.55rem;color:#888;">Configure your EPOS system</div></div>'
+    +'</div>'
+    +tH
+    +content
+    +'</div></div>';
   return wrapMockup('epos.stockiq.uk/settings',inner);
 }
 
@@ -1228,13 +1405,19 @@ var steps=[
       {
         title:'Settings',icon:'&#x2699;&#xFE0F;',subtitle:'Configure your EPOS system',
         instructions:[
-          {icon:'&#x1F5C2;&#xFE0F;',title:'Settings tabs',text:'Settings has four tabs - Staff and PINs, Services, Till Config, and Hardware. As a branch, you will only need to use the Staff and PINs tab.'},
-          {icon:'&#x1F465;',title:'Staff Members',text:'The Staff and PINs tab lists all staff members registered to your branch, showing their name, role, PIN, discount rate, and last login date.'},
-          {icon:'&#x2795;',title:'Adding a new staff member',text:'Click + Add Staff in the top right to create a new staff member. You will be able to set their name, role, PIN, and discount rate.'},
-          {icon:'&#x270F;&#xFE0F;',title:'Editing staff',text:'Use the Edit button on any staff card to update their details or change their PIN.'}
+          {icon:'&#x1F465;',title:'Staff &amp; PINs',text:'View the staff members who can log in to the EPOS.'},
+          {icon:'&#x270F;&#xFE0F;',title:'Services',text:'Updates to this page are coming soon.'},
+          {icon:'&#x2699;&#xFE0F;',title:'Till Config',text:'View receipt print settings, your opening float amount, the current safe balance, and product database sync status.'},
+          {icon:'&#x1F4F1;',title:'Terminal',text:'Configure the Terminal ID and device name for this till. If you have multiple tills in your branch, each should have a unique terminal ID.'},
+          {icon:'&#x1F5A8;&#xFE0F;',title:'Hardware',text:'Manage the StockIQ Print Server connection for receipt printing and the cash drawer. Use the Test Print and Test Cash Drawer buttons to check everything is working.'},
+          {icon:'&#x1F4BE;',title:'Storage &amp; Cache',text:'View how much local storage the app is using and clear individual caches if needed. Use this if the app is behaving unexpectedly or products are not scanning correctly.'}
         ],
-        tip:'Only the Staff and PINs tab needs to be used day-to-day. If you think something in other tabs needs changing, please contact Head Office first.',
-        getMockup:function(i){return renderSettings(i);}
+        tip:null,
+        getMockup:function(i){
+          var tabMap=['staff','services','tillconfig','terminal','hardware','storage'];
+          showSettingsTab=tabMap[i]||'staff';
+          return renderSettings(i);
+        }
       }
     ]
   },
