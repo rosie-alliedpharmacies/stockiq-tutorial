@@ -164,7 +164,7 @@ var doneSteps=[], doneSubs={};
 var showPriceCheck=false, showCashCount=false, showReconcile=false, showXRead=false;
 var showSalesHistory=false, showSalesReport=false, showCashOut=false, showRefund=false;
 var showSafe=false, showSafeBanking=false;
-var showNHS=false, showMiscItems=false;
+var showNHS=false, showMiscItems=false, showPrivateServices=false;
 var showSettingsTab='staff';
 var showReportsTab='summary';
 
@@ -272,9 +272,8 @@ function buildPrivateTable(){
 }
 
 var FAQ_PRIVATE=(function(){
-  var btn='<button onclick="navTo(1,1);setTimeout(function(){switchMockup(0);},50);" style="background:#0d9488;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Misc Items</button>';
-  var note='<div style="margin-top:1rem;background:#e6f7f6;border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;font-size:.84rem;color:var(--muted);">&#x1F527; A <strong>Private Services</strong> quick key will be added soon to streamline this process.</div>';
-  return 'Use the '+btn+' button on the Till page and input the relevant item price from the private prices list below.'+buildPrivateTable()+note;
+  var privateBtn='<button onclick="navTo(1,1);setTimeout(function(){showPrivateServices=true;var mk=document.getElementById(\'stepMockup\');if(mk){mk.innerHTML=renderTillPrivateServices();mk.style.display=\'block\';}},50);" style="background:#7c3aed;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Private Services</button>';
+  return 'On the Till page, use the '+privateBtn+' button to process services such as travel vaccinations and weight loss management products.';
 })();
 
 var FAQ_UNKNOWN_PRODUCT=(function(){
@@ -372,7 +371,7 @@ function closeCashOverlay(){
 }
 
 // ── Navigation ──
-function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showSettingsTab='staff';showReportsTab='summary';}
+function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showSettingsTab='staff';showReportsTab='summary';}
 function switchReportsTab(tab){
   showReportsTab=tab;
   var el=document.getElementById('stepMockup');
@@ -757,6 +756,37 @@ function renderTillRefund(){
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;padding:.6rem;opacity:.3;font-size:.55rem;color:#555;">Till</div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
 }
 
+function closePrivateServicesMockup(){showPrivateServices=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderTill(null);mk.style.display='block';}}
+function renderTillPrivateServices(){
+  var cats=[
+    {icon:'&#x1FA79;',label:'Minor Ailments',items:'18 items',bg:'#22c55e'},
+    {icon:'&#x2764;&#xFE0F;',label:'Sexual Health',items:'2 items',bg:'#ec4899'},
+    {icon:'&#x2708;&#xFE0F;',label:'Travel',items:'34 items',bg:'#3b6fd4'},
+    {icon:'&#x1F489;',label:'Vaccinations',items:'14 items',bg:'#8b5cf6'},
+    {icon:'&#x2696;&#xFE0F;',label:'Weight Mgmt',items:'15 items',bg:'#f59e0b'}
+  ];
+  var grid='<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">';
+  for(var i=0;i<cats.length;i++){
+    grid+='<div style="background:'+cats[i].bg+';border-radius:10px;padding:.7rem .6rem;text-align:center;">'
+      +'<div style="font-size:1.1rem;margin-bottom:.3rem;">'+cats[i].icon+'</div>'
+      +'<div style="font-size:.65rem;font-weight:700;color:#fff;">'+cats[i].label+'</div>'
+      +'<div style="font-size:.52rem;color:rgba(255,255,255,.8);margin-top:.1rem;">'+cats[i].items+'</div>'
+      +'</div>';
+  }
+  grid+='</div>';
+  var modal='<div onclick="event.stopPropagation()" style="position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#fff;border-radius:14px;width:100%;max-width:420px;box-shadow:0 8px 40px rgba(0,0,0,.3);display:flex;flex-direction:column;max-height:95%;">'
+    +'<div style="background:linear-gradient(135deg,#7c3aed,#a855f7);border-radius:14px 14px 0 0;padding:.75rem 1rem;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">'
+    +'<div style="font-size:.82rem;font-weight:700;color:#fff;">Private Services</div>'
+    +'<div class="mc" onclick="event.stopPropagation();closePrivateServicesMockup()" style="background:rgba(255,255,255,.2);border-radius:6px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="padding:.6rem .9rem;border-bottom:1px solid #f0f2f7;flex-shrink:0;">'
+    +'<div style="border:1px solid #e5e7eb;border-radius:8px;padding:.4rem .6rem;font-size:.58rem;color:#aaa;">Search products or services...</div>'
+    +'</div>'
+    +'<div style="padding:.6rem .9rem;overflow-y:auto;">'+grid+'</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;padding:.6rem;opacity:.3;"></div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
+}
 function renderTillNHS(){
   var services=[
     {icon:'&#x1F48A;',label:'Pharmacy First',sub:'Minor illness consultation'},
@@ -909,9 +939,12 @@ function renderTill(highlight){
   main+='<div class="mc" onclick="if(!showSafe){sfClick(\'safe\');}" style="background:#2e7d32;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;'+hlBtn('safe')+'"><div style="font-size:.8rem;">&#x1F512;</div>SAFE<div style="color:#a5d6a7;font-size:.42rem;">Drop / Pickup</div></div>';
   main+='<div class="mc" onclick="navToInstrNoPC(1,1,0)" style="background:#c62828;border-radius:6px;padding:.35rem .3rem;text-align:center;color:#fff;font-size:.5rem;font-weight:700;"><div style="font-size:.8rem;">&#x2716;&#xFE0F;</div>VOID SALE<div style="color:#ef9a9a;font-size:.42rem;">Clear All</div></div></div>';
   main+='<div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">QUICK KEYS</div>';
-  main+='<div class="mc" onclick="navToInstrNoPC(1,1,1)" style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;margin-bottom:.5rem;">';
-  var qk=[['&#x1F489;','FLU JAB','&#xa3;20.00'],['&#x1F697;','DELIVERY','&#xa3;3.50'],['&#x1F48A;','MDS MONTHLY','&#xa3;25.00'],['&#x1F464;','PRIVATE CONSULT','&#xa3;15.00'],['&#x1F6CD;&#xFE0F;','CARRIER BAG','&#xa3;0.20'],['NHS','RX CHARGE','&#xa3;9.90'],['&#x21A9;&#xFE0F;','FP57 REFUND','-&#xa3;9.90'],['&#x1F4B3;','PRIVATE RX','Enter &#xa3;']];
-  for(var i=0;i<qk.length;i++)main+='<div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;"><div style="font-size:.7rem;">'+qk[i][0]+'</div>'+qk[i][1]+'<div style="color:#1565c0;font-weight:700;">'+qk[i][2]+'</div></div>';
+  main+='<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;margin-bottom:.5rem;">';
+  var qk=[['&#x1F489;','FLU JAB','&#xa3;20.00'],['&#x1F697;','DELIVERY','&#xa3;3.50'],['&#x1F48A;','MDS MONTHLY','&#xa3;25.00'],['&#x1F48A;','PRIVATE SERVICES','&#xa3;'],['&#x1F6CD;&#xFE0F;','CARRIER BAG','&#xa3;0.20'],['NHS','RX CHARGE','&#xa3;9.90'],['&#x21A9;&#xFE0F;','FP57 REFUND','-&#xa3;9.90'],['&#x1F4B3;','PRIVATE RX','Enter &#xa3;']];
+  for(var i=0;i<qk.length;i++){
+    var isPriv=qk[i][1]==='PRIVATE SERVICES';
+    main+='<div '+(isPriv?'class="mc" onclick="showPrivateServices=true;var mk=document.getElementById(\'stepMockup\');if(mk){mk.innerHTML=renderTillPrivateServices();mk.style.display=\'block\';}"':'')+' style="background:#fff;border:1px solid '+(isPriv?'#c4b5fd':'#ddd')+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;'+(isPriv?'cursor:pointer;':'')+'"><div style="font-size:.7rem;">'+qk[i][0]+'</div>'+qk[i][1]+'<div style="color:#1565c0;font-weight:700;">'+qk[i][2]+'</div></div>';
+  }
   main+='</div><div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">MISC</div><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;">';
   var misc=[['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold',null],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked',null],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply',null],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales','openMiscPanel(\'history\')'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary','openMiscPanel(\'report\')'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash','openMiscPanel(\'cashout\')'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return','openMiscPanel(\'refund\')']];
   for(var i=0;i<misc.length;i++)main+='<div '+(misc[i][4]?'class="mc" onclick="'+misc[i][4]+'"':'')+' style="background:'+misc[i][0]+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;color:#fff;'+(misc[i][4]?'cursor:pointer;':'')+'"><div style="font-size:.7rem;">'+misc[i][1]+'</div>'+misc[i][2]+'<div style="opacity:.8;">'+misc[i][3]+'</div></div>';
@@ -1186,13 +1219,13 @@ function renderReports(idx){
       +'</tbody></table></div>';
   } else if(tab==='shift'){
     var shifts=[
-      ['17 Apr 2026','08:45','17 Apr 2026','16:02','&#xa3;60.00','&#xa3;487.30','&#xa3;0.00','84',true],
-      ['16 Apr 2026','16:02','16 Apr 2026','16:02','&#xa3;60.00','&#xa3;312.60','&#xa3;4.99','56',true],
-      ['15 Apr 2026','08:51','15 Apr 2026','16:07','&#xa3;60.00','&#xa3;541.80','&#xa3;0.00','97',true],
-      ['14 Apr 2026','08:47','14 Apr 2026','16:01','&#xa3;60.00','&#xa3;398.20','&#xa3;0.00','71',true],
-      ['13 Apr 2026','08:53','13 Apr 2026','16:04','&#xa3;60.00','&#xa3;574.90','&#xa3;9.98','103',true],
-      ['12 Apr 2026','08:44','12 Apr 2026','16:00','&#xa3;60.00','&#xa3;289.40','&#xa3;0.00','52',true],
-      ['11 Apr 2026','08:50','11 Apr 2026','16:03','&#xa3;60.00','&#xa3;463.70','&#xa3;0.00','88',true]
+      ['16 Apr 2026','16:02','17 Apr 2026','16:05','&#xa3;60.00','&#xa3;487.30','&#xa3;0.00','84',true],
+      ['15 Apr 2026','16:07','16 Apr 2026','16:02','&#xa3;60.00','&#xa3;312.60','&#xa3;4.99','56',true],
+      ['14 Apr 2026','16:01','15 Apr 2026','16:07','&#xa3;60.00','&#xa3;541.80','&#xa3;0.00','97',true],
+      ['13 Apr 2026','16:04','14 Apr 2026','16:01','&#xa3;60.00','&#xa3;398.20','&#xa3;0.00','71',true],
+      ['12 Apr 2026','16:00','13 Apr 2026','16:04','&#xa3;60.00','&#xa3;574.90','&#xa3;9.98','103',true],
+      ['11 Apr 2026','16:03','12 Apr 2026','16:00','&#xa3;60.00','&#xa3;289.40','&#xa3;0.00','52',true],
+      ['10 Apr 2026','16:01','11 Apr 2026','16:03','&#xa3;60.00','&#xa3;463.70','&#xa3;0.00','88',true]
     ];
     var trH='';
     for(var i=0;i<shifts.length;i++){
@@ -1496,10 +1529,20 @@ var steps=[
         instructions:[
           {icon:'&#x1F6E0;&#xFE0F;',title:'Services and Functions',text:'The coloured buttons at the top give quick access to common actions: NHS Services (PF, CPCS, NMS), Misc Items, Price Check, Reprint Last Receipt, Safe Drop/Pickup, and Void Sale. Click <strong>Price Check</strong> below to see how it works.'},
           {icon:'&#x26A1;',title:'Quick Keys',text:'Pre-configured shortcut buttons for your most frequent transactions - Flu Jab (&#xa3;20.00), NHS RX Charge (&#xa3;9.90), FP57 Refund, and more.'},
+          {icon:'&#x1F48A;',title:'Private Services',text:'The Private Services quick key opens a menu of privately charged service categories — Minor Ailments, Sexual Health, Travel, Vaccinations, and Weight Management. Select a category to browse and charge for individual services.'},
           {icon:'&#x1F6D2;',title:'Basket and payment panel',text:'The right-hand panel shows the current basket. Once items are added, the total updates here. Use the Cash, Card, or Account buttons to process payment.'}
         ],
         tip:'You can park a sale mid-transaction using the Park Sale button in the Misc section, then recall it later.',
-        getMockup:function(i){return showPriceCheck?renderPriceCheck():showSafe?renderTillSafe(showSafeBanking):showNHS?renderTillNHS():showMiscItems?renderTillMiscItems():renderTill(null);}
+        getMockup:function(i){
+          if(showPriceCheck)return renderPriceCheck();
+          if(showSafe)return renderTillSafe(showSafeBanking);
+          if(showNHS)return renderTillNHS();
+          if(showMiscItems)return renderTillMiscItems();
+          if(showPrivateServices)return renderTillPrivateServices();
+          if(i===1)return renderTill(null);
+          if(i===2)return renderTillPrivateServices();
+          return renderTill(null);
+        }
       },
       {
         title:'X/Z Read',icon:'&#x1F4CB;',subtitle:'View your shift summary or close out the till',
