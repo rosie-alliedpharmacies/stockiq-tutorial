@@ -1,0 +1,15 @@
+[LANGUAGE]
+COUNT=2
+CUR_INI=ENG_U80.res
+
+LANGUAGE0=English
+INI0=ENG_U80.res
+SYSLANG0=System Language
+
+LANGUAGE1=简体中文(Chinese-Simplified)
+INI1=CHN_U80.res
+SYSLANG1=系统语言(System)
+
+LANGUAGE2=繁體中文(Chinese-Traditional)
+INI2=CHF_U80.res
+SYSLANG2=系統語言(System)

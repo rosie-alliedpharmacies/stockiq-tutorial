@@ -1,0 +1,136 @@
+
+
+; Sample combination printer INF for NT 2000 .
+; 
+
+[Version]
+Signature="$Windows NT$"
+Provider=%SNBC%
+LayoutFile=layout.inf
+ClassGUID={4D36E979-E325-11CE-BFC1-08002BE10318}
+Class=Printer
+
+[ClassInstall]
+AddReg=ClassAddReg
+DelReg=ClassDelReg
+
+[ClassDelReg]
+HKLM,"System\CurrentControlSet\Services\Class\Printer","NoUseClass"
+
+[ClassAddReg]
+HKR,,,,%CLASSNAME%
+HKR,,Installer,,MSPRINT.DLL
+HKR,,Icon,,-4
+HKR,,NoDisplayClass,,1
+
+;
+; Manufacturer Sections
+;
+
+[Manufacturer]
+"SNBC"
+
+;
+; Model Sections 
+;
+
+[SNBC]
+"U80(U)1" = U80XP.GPD, USBPRINT\"SNBC_U80(U)14C26", "SNBC_U80(U)14C26"
+"U80(U)2" = U80XP.GPD, USBPRINT\"SNBC_U80(U)24D66", "SNBC_U80(U)24D66"
+"U80(U)3" = U80XP.GPD, USBPRINT\"SNBC_U80(U)38DA7", "SNBC_U80(U)38DA7"
+"U80(U)4" = U80XP.GPD, USBPRINT\"SNBC_U80(U)44FE6", "SNBC_U80(U)44FE6"
+
+"U80II(U)1" = U80XP.GPD, USBPRINT\"SNBC_U80II(U)183FD", "SNBC_U80II(U)183FD"
+"U80II(U)2" = U80XP.GPD, USBPRINT\"SNBC_U80II(U)282BD", "SNBC_U80II(U)282BD"
+"U80II(U)3" = U80XP.GPD, USBPRINT\"SNBC_U80II(U)3427C", "SNBC_U80II(U)3427C"
+"U80II(U)4" = U80XP.GPD, USBPRINT\"SNBC_U80II(U)4803D", "SNBC_U80II(U)4803D"
+
+
+[SNBC]
+"U80(P)" = U80XP.GPD"
+"U80(S)" = U80SXP.GPD"
+
+"U80II(P)" = U80XP.GPD"
+"U80II(S)" = U80SXP.GPD"
+;
+; Installer Sections
+;
+; 
+
+[U80XP.GPD]
+CopyFiles=@U80xp.DLL,@U80xp.GPD
+CopyFiles=@U80UI.INI
+CopyFiles=U80UI
+DataSection=UNIDRV_DATA
+Include         = NTPRINT.INF
+Needs           = TTFSUB.OEM,UNIDRV_BIDI.OEM
+
+[U80SXP.GPD]
+CopyFiles=@U80SXP.DLL,@U80SXP.GPD
+CopyFiles=@U80UI.INI
+CopyFiles=U80UI
+CopyFiles=LANGUAGEINI
+DataSection=UNIDRV_DATA
+Include         = NTPRINT.INF
+Needs           = TTFSUB.OEM,UNIDRV_BIDI.OEM
+
+
+
+[U80UI]
+U80UNI.DLL
+U80UI.DLL
+
+[LANGUAGEINI]
+LANGUAGE_U80.dat
+CHF_U80.res
+CHN_U80.res
+ENG_U80.res
+
+
+; Copy Sections
+
+;
+; Data Sections
+;
+; These sections contain data that is shared between devices.
+;
+
+;
+; Call SetupSetDirectoryId with 66000 to set the target directory at runtime
+; (depending on which environment drivers are getting installed)
+;
+
+[DestinationDirs]
+DefaultDestDir=66000
+
+;
+; diskid = description,tagfile,unused,subdir
+;
+[SourceDisksNames]
+1 = %Floppy%,,,
+
+;
+; filename_on_source = diskid,subdir,size,checksum,spare,spare
+; extra fields are nt-specific
+;   bootmediaord,targetdirectory,upgradedisposition,textmodedisposition,targetname
+;
+[SourceDisksFiles]
+U80xp.DLL   = 1
+U80xp.GPD   = 1
+U80SXP.DLL  = 1
+U80SXP.GPD  = 1
+U80UNI.DLL  = 1
+U80UI.DLL   = 1
+U80UI.INI   = 1
+LANGUAGE_U80.dat = 1
+CHF_U80.res = 1
+CHN_U80.res = 1
+ENG_U80.res = 1
+
+;
+; Localizable Strings
+;
+[Strings]
+SNBC=""Shandong New Beiyang Information Technology Co., Ltd  "
+Floppy="BY Printer Disk"
+CLASSNAME="Printer"

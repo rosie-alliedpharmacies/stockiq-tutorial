@@ -1,0 +1,119 @@
+; Sample combination printer INF for VISTA .
+; 
+
+[Version]
+Signature="$Windows NT$"
+Provider=%SNBC%
+LayoutFile=layout.inf
+ClassGUID={4D36E979-E325-11CE-BFC1-08002BE10318}
+Class=Printer
+DriverVer=03/06/2008,1.1.0
+
+[ClassInstall]
+AddReg=ClassAddReg
+DelReg=ClassDelReg
+
+[ClassDelReg]
+HKLM,"System\CurrentControlSet\Services\Class\Printer","NoUseClass"
+
+[ClassAddReg]
+HKR,,,,%CLASSNAME%
+HKR,,Installer,,MSPRINT.DLL
+HKR,,Icon,,-4
+HKR,,NoDisplayClass,,1
+
+;
+; Manufacturer Sections
+;
+
+[Manufacturer]
+"SNBC"=SNBC, NTamd64
+
+;
+; Model Sections 
+;
+
+[SNBC.NTamd64]
+"U80(U)1" = U80xp.NTamd64, USBPRINT\"SNBC_U80(U)14C26", "SNBC_U80(U)14C26"
+"U80(U)2" = U80xp.NTamd64, USBPRINT\"SNBC_U80(U)24D66", "SNBC_U80(U)24D66"
+"U80(U)3" = U80xp.NTamd64, USBPRINT\"SNBC_U80(U)38DA7", "SNBC_U80(U)38DA7"
+"U80(U)4" = U80xp.NTamd64, USBPRINT\"SNBC_U80(U)44FE6", "SNBC_U80(U)44FE6"
+
+"U80II(U)1" = U80xp.NTamd64, USBPRINT\"SNBC_U80II(U)183FD", "SNBC_U80II(U)183FD"
+"U80II(U)2" = U80xp.NTamd64, USBPRINT\"SNBC_U80II(U)282BD", "SNBC_U80II(U)282BD"
+"U80II(U)3" = U80xp.NTamd64, USBPRINT\"SNBC_U80II(U)3427C", "SNBC_U80II(U)3427C"
+"U80II(U)4" = U80xp.NTamd64, USBPRINT\"SNBC_U80II(U)4803D", "SNBC_U80II(U)4803D"
+
+
+"U80(P)"   = U80xp.NTamd64"
+"U80(S)"   = U80Sxp.NTamd64"
+
+
+"U80II(P)"   = U80xp.NTamd64"
+"U80II(S)"   = U80Sxp.NTamd64"
+
+;
+; Model Sections 
+;
+
+[U80xp.NTamd64]
+DriverVer=03/15/2014,1.1.1
+CopyFiles=@U80xp.dll,@U80xp.GPD,@U80UI.INI
+CopyFiles=U80UI,CONTROLFONT
+CopyFiles=LANGUAGEINI
+DataFile=U80xp.GPD
+DataSection=UNIDRV_DATA
+Include=NTPRINT.INF
+Needs=UNIDRV.OEM,TTFSUB.OEM,UNIDRV_DATA
+
+[U80Sxp.NTamd64]
+DriverVer=06/09/2010,1.1.0
+CopyFiles=@U80Sxp.dll,@U80Sxp.GPD,@U80UI.INI
+CopyFiles=U80UI,CONTROLFONT
+CopyFiles=LANGUAGEINI
+DataFile=U80Sxp.GPD
+DataSection=UNIDRV_DATA
+Include=NTPRINT.INF
+Needs=UNIDRV.OEM,TTFSUB.OEM,UNIDRV_DATA
+
+
+; Copy Sections
+
+[U80UI]
+U80UNI.DLL
+U80UI.DLL
+
+[CONTROLFONT]
+U80CONTROL.dat
+
+[LANGUAGEINI]
+LANGUAGE_U80.dat
+CHF_U80.res
+CHN_U80.res
+ENG_U80.res
+
+[DestinationDirs]
+DefaultDestDir=66000
+
+
+[SourceDisksNames]
+1 = %Floppy%
+
+[SourceDisksFiles]
+U80xp.dll     = 1
+U80xp.GPD     = 1
+U80Sxp.dll    = 1
+U80Sxp.GPD    = 1
+U80UNI.DLL    = 1
+U80UI.DLL     = 1
+LANGUAGE_U80.dat = 1
+CHF_U80.res   = 1
+CHN_U80.res   = 1
+ENG_U80.res   = 1
+;ldaNLM64.dll = 1
+
+
+[Strings]
+UPRINT="Shandong New Beiyang Information Technology Co., Ltd  "
+Floppy="BY Printer Disk"
+CLASSNAME="Printer"
