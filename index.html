@@ -70,7 +70,12 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
 .pin-key{background:#2a3f57;border:none;border-radius:10px;color:#fff;font-size:1.2rem;font-weight:700;padding:.7rem;cursor:pointer;text-align:center;}
 .pin-key.clear{background:#7f1d1d;color:#f87171;}
 .pin-key.back{background:#78610a;color:#fbbf24;}
-.instr-item.active-instr{border-color:var(--teal);background:var(--surface2);box-shadow:0 0 0 3px rgba(13,148,136,.12);}
+.instr-dropdown{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:.5rem;}
+.instr-dropdown-btn{width:100%;background:var(--surface2);border:none;padding:.55rem .8rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--heading);text-align:left;}
+.instr-dropdown-btn:hover{background:#e8f5f3;}
+.instr-dropdown-body{display:none;padding:.75rem 1rem;font-size:.84rem;color:var(--muted);line-height:1.7;background:var(--bg);}
+.instr-text .instr-dropdown-body strong{display:inline !important;font-size:.84rem !important;margin-bottom:0 !important;color:var(--muted) !important;font-weight:600;}
+.instr-dropdown-body.open{display:block;}
 .instructions{list-style:none;display:flex;flex-direction:column;gap:.9rem;}
 .instr-item{display:flex;gap:1rem;align-items:flex-start;padding:1rem 1.2rem;background:var(--bg);border-radius:10px;border:1px solid var(--border);cursor:pointer;transition:border-color .2s,box-shadow .2s;}
 .instr-item:hover{border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,148,136,.08);}
@@ -272,7 +277,7 @@ function buildPrivateTable(){
 }
 
 var FAQ_PRIVATE=(function(){
-  var privateBtn='<button onclick="navTo(1,1);setTimeout(function(){showPrivateServices=true;var mk=document.getElementById(\'stepMockup\');if(mk){mk.innerHTML=renderTillPrivateServices();mk.style.display=\'block\';}},50);" style="background:#7c3aed;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Private Services</button>';
+  var privateBtn='<button onclick="navToInstr(1,1,2);" style="background:#7c3aed;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Private Services</button>';
   return 'On the Till page, use the '+privateBtn+' button to process services such as travel vaccinations and weight loss management products.';
 })();
 
@@ -943,7 +948,7 @@ function renderTill(highlight){
   var qk=[['&#x1F489;','FLU JAB','&#xa3;20.00'],['&#x1F697;','DELIVERY','&#xa3;3.50'],['&#x1F48A;','MDS MONTHLY','&#xa3;25.00'],['&#x1F48A;','PRIVATE SERVICES','&#xa3;'],['&#x1F6CD;&#xFE0F;','CARRIER BAG','&#xa3;0.20'],['NHS','RX CHARGE','&#xa3;9.90'],['&#x21A9;&#xFE0F;','FP57 REFUND','-&#xa3;9.90'],['&#x1F4B3;','PRIVATE RX','Enter &#xa3;']];
   for(var i=0;i<qk.length;i++){
     var isPriv=qk[i][1]==='PRIVATE SERVICES';
-    main+='<div '+(isPriv?'class="mc" onclick="showPrivateServices=true;switchMockup(2);"':'')+' style="background:#fff;border:1px solid '+(isPriv?'#c4b5fd':'#ddd')+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;'+(isPriv?'cursor:pointer;':'')+'"><div style="font-size:.7rem;">'+qk[i][0]+'</div>'+qk[i][1]+'<div style="color:#1565c0;font-weight:700;">'+qk[i][2]+'</div></div>';
+    main+='<div '+(isPriv?'class="mc" onclick="navToInstr(1,1,2);"':'')+' style="background:#fff;border:1px solid '+(isPriv?'#c4b5fd':'#ddd')+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;'+(isPriv?'cursor:pointer;':'')+'"><div style="font-size:.7rem;">'+qk[i][0]+'</div>'+qk[i][1]+'<div style="color:#1565c0;font-weight:700;">'+qk[i][2]+'</div></div>';
   }
   main+='</div><div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">MISC</div><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;">';
   var misc=[['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold',null],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked',null],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply',null],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales','openMiscPanel(\'history\')'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary','openMiscPanel(\'report\')'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash','openMiscPanel(\'cashout\')'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return','openMiscPanel(\'refund\')']];
@@ -1538,9 +1543,8 @@ var steps=[
           if(showSafe)return renderTillSafe(showSafeBanking);
           if(showNHS)return renderTillNHS();
           if(showMiscItems)return renderTillMiscItems();
+          if(i===2){showPrivateServices=true;return renderTillPrivateServices();}
           if(showPrivateServices)return renderTillPrivateServices();
-          if(i===1)return renderTill(null);
-          if(i===2)return renderTillPrivateServices();
           return renderTill(null);
         }
       },
@@ -1725,10 +1729,13 @@ var steps=[
   {
     title:'Cash Up Procedure',subtitle:'End-of-day cash up steps',icon:'&#x1F4B0;',subSteps:null,
     instructions:[
-      {icon:'&#x1F5C4;&#xFE0F;',title:'Open cash drawer (if needed)',text:'If the cash drawer is closed and you need to open it before starting, go to Main Page, then Settings, then Hardware, then Test Cash Drawer to Open.'},
-      {icon:'&#x1F512;',title:'Z-Read - Close Shift',text:'Navigate to X/Z Read from the left-hand navigation panel, then press the red Z-Read - Close Shift button to begin the cash up process.'},
+      {icon:'&#x1F512;',title:'Z-Read - Close Shift',text:'Navigate to X/Z Read from the left-hand navigation panel, then press the red Z-Read - Close Shift button to begin the cash up process. The till drawer will open automatically.'},
       {icon:'&#x1F4B5;',title:'Count cash',text:'Enter the quantity of each denomination using the keypad, then press Continue when you are done to record your cash total.'},
-      {icon:'&#x1F4B3;',title:'Card machine total',text:'Retrieve the daily total from your card machine. On Dojo: tap the three lines, then the folder icon next to Settings, enter your Supervisor Code and note the daily total. On Takepayments: tap the three lines, then Reports. Enter the total into the Card Machine (PDQ) Total field and press Done.'},
+      {icon:'&#x1F4B3;',title:'Card machine total',text:'Retrieve the total from your card machine for the period since your last cash-up. To check when your last cash-up was, press X-Read and note the Shift Started time — use this as your start time when pulling the card machine report.',sub:[
+        {label:'&#x1F535; Dojo',body:'Tap the <strong>three lines</strong> (menu) on your Dojo terminal, then tap the <strong>summary symbol</strong> <img src="data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAORJREFUWAntlkEKwzAMBPX0/qyf6H9aFGLwGsGOQT0kRGAcOeORYnJwxBPsBN4RkYPGLm+934jIQWOXF+/r/Noh6ZrzVNJt43N+bVfh2ZNuG2PDDFZr8/v1ueKrtXXfkVfg7k9V8ZUXN1CCm4vXa2B03D3bg+suuPpwAxbcBEYjdhsGrUkB7MWg+m2GvRi0JRXAXgyq32bYi0FbUgHsxaD6bYa9GLQlFcBeDKrfZtiLQVtSAezFoPpthr0YtCUVwF4Mqt9m2ItBW1IB7M3r1IC753TbyKvzP27G6UTXctvhA9zqBH5ZLOFxwHNCuQAAAABJRU5ErkJggg==" style="width:1em;height:1em;vertical-align:middle;margin:0 .1em;"> next to Settings. Enter your <strong>Supervisor Code</strong> when prompted. Select the report for the relevant time period and note the total.'},
+        {label:'&#x1F7E3; Takepayments',body:'Tap the <strong>three lines</strong> (menu) on your terminal, then tap <strong>Reports</strong>. Select the report covering the period since your last cash-up and note the total.'},
+        {after:'Enter this figure into the <strong>Card Machine (PDQ) Total</strong> field and press <strong>Done</strong>.'}
+      ]},
       {icon:'&#x1F4DD;',title:'Variance note',text:'If the till is over or under by any amount, enter an explanation in the Variance Notes field before proceeding.'},
       {icon:'&#x1F510;',title:'Remove cash for safe',text:'Check the To Deposit in Safe figure shown on screen. Remove exactly that amount from the till and place it in the safe. Leave the &#xa3;60 float in the till.'},
       {icon:'&#x2705;',title:'Close shift',text:'Confirm all figures are correct, then press the red Close Shift button to complete the cash up.'}
@@ -1736,9 +1743,9 @@ var steps=[
     tip:'Always check the To Deposit in Safe figure carefully before removing cash - leave the &#xa3;60 float in the till every night.',
     tip3:'To manage variance, make sure to cash up at least once every day.',
     getMockup:function(i){
-      if(i===1||i===2)return renderCashCount();
-      if(i===3||i===4||i===5||i===6)return renderReconcile();
-      return renderXZ();
+      if(i===0||i===1)return renderXZ();
+      if(i===2)return renderCashCount();
+      return renderReconcile();
     }
   }
 ];
@@ -1798,7 +1805,22 @@ function renderContent(){
     for(var i=0;i<instrs.length;i++){
       body+='<li class="instr-item'+(i===curInstr?' active-instr':'')+'" onclick="switchMockup('+i+')">';
       body+='<div class="instr-icon">'+instrs[i].icon+'</div>';
-      body+='<div class="instr-text"><strong>'+instrs[i].title+'</strong><p>'+instrs[i].text+'</p></div></li>';
+      body+='<div class="instr-text"><strong>'+instrs[i].title+'</strong><p>'+instrs[i].text+'</p>';
+      if(instrs[i].sub){
+        for(var s=0;s<instrs[i].sub.length;s++){
+          if(instrs[i].sub[s].after){
+            body+='<p style="margin-top:.5rem;font-size:.84rem;color:var(--muted);">'+instrs[i].sub[s].after.replace(/<strong>/g,'<strong style="display:inline;font-size:inherit;font-weight:600;">').replace(/<\/strong>/g,'</strong>')+'</p>';
+            continue;
+          }
+          var did='drop_'+i+'_'+s;
+          body+='<div class="instr-dropdown">'
+            +'<button type="button" class="instr-dropdown-btn" onclick="event.stopPropagation();var b=document.getElementById(\''+did+'\');b.classList.toggle(\'open\');this.querySelector(\'.drop-arrow\').textContent=b.classList.contains(\'open\')?\'▲\':\'▼\';">'
+            +instrs[i].sub[s].label+'<span class="drop-arrow">&#x25BC;</span></button>'
+            +'<div id="'+did+'" class="instr-dropdown-body">'+instrs[i].sub[s].body+'</div>'
+            +'</div>';
+        }
+      }
+      body+='</div></li>';
       if(isTillSF&&i===0)body+='<li id="sf-panels" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;padding:.2rem 0 0 2.5rem;"></li>';
       if(isTill&&i===0){
         body+='<li style="list-style:none;padding:0 0 .4rem 2.5rem;">'
