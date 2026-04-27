@@ -1705,7 +1705,7 @@ var steps=[
         q:'How do I take out petty cash for expenses?',
         a:(function(){
           var cashOutBtn='<button onclick="navTo(1,1);setTimeout(function(){openMiscPanel(\'cashout\');},50);" style="background:#e65100;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Cash Out</button>';
-          return 'On the Till page, press the '+cashOutBtn+' button in the Misc section. Enter the total amount spent using the keypad, then select the appropriate category for the expense (e.g. Staff Welfare, Cleaning, Fuel Expenses). You can add an optional description before confirming. The withdrawal will be logged against the current shift and appear in your end-of-day reconciliation.';
+          return 'Cash for expenses should be taken from the till float, not the safe balance. All expenses must be processed through the till using the '+cashOutBtn+' button in the Misc section. Enter the amount using the keypad, select the appropriate expense category, and add a description if needed before confirming. The original purchase receipt should be signed and kept on the premises for records.';
         })()
       },
       {
@@ -1722,6 +1722,35 @@ var steps=[
           var safeBtn='<button onclick="navTo(1,1);setTimeout(function(){sfClick(\'safe\');},50);" style="background:#2e7d32;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Safe</button>';
           var bankingBtn='<button onclick="navTo(1,1);setTimeout(function(){sfClick(\'safe\');setTimeout(function(){showSafeBankingMockup();},50);},50);" style="background:#22c55e;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Banking</button>';
           return 'On the Till page, press the '+safeBtn+' button, then select the '+bankingBtn+' tab. Choose which bucket you are banking from (NHS + Card or Cash Only), enter the amount you are transferring to the bank using the keypad, add an optional bank reference, then press <strong>Confirm Banking</strong> to record the transaction.';
+        })()
+      },
+      {
+        q:'How do I process a refund?',
+        a:(function(){
+          var refundBtn='<button onclick="navTo(1,1);setTimeout(function(){openMiscPanel(\'refund\');},50);" style="background:#e03535;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Refund</button>';
+          var steps='<ol style="margin:.6rem 0 .6rem 1.2rem;line-height:1.9;">'
+            +'<li>Before processing, confirm the item is eligible for return under the pharmacy refund policy.</li>'
+            +'<li>Press the '+refundBtn+' button on the Till page.</li>'
+            +'<li>Scan the customer\'s original receipt using the till scanner to pull up the transaction.</li>'
+            +'<li>The full amount will be populated automatically. For a partial refund, enter the amount manually.</li>'
+            +'<li>Select the payment method — this must match the original payment method.</li>'
+            +'</ol>'
+            +'<div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:.5rem 0;">'
+            // Cash dropdown
+            +'<button type="button" style="width:100%;background:var(--surface2);border:none;border-bottom:1px solid var(--border);padding:.55rem .8rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--heading);" onclick="var b=document.getElementById(\'faq_refund_cash\');b.style.display=b.style.display===\'block\'?\'none\':\'block\';this.querySelector(\'.da\').textContent=b.style.display===\'block\'?\'▲\':\'▼\';">&#x1F4B5; Cash<span class="da">&#x25BC;</span></button>'
+            +'<div id="faq_refund_cash" style="display:none;padding:.75rem 1rem;font-size:.84rem;color:var(--muted);line-height:1.7;background:var(--bg);">'
+            +'Select <b style="display:inline;font-size:inherit;">Cash</b> as the payment method, then press <b style="display:inline;font-size:inherit;">Refund</b> on the till to confirm. Issue the refund amount to the customer from the cash drawer.'
+            +'</div>'
+            // Card dropdown
+            +'<button type="button" style="width:100%;background:var(--surface2);border:none;padding:.55rem .8rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-size:.88rem;font-weight:600;color:var(--heading);" onclick="var b=document.getElementById(\'faq_refund_card\');b.style.display=b.style.display===\'block\'?\'none\':\'block\';this.querySelector(\'.da\').textContent=b.style.display===\'block\'?\'▲\':\'▼\';">&#x1F4B3; Card<span class="da">&#x25BC;</span></button>'
+            +'<div id="faq_refund_card" style="display:none;padding:.75rem 1rem;font-size:.84rem;color:var(--muted);line-height:1.7;background:var(--bg);">'
+            +'Select <b style="display:inline;font-size:inherit;">Card</b> as the payment method, then go to the card machine to process the refund.<br><br>'
+            +'<b style="display:inline;font-size:inherit;">Dojo:</b> Press the three lines (top-left), select <b style="display:inline;font-size:inherit;">Issue Refund</b>, enter your supervisor code, type in the amount, then ask the customer to present their card.<br><br>'
+            +'<b style="display:inline;font-size:inherit;">Takepayments:</b> Select <b style="display:inline;font-size:inherit;">Refund</b> from the main menu, enter the amount and supervisor PIN, then ask the customer to tap or insert their card.<br><br>'
+            +'Once the card machine confirms the refund, return to the till and press <b style="display:inline;font-size:inherit;">Refund</b> to notify the system. This step is essential to keep till records accurate.'
+            +'</div>'
+            +'</div>';
+          return steps;
         })()
       }
     ]
@@ -1747,6 +1776,16 @@ var steps=[
       if(i===2)return renderCashCount();
       return renderReconcile();
     }
+  },
+  {
+    title:'Video Tutorials',subtitle:'Watch step-by-step video guides',icon:'&#x1F3AC;',
+    subSteps:null,instructions:[],tip:null,
+    getMockup:function(){return '';},
+    isVideos:true,
+    videos:[
+      {title:'Getting Started with StockIQ',id:'mp78NVguefM'},
+      {title:'Cash Up Procedure',id:'5vt08RkREhQ'}
+    ]
   }
 ];
 
@@ -1786,7 +1825,20 @@ function renderContent(){
   var isTill=sub&&sub.title==='Till';
   var body='';
 
-  if(s.isFAQ){
+  if(s.isVideos){
+    body+='<div style="display:flex;flex-direction:column;gap:1.5rem;">';
+    for(var v=0;v<s.videos.length;v++){
+      body+='<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg);">'
+        +'<div style="padding:.9rem 1.2rem;border-bottom:1px solid var(--border);">'
+        +'<div style="font-size:1rem;font-weight:700;color:var(--heading);">&#x1F3AC; '+s.videos[v].title+'</div>'
+        +'</div>'
+        +'<div style="padding:1rem 1.2rem;">'
+        +'<iframe src="https://www.youtube.com/embed/'+s.videos[v].id+'" width="100%" height="420" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:none;border-radius:8px;display:block;"></iframe>'
+        +'</div>'
+        +'</div>';
+    }
+    body+='</div>';
+  } else if(s.isFAQ){
     body+='<div style="display:flex;flex-direction:column;gap:.75rem;">';
     for(var f=0;f<s.faqs.length;f++){
       var fid='faq'+f;
