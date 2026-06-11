@@ -1053,13 +1053,21 @@ function renderTillSkim(){
     +'</div>'
     +'<div style="background:rgba(255,255,255,.06);border-radius:8px;padding:.55rem .7rem;">'
     +'<div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.2rem;">Till Balance</div>'
-    +'<div style="font-size:1.1rem;font-weight:800;color:#22c55e;">&#xa3;96.38</div>'
+    +'<div style="font-size:1.1rem;font-weight:800;color:#f59e0b;">&#xa3;312.50</div>'
+    +'<div style="font-size:.5rem;color:#f59e0b;margin-top:.15rem;">Above recommended limit (&#xa3;200)</div>'
     +'</div>'
     +'<div><div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.2rem;">Amount</div>'
-    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.6rem;text-align:center;font-size:1rem;font-weight:700;color:#fff;">&#xa3;36.38</div></div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.6rem;text-align:center;font-size:1rem;font-weight:700;color:rgba(255,255,255,.3);">&#xa3;0.00</div></div>'
     +numpad
     +'<div style="background:rgba(255,255,255,.06);border-radius:7px;padding:.4rem;text-align:center;font-size:.6rem;color:#8a9bb0;">&#x232B; Delete</div>'
-    +'<div style="background:#22c55e;border-radius:8px;padding:.55rem;text-align:center;font-size:.65rem;font-weight:700;color:#fff;">Confirm To Safe</div>'
+    +'<div>'
+    +'<div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.3rem;">Where did this cash come from?</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;">'
+    +'<div style="background:#22c55e;border-radius:8px;padding:.45rem;text-align:center;font-size:.58rem;font-weight:700;color:#fff;">From till drawer</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.45rem;text-align:center;font-size:.58rem;font-weight:600;color:#aaa;">External cash</div>'
+    +'</div>'
+    +'<div style="font-size:.48rem;color:#8a9bb0;margin-top:.3rem;">Drawer cash — moved from the till to the safe (a skim); reduces expected till cash.</div>'
+    +'</div>'
     +'</div></div>';
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/cashandbank</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
 }
