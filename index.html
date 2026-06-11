@@ -1409,7 +1409,8 @@ function renderSettings(idx){
     {k:'tillconfig',l:'Till Config'},
     {k:'terminal',l:'Terminal'},
     {k:'hardware',l:'Hardware'},
-    {k:'storage',l:'Storage &amp; Cache'}
+    {k:'storage',l:'Storage &amp; Cache'},
+    {k:'software',l:'Software'}
   ];
   var tH='<div style="display:flex;gap:.3rem;flex-wrap:wrap;">';
   for(var t=0;t<tabs.length;t++){
@@ -1538,6 +1539,24 @@ function renderSettings(idx){
       +'<div style="display:flex;flex-direction:column;gap:.15rem;">'
       +['No certificates or trust prompts','Automatically selects your thermal printer','Works with any Windows printer','Runs silently in system tray','Auto-reconnects if disconnected'].map(function(t){return '<div style="font-size:.5rem;color:#555;">&#x2022; '+t+'</div>';}).join('')
       +'</div>'
+      +'</div>'
+      +'</div>';
+  } else if(tab==='software'){
+    content='<div style="display:flex;flex-direction:column;gap:.5rem;flex:1;">'
+      +'<div style="background:#fff;border-radius:8px;padding:.6rem .7rem;">'
+      +'<div style="font-size:.65rem;font-weight:700;color:#1a2e2d;margin-bottom:.5rem;">Software &amp; Updates</div>'
+      +'<div style="border:1px solid #e5e7eb;border-radius:8px;padding:.5rem .65rem;margin-bottom:.5rem;">'
+      +'<div style="font-size:.52rem;color:#888;margin-bottom:.15rem;">Installed version</div>'
+      +'<div style="font-size:.85rem;font-weight:800;color:#1a2e2d;margin-bottom:.15rem;">1.0.16</div>'
+      +'<div style="font-size:.48rem;color:#888;">Channel: stable &middot; Last checked: never</div>'
+      +'</div>'
+      +'<div style="background:#7c3aed;border-radius:7px;padding:.4rem .7rem;display:inline-block;font-size:.58rem;font-weight:700;color:#fff;margin-bottom:.4rem;">Check for updates</div>'
+      +'<div style="font-size:.48rem;color:#888;line-height:1.5;">Tills also update themselves overnight. To fully reinstall: open admin.stockiq.uk → Till Fleet → Download installer.</div>'
+      +'</div>'
+      +'<div style="background:#fff;border-radius:8px;padding:.6rem .7rem;">'
+      +'<div style="font-size:.58rem;font-weight:600;color:#1a2e2d;margin-bottom:.4rem;">Maintenance</div>'
+      +'<div style="border:1px solid #e03535;border-radius:7px;padding:.35rem .65rem;display:inline-block;font-size:.58rem;font-weight:600;color:#e03535;margin-bottom:.3rem;">Exit app</div>'
+      +'<div style="font-size:.48rem;color:#888;">IT / maintenance only. Keyboard shortcut anywhere: <strong style="color:#555;">Ctrl+Shift+Q</strong>.</div>'
       +'</div>'
       +'</div>';
   } else if(tab==='storage'){
@@ -1705,11 +1724,12 @@ var steps=[
           {icon:'&#x2699;&#xFE0F;',title:'Till Config',text:'View receipt print settings, your opening float amount, the current safe balance, and product database sync status.'},
           {icon:'&#x1F4F1;',title:'Terminal',text:'Configure the Terminal ID and device name for this till. If you have multiple tills in your branch, each should have a unique terminal ID.'},
           {icon:'&#x1F5A8;&#xFE0F;',title:'Hardware',text:'Manage the StockIQ Print Server connection for receipt printing and the cash drawer. Use the Test Print and Test Cash Drawer buttons to check everything is working.'},
-          {icon:'&#x1F4BE;',title:'Storage &amp; Cache',text:'View how much local storage the app is using and clear individual caches if needed. Use this if the app is behaving unexpectedly or products are not scanning correctly.'}
+          {icon:'&#x1F4BE;',title:'Storage &amp; Cache',text:'View how much local storage the app is using and clear individual caches if needed. Use this if the app is behaving unexpectedly or products are not scanning correctly.'},
+          {icon:'&#x1F4E6;',title:'Software',text:'View the installed software version and check for updates. If you need to exit the app for IT or maintenance purposes, use the <strong>Exit app</strong> button here. You can also press <strong>Ctrl+Shift+Q</strong> anywhere in the app.'}
         ],
         tip:null,
         getMockup:function(i){
-          var tabMap=['staff','services','tillconfig','terminal','hardware','storage'];
+          var tabMap=['staff','services','tillconfig','terminal','hardware','storage','software'];
           showSettingsTab=tabMap[i]||'staff';
           return renderSettings(i);
         }
@@ -1838,6 +1858,13 @@ var steps=[
         a:(function(){
           var hardwareBtn='<button onclick="navTo(1,7,4);setTimeout(function(){switchSettingsTab(\'hardware\');},50);" style="background:#22c55e;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Hardware</button>';
           return 'Go to Settings and open the '+hardwareBtn+' tab. Press the <strong>Test Cash Drawer</strong> button to open the drawer without processing a sale.';
+        })()
+      },
+      {
+        q:'My app is fullscreen — how do I exit?',
+        a:(function(){
+          var softwareBtn='<button onclick="navTo(1,7,6);setTimeout(function(){switchSettingsTab(\'software\');},50);" style="background:#7c3aed;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Settings → Software</button>';
+          return 'Go to '+softwareBtn+' and press the <strong>Exit app</strong> button under Maintenance. This is for IT and maintenance use only — the app runs fullscreen during normal use. You can also press <strong>Ctrl+Shift+Q</strong> anywhere in the app as a keyboard shortcut.';
         })()
       }
     ]
