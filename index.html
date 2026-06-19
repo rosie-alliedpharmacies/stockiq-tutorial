@@ -790,7 +790,7 @@ function renderClockIn(){
     +numpad
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">'
     +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:600;color:#aaa;">Cancel</div>'
-    +'<div style="background:#22c55e;border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:700;color:#fff;">Clock In / Out</div>'
+    +'<div class="mc" onclick="var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderClockedIn();}" style="background:#22c55e;border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:700;color:#fff;cursor:pointer;">Clock In / Out</div>'
     +'</div>'
     +'</div></div>';
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;opacity:.3;"></div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
@@ -1695,9 +1695,7 @@ var steps=[
           {icon:'&#x26A1;',title:'Quick Keys',text:'Pre-configured shortcut buttons for your most frequent transactions - Flu Jab (&#xa3;20.00), NHS RX Charge (&#xa3;9.90), FP57 Refund, and more.'},
           {icon:'&#x1F48A;',title:'Private Services',text:'The Private Services quick key opens a menu of privately charged service categories — Minor Ailments, Sexual Health, Travel, Vaccinations, and Weight Management. Select a category to browse and charge for individual services.'},
           {icon:'&#x1F6D2;',title:'Basket and payment panel',text:'The right-hand panel shows the current basket. Once items are added, the total updates here. Use the Cash, Card, or Account buttons to process payment.'},
-          {icon:'&#x1F550;',title:'Clock In / Out',text:'Staff should clock in at the start of their shift and clock out at the end. Press the <strong>Clock In / Out</strong> button in the Misc section, enter your employee ID using the keypad, and press <strong>Clock In / Out</strong> to confirm.'},
-          {icon:'&#x2705;',title:'Clocked in',text:'If you are clocking in, you will see a confirmation screen showing your name and a <strong>Clocked In</strong> badge. Press <strong>Done</strong> to close.'},
-          {icon:'&#x1F44B;',title:'Clocked out',text:'If you are clocking out, you will see a confirmation screen showing your name and a <strong>Clocked Out</strong> badge. Press <strong>Done</strong> to close.'}
+          {icon:'&#x1F550;',title:'Clock In / Out',text:'Staff should clock in at the start of their shift and clock out at the end. Press the <strong>Clock In / Out</strong> button in the Misc section, enter your employee ID using the keypad, and press <strong>Clock In / Out</strong> to confirm.'}
         ],
         tip:'You can park a sale mid-transaction using the Park Sale button in the Misc section, then recall it later.',
         getMockup:function(i){
@@ -1707,8 +1705,6 @@ var steps=[
           if(i===2){showPrivateServices=true;return renderTillPrivateServices();}
           if(showPrivateServices)return renderTillPrivateServices();
           if(i===4)return renderClockIn();
-          if(i===5)return renderClockedIn();
-          if(i===6)return renderClockedOut();
           return renderTill(null);
         }
       },
