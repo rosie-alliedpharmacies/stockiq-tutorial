@@ -170,6 +170,7 @@ var activeSFPanel=null, activeMiscPanel=null, curStep=0, curSub=0, curInstr=0;
 var doneSteps=[], doneSubs={};
 var showPriceCheck=false, showCashCount=false, showReconcile=false, showXRead=false;
 var showSalesHistory=false, showSalesReport=false, showCashOut=false, showRefund=false;
+var showClockIn=false, showClockedIn=false, showClockedOut=false;
 var showSafe=false, showSafeBanking=false;
 var showNHS=false, showMiscItems=false, showPrivateServices=false;
 var showTillSkim=false, showCabBanking=false;
@@ -378,7 +379,7 @@ function closeCashOverlay(){
 }
 
 // ── Navigation ──
-function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showTillSkim=false;showCabBanking=false;showSettingsTab='staff';showReportsTab='summary';}
+function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showTillSkim=false;showCabBanking=false;showClockIn=false;showClockedIn=false;showClockedOut=false;showSettingsTab='staff';showReportsTab='summary';}
 function openTillSkim(){showTillSkim=true;showCabBanking=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderTillSkim();mk.style.display='block';}}
 function openCabBanking(){showCabBanking=true;showTillSkim=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderCashAndBankBanking();mk.style.display='block';}}
 function closeCabModal(){showTillSkim=false;showCabBanking=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderCashAndBank();mk.style.display='block';}}
@@ -550,9 +551,10 @@ function openMiscPanel(key){
   activeMiscPanel=key;
   showSalesHistory=key==='history';showSalesReport=key==='report';
   showCashOut=key==='cashout';showRefund=key==='refund';
+  showClockIn=key==='clockin';showClockedIn=false;showClockedOut=false;
   var el=document.getElementById('stepMockup');
   if(el){
-    var h=key==='history'?renderTillSalesHistory():key==='report'?renderTillSalesReport():key==='cashout'?renderTillCashOut():renderTillRefund();
+    var h=key==='history'?renderTillSalesHistory():key==='report'?renderTillSalesReport():key==='cashout'?renderTillCashOut():key==='clockin'?renderClockIn():renderTillRefund();
     el.innerHTML=h;el.style.display='block';
   }
   miscRender();
@@ -572,6 +574,7 @@ function showTillModal(which){
 }
 function closeTillModal(){
   showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;
+  showClockIn=false;showClockedIn=false;showClockedOut=false;
   activeMiscPanel=null;
   miscRender();
   var el=document.getElementById('stepMockup');
@@ -766,6 +769,64 @@ function renderTillRefund(){
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;padding:.6rem;opacity:.3;font-size:.55rem;color:#555;">Till</div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
 }
 
+function renderClockIn(){
+  var numpad='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;margin-bottom:.4rem;">';
+  var keys=['1','2','3','4','5','6','7','8','9','Clear','0','&#x232B;'];
+  for(var k=0;k<keys.length;k++){
+    var isClear=keys[k]==='Clear',isDel=keys[k]==='&#x232B;';
+    numpad+='<div style="background:'+(isClear||isDel?'rgba(255,255,255,.06)':'rgba(255,255,255,.1)')+';border-radius:8px;padding:.55rem;text-align:center;font-size:'+(isClear?'.55rem':'.72rem')+';color:#fff;font-weight:600;">'+keys[k]+'</div>';
+  }
+  numpad+='</div>';
+  var modal='<div onclick="event.stopPropagation()" style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:14px;width:100%;max-width:320px;padding:.8rem;display:flex;flex-direction:column;gap:.5rem;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+    +'<div style="font-size:.75rem;font-weight:700;color:#fff;">&#x1F550; Clock In / Out</div>'
+    +'<div class="mc" onclick="closeTillModal()" style="background:rgba(255,255,255,.1);border-radius:6px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.65rem;cursor:pointer;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:.6rem .7rem;">'
+    +'<div style="font-size:.5rem;color:#8a9bb0;margin-bottom:.2rem;">Your employee ID</div>'
+    +'<div style="font-size:1.2rem;font-weight:800;color:#22c55e;letter-spacing:.08em;">12345</div>'
+    +'</div>'
+    +numpad
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:600;color:#aaa;">Cancel</div>'
+    +'<div style="background:#22c55e;border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:700;color:#fff;">Clock In / Out</div>'
+    +'</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;opacity:.3;"></div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
+}
+function renderClockedIn(){
+  var modal='<div onclick="event.stopPropagation()" style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:14px;width:100%;max-width:320px;padding:.8rem;display:flex;flex-direction:column;gap:.5rem;">'
+    +'<div style="display:flex;justify-content:flex-end;">'
+    +'<div class="mc" onclick="closeTillModal()" style="background:rgba(255,255,255,.1);border-radius:6px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.65rem;cursor:pointer;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="text-align:center;padding:.5rem 0;">'
+    +'<div style="background:#22c55e;border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;margin:0 auto .5rem;font-size:1.1rem;">&#x2714;&#xFE0F;</div>'
+    +'<div style="font-size:.85rem;font-weight:700;color:#22c55e;margin-bottom:.3rem;">Hello Alex,</div>'
+    +'<div style="font-size:.58rem;color:#aaa;line-height:1.5;margin-bottom:.5rem;">You have successfully checked in, we hope you have a great day!</div>'
+    +'<div style="display:inline-block;border:1.5px solid #22c55e;border-radius:20px;padding:.2rem .7rem;font-size:.5rem;font-weight:700;color:#22c55e;letter-spacing:.08em;">CLOCKED IN</div>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:600;color:#fff;">Done</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;opacity:.3;"></div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
+}
+function renderClockedOut(){
+  var modal='<div onclick="event.stopPropagation()" style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:14px;width:100%;max-width:320px;padding:.8rem;display:flex;flex-direction:column;gap:.5rem;">'
+    +'<div style="display:flex;justify-content:flex-end;">'
+    +'<div class="mc" onclick="closeTillModal()" style="background:rgba(255,255,255,.1);border-radius:6px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.65rem;cursor:pointer;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="text-align:center;padding:.5rem 0;">'
+    +'<div style="font-size:1.6rem;margin-bottom:.4rem;">&#x1F44B;</div>'
+    +'<div style="font-size:.85rem;font-weight:700;color:#38bdf8;margin-bottom:.3rem;">Goodbye Alex,</div>'
+    +'<div style="font-size:.58rem;color:#aaa;line-height:1.5;margin-bottom:.5rem;">You have successfully checked out</div>'
+    +'<div style="display:inline-block;border:1.5px solid #38bdf8;border-radius:20px;padding:.2rem .7rem;font-size:.5rem;font-weight:700;color:#38bdf8;letter-spacing:.08em;">CLOCKED OUT</div>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:600;color:#fff;">Done</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;opacity:.3;"></div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
+}
 function closePrivateServicesMockup(){showPrivateServices=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderTill(null);mk.style.display='block';}}
 function renderTillPrivateServices(){
   var cats=[
@@ -955,7 +1016,7 @@ function renderTill(highlight){
     main+='<div '+(isPriv?'class="mc" onclick="navToInstr(1,1,2);"':'')+' style="background:#fff;border:1px solid '+(isPriv?'#c4b5fd':'#ddd')+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;'+(isPriv?'cursor:pointer;':'')+'"><div style="font-size:.7rem;">'+qk[i][0]+'</div>'+qk[i][1]+'<div style="color:#1565c0;font-weight:700;">'+qk[i][2]+'</div></div>';
   }
   main+='</div><div style="font-size:.55rem;font-weight:700;color:#666;letter-spacing:.06em;margin-bottom:.3rem;">MISC</div><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.25rem;">';
-  var misc=[['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold',null],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked',null],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply',null],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales','openMiscPanel(\'history\')'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary','openMiscPanel(\'report\')'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash','openMiscPanel(\'cashout\')'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return','openMiscPanel(\'refund\')']];
+  var misc=[['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold',null],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked',null],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply',null],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales','openMiscPanel(\'history\')'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary','openMiscPanel(\'report\')'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash','openMiscPanel(\'cashout\')'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return','openMiscPanel(\'refund\')'],['#1b7a3e','&#x1F550;','CLOCK IN/OUT','Attendance','openMiscPanel(\'clockin\')']];
   for(var i=0;i<misc.length;i++)main+='<div '+(misc[i][4]?'class="mc" onclick="'+misc[i][4]+'"':'')+' style="background:'+misc[i][0]+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;color:#fff;'+(misc[i][4]?'cursor:pointer;':'')+'"><div style="font-size:.7rem;">'+misc[i][1]+'</div>'+misc[i][2]+'<div style="opacity:.8;">'+misc[i][3]+'</div></div>';
   main+='</div></div>';
   var basket='<div class="mc" onclick="navToInstrNoPC(1,1,2)" style="background:#f8f9fc;border-left:1px solid #dde;display:flex;flex-direction:column;padding:.5rem;"><div style="text-align:center;color:#aaa;font-size:.6rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;"><div style="font-size:1.4rem;">&#x1F6D2;</div><div style="font-weight:600;color:#555;font-size:.65rem;">Basket is empty</div></div><div style="border-top:1px solid #dde;padding-top:.4rem;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.65rem;font-weight:700;">Total</span><span style="color:#1565c0;font-weight:700;font-size:.75rem;">&#xa3;0.00</span></div><div style="background:#e8f0fe;border-radius:5px;text-align:center;padding:.3rem;font-size:.55rem;margin-bottom:.3rem;color:#555;">&#x1F5A8;&#xFE0F; Print</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;"><div style="background:#e8f5e9;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B5;</div><div style="background:#e8eaf6;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B3;</div><div style="background:#f3e5f5;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4CB;</div></div></div></div>';
@@ -1633,7 +1694,8 @@ var steps=[
           {icon:'&#x1F6E0;&#xFE0F;',title:'Services and Functions',text:'The coloured buttons at the top give quick access to common actions: NHS Services (PF, CPCS, NMS), Misc Items, Price Check, Reprint Last Receipt, and Void Sale. Click <strong>Price Check</strong> below to see how it works.'},
           {icon:'&#x26A1;',title:'Quick Keys',text:'Pre-configured shortcut buttons for your most frequent transactions - Flu Jab (&#xa3;20.00), NHS RX Charge (&#xa3;9.90), FP57 Refund, and more.'},
           {icon:'&#x1F48A;',title:'Private Services',text:'The Private Services quick key opens a menu of privately charged service categories — Minor Ailments, Sexual Health, Travel, Vaccinations, and Weight Management. Select a category to browse and charge for individual services.'},
-          {icon:'&#x1F6D2;',title:'Basket and payment panel',text:'The right-hand panel shows the current basket. Once items are added, the total updates here. Use the Cash, Card, or Account buttons to process payment.'}
+          {icon:'&#x1F6D2;',title:'Basket and payment panel',text:'The right-hand panel shows the current basket. Once items are added, the total updates here. Use the Cash, Card, or Account buttons to process payment.'},
+          {icon:'&#x1F550;',title:'Clock In / Out',text:'Staff should clock in at the start of their shift and clock out at the end. Press the <strong>Clock In / Out</strong> button in the Misc section, enter your employee ID using the keypad, and press <strong>Clock In / Out</strong> to confirm. If you do not know your employee ID, ask your manager.'}
         ],
         tip:'You can park a sale mid-transaction using the Park Sale button in the Misc section, then recall it later.',
         getMockup:function(i){
@@ -1642,6 +1704,7 @@ var steps=[
           if(showMiscItems)return renderTillMiscItems();
           if(i===2){showPrivateServices=true;return renderTillPrivateServices();}
           if(showPrivateServices)return renderTillPrivateServices();
+          if(i===4)return renderClockIn();
           return renderTill(null);
         }
       },
@@ -1858,6 +1921,13 @@ var steps=[
         a:(function(){
           var hardwareBtn='<button onclick="navTo(1,7,4);setTimeout(function(){switchSettingsTab(\'hardware\');},50);" style="background:#22c55e;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Hardware</button>';
           return 'Go to Settings and open the '+hardwareBtn+' tab. Press the <strong>Test Cash Drawer</strong> button to open the drawer without processing a sale.';
+        })()
+      },
+      {
+        q:'How do I clock in or out?',
+        a:(function(){
+          var clockBtn='<button onclick="navTo(1,2,4);setTimeout(function(){openMiscPanel(\'clockin\');},50);" style="background:#1b7a3e;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Clock In / Out</button>';
+          return 'Press the '+clockBtn+' button in the Misc section on the Till page. Enter your employee ID using the keypad and press <strong>Clock In / Out</strong> to confirm. Do this at the start and end of every shift. If you do not know your employee ID, ask your manager.';
         })()
       },
       {
