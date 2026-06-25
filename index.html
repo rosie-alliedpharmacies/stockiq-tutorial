@@ -173,6 +173,7 @@ var showSalesHistory=false, showSalesReport=false, showCashOut=false, showRefund
 var showClockIn=false, showClockedIn=false, showClockedOut=false;
 var showCashPayment=false, showCardPayment=false, showAccountPayment=false;
 var showCashUpComplete=false, showCashUpReceipt=false;
+var showDailyReport=false;
 var showSafe=false, showSafeBanking=false;
 var showNHS=false, showMiscItems=false, showPrivateServices=false;
 var showTillSkim=false, showCabBanking=false;
@@ -386,7 +387,7 @@ function closeCashOverlay(){
 }
 
 // ── Navigation ──
-function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showTillSkim=false;showCabBanking=false;showClockIn=false;showClockedIn=false;showClockedOut=false;showCashPayment=false;showCardPayment=false;showAccountPayment=false;showCashUpComplete=false;showCashUpReceipt=false;showSettingsTab='staff';showReportsTab='summary';}
+function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showTillSkim=false;showCabBanking=false;showClockIn=false;showClockedIn=false;showClockedOut=false;showCashPayment=false;showCardPayment=false;showAccountPayment=false;showCashUpComplete=false;showCashUpReceipt=false;showDailyReport=false;showSettingsTab='staff';showReportsTab='summary';}
 function openTillSkim(){showTillSkim=true;showCabBanking=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderTillSkim();mk.style.display='block';}}
 function openCabBanking(){showCabBanking=true;showTillSkim=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderCashAndBankBanking();mk.style.display='block';}}
 function closeCabModal(){showTillSkim=false;showCabBanking=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderCashAndBank();mk.style.display='block';}}
@@ -1477,7 +1478,8 @@ function renderDashboard(idx){
   var bH='',hH='';
   for(var i=0;i<bars.length;i++)bH+='<div style="flex:1;"><div style="width:100%;background:'+(bars[i]===mx?'#3b6fd4':'#93b4f0')+';border-radius:2px 2px 0 0;height:'+Math.round((bars[i]/mx)*40)+'px;min-height:'+(bars[i]>0?'3':'0')+'px;"></div></div>';
   for(var i=0;i<hrs.length;i++)hH+='<span style="font-size:.42rem;color:#aaa;flex:1;text-align:center;">'+hrs[i]+'</span>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('dashboard')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">'+topNavHtml('Dashboard')+'<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Dashboard</div><div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.2rem .5rem;font-size:.55rem;color:#555;">Refresh</div></div>';
+    if(showDailyReport)return renderDailyReport();
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('dashboard')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">'+topNavHtml('Dashboard')+'<div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Dashboard</div><div style="display:flex;gap:.3rem;"><div class="mc" onclick="showDailyReport=true;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderDailyReport();}" style="background:#3b6fd4;border-radius:5px;padding:.2rem .5rem;font-size:.55rem;color:#fff;font-weight:600;cursor:pointer;">&#x1F5A8; Print Report</div><div style="background:#fff;border:1px solid #ddd;border-radius:5px;padding:.2rem .5rem;font-size:.55rem;color:#555;">Refresh</div></div></div>';
   inner+='<div class="mc" onclick="navToInstr(1,4,0)" style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:.35rem;'+hl(idx===0)+'"><div style="background:#3b6fd4;border-radius:7px;padding:.5rem .6rem;color:#fff;"><div style="font-size:.52rem;opacity:.8;margin-bottom:.2rem;">Total Sales</div><div style="font-size:.9rem;font-weight:700;">&#xa3;248.60</div></div><div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Avg Basket</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;8.02</div></div><div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">NHS Levy</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;89.10</div></div><div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Refunds</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;9.90</div></div><div style="background:#fff;border-radius:7px;padding:.5rem .6rem;"><div style="font-size:.52rem;color:#888;margin-bottom:.2rem;">Discounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;5.00</div></div></div>';
   inner+='<div style="display:grid;grid-template-columns:1fr 140px;gap:.35rem;"><div style="display:flex;flex-direction:column;gap:.35rem;"><div class="mc" onclick="navToInstr(1,4,1)" style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===1)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Sales by Hour</div><div style="display:flex;align-items:flex-end;gap:2px;height:44px;">'+bH+'</div><div style="display:flex;justify-content:space-between;margin-top:.2rem;">'+hH+'</div></div>';
   inner+='<div class="mc" onclick="navToInstr(1,4,2)" style="background:#fff;border-radius:7px;padding:.5rem .6rem;'+hl(idx===2)+'"><div style="font-size:.6rem;font-weight:700;color:#1a2e2d;margin-bottom:.4rem;">Payment Methods</div>';
@@ -1489,6 +1491,45 @@ function renderDashboard(idx){
   for(var i=0;i<pr.length;i++)inner+='<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.2rem;"><span style="font-size:.55rem;color:#aaa;width:8px;">'+(i+1)+'</span><div style="flex:1;"><div style="font-size:.55rem;color:#1a2e2d;font-weight:600;">'+pr[i][0]+'</div><div style="font-size:.5rem;color:#aaa;">'+pr[i][1]+'</div></div><span style="font-size:.55rem;font-weight:600;color:#3b6fd4;">'+pr[i][2]+'</span></div>';
   inner+='</div></div></div></div></div>';
   return wrapMockup('epos.stockiq.uk/dashboard',inner);
+}
+function renderDailyReport(){
+  var r='<div style="display:flex;justify-content:space-between;font-size:.52rem;margin-bottom:.12rem;">';
+  var dsep='<div style="border-top:1px dashed #bbb;margin:.3rem 0;"></div>';
+  var deq='<div style="border-top:2px solid #888;margin:.3rem 0;"></div>';
+  var receipt='<div style="position:absolute;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:25;">'
+    +'<div style="background:#fff;border-radius:3px;width:82%;max-width:210px;font-family:\'Courier New\',monospace;padding:.7rem .65rem .55rem;box-shadow:0 4px 20px rgba(0,0,0,.5);position:relative;max-height:92%;overflow-y:auto;">'
+    +'<div class="mc" onclick="showDailyReport=false;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderDashboard(0);}" style="position:absolute;top:.3rem;right:.3rem;background:#eee;border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;color:#555;font-size:.55rem;cursor:pointer;">&#x2715;</div>'
+    // Header
+    +'<div style="text-align:center;margin-bottom:.3rem;">'
+    +'<div style="font-size:.8rem;font-weight:700;letter-spacing:.06em;">DAILY REPORT</div>'
+    +'<div style="font-size:.55rem;font-weight:700;">ALLIED PHARMACIES</div>'
+    +'<div style="font-size:.52rem;color:#444;">Sample Pharmacy (AP-46)</div>'
+    +'</div>'
+    +'<div style="border-top:2px solid #888;border-bottom:2px solid #888;padding:.05rem 0;margin-bottom:.3rem;"></div>'
+    +'<div style="font-size:.52rem;margin-bottom:.1rem;">Date: 25/06/2026</div>'
+    +'<div style="font-size:.52rem;margin-bottom:.1rem;">Printed: 17:32</div>'
+    +dsep
+    // Total Sales
+    +r+'<span style="font-weight:700;">TOTAL SALES:</span><span style="font-weight:700;">GBP248.60</span></div>'
+    +r+'<span>Transactions:</span><span>34</span></div>'
+    +r+'<span>Avg Basket:</span><span>GBP7.31</span></div>'
+    +dsep
+    // Sales by Method
+    +'<div style="font-size:.54rem;font-weight:700;margin-bottom:.12rem;">SALES BY METHOD</div>'
+    +r+'<span>Cash:</span><span>GBP162.28</span></div>'
+    +r+'<span>Card:</span><span>GBP81.32</span></div>'
+    +r+'<span>Account:</span><span>GBP5.00</span></div>'
+    +r+'<span>Refunds:</span><span>GBP0.00</span></div>'
+    +dsep
+    // NHS
+    +r+'<span>NHS Items:</span><span>10</span></div>'
+    +r+'<span>NHS Levy:</span><span>GBP99.00</span></div>'
+    +r+'<span>Discounts:</span><span>GBP5.00</span></div>'
+    +deq
+    +'<div style="text-align:center;font-size:.52rem;font-weight:700;">*** SUMMARY ONLY &#x2014; NOT A CASH-UP ***</div>'
+    +'</div>'
+    +'</div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/dashboard</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('dashboard')+'<div style="background:#f0f2f7;opacity:.25;min-height:320px;"></div></div>'+receipt+'</div></div>';
 }
 function renderAccounts(idx){
   var accs=[['Sunrise Care Home','ACC-SC001','Care Home','&#xa3;142.50','&#xa3;500.00',false],['J. Patel','ACC-JP002','Customer','&#xa3;28.40','&#xa3;100.00',false],['Maplewood Nursing','ACC-MN003','Care Home','&#xa3;389.00','&#xa3;350.00',true],['S. Thompson','ACC-ST004','Customer','&#xa3;0.00','&#xa3;50.00',false],['R. Okafor','ACC-RO005','Customer','&#xa3;15.90','&#xa3;100.00',false]];
@@ -2085,7 +2126,7 @@ var steps=[
           {icon:'&#x1F3C6;',title:'Top Products',text:'Below the shift info you will find your top-selling products by quantity, and a live feed of recent transactions.'}
         ],
         tip:'The Dashboard reflects the current shift only. To see historical data across multiple days, head to the Reports module.',
-        getMockup:function(i){return renderDashboard(i);}
+        getMockup:function(i){if(showDailyReport)return renderDailyReport();return renderDashboard(i);}
       },
       {
         title:'Accounts',icon:'&#x1F465;',subtitle:'Manage customer and care home charge accounts',
