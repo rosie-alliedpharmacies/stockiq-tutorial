@@ -172,6 +172,7 @@ var showPriceCheck=false, showCashCount=false, showReconcile=false, showXRead=fa
 var showSalesHistory=false, showSalesReport=false, showCashOut=false, showRefund=false;
 var showClockIn=false, showClockedIn=false, showClockedOut=false;
 var showCashPayment=false, showCardPayment=false, showAccountPayment=false;
+var showCashUpComplete=false, showCashUpReceipt=false;
 var showSafe=false, showSafeBanking=false;
 var showNHS=false, showMiscItems=false, showPrivateServices=false;
 var showTillSkim=false, showCabBanking=false;
@@ -369,18 +370,23 @@ function showReconcileMockup(){
   if(el){el.innerHTML=renderReconcile();el.style.display='block';}
 }
 function closeShiftMockup(){
-  showCashCount=false;showReconcile=false;showXRead=false;
+  showCashCount=false;showReconcile=false;showXRead=false;showCashUpComplete=true;showCashUpReceipt=false;
   var el=document.getElementById('stepMockup');
-  if(el){el.innerHTML=renderXZ();el.style.display='block';}
+  if(el){el.innerHTML=renderCashUpComplete();el.style.display='block';}
+}
+function showCashUpReceiptMockup(){
+  showCashUpReceipt=true;
+  var el=document.getElementById('stepMockup');
+  if(el){el.innerHTML=renderCashUpReceipt();el.style.display='block';}
 }
 function closeCashOverlay(){
-  showCashCount=false;showReconcile=false;showXRead=false;
+  showCashCount=false;showReconcile=false;showXRead=false;showCashUpComplete=false;showCashUpReceipt=false;
   var el=document.getElementById('stepMockup');
   if(el){el.innerHTML=renderCashAndBank();el.style.display='block';}
 }
 
 // ── Navigation ──
-function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showTillSkim=false;showCabBanking=false;showClockIn=false;showClockedIn=false;showClockedOut=false;showCashPayment=false;showCardPayment=false;showAccountPayment=false;showSettingsTab='staff';showReportsTab='summary';}
+function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showTillSkim=false;showCabBanking=false;showClockIn=false;showClockedIn=false;showClockedOut=false;showCashPayment=false;showCardPayment=false;showAccountPayment=false;showCashUpComplete=false;showCashUpReceipt=false;showSettingsTab='staff';showReportsTab='summary';}
 function openTillSkim(){showTillSkim=true;showCabBanking=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderTillSkim();mk.style.display='block';}}
 function openCabBanking(){showCabBanking=true;showTillSkim=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderCashAndBankBanking();mk.style.display='block';}}
 function closeCabModal(){showTillSkim=false;showCabBanking=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderCashAndBank();mk.style.display='block';}}
@@ -1304,6 +1310,75 @@ function renderReconcile(){
   var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;"><div style="background:#162032;border-radius:12px;width:90%;max-width:480px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);"><div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,.1);"><span style="color:#fff;font-size:.75rem;font-weight:700;">&#x1F512; Cash Up &amp; Close Shift</span><div class="mc" onclick="closeCashOverlay()" style="color:#aaa;font-size:.8rem;background:rgba(255,255,255,.1);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;">&#x2715;</div></div><div style="padding:.5rem .8rem;border-bottom:1px solid rgba(255,255,255,.08);"><div style="background:rgba(255,255,255,.07);border-radius:6px;padding:.4rem .6rem;font-size:.58rem;color:#90caf9;">&#x2139;&#xFE0F; Your last cash up was at <strong style="color:#fff;display:inline;">16:02</strong> on <strong style="color:#fff;display:inline;">16 Apr 2026</strong>.</div></div><div style="display:grid;grid-template-columns:1fr 140px;">'+left+right+'</div></div></div>';
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/cashandbank</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#f8f9fc;padding:1.2rem 1.5rem;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
 }
+function renderCashUpComplete(){
+  var modal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;">'
+    +'<div style="background:#162032;border-radius:12px;width:88%;max-width:340px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5);">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem .8rem;border-bottom:1px solid rgba(255,255,255,.1);">'
+    +'<span style="color:#fff;font-size:.75rem;font-weight:700;">&#x1F512; Z-Read &#x2014; Close Shift</span>'
+    +'<div class="mc" onclick="closeCashOverlay()" style="color:#aaa;font-size:.8rem;background:rgba(255,255,255,.1);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="padding:1rem .9rem .8rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;">'
+    +'<div style="width:36px;height:36px;border-radius:50%;background:rgba(34,197,94,.2);border:2px solid #22c55e;display:flex;align-items:center;justify-content:center;color:#22c55e;font-size:1.1rem;">&#x2713;</div>'
+    +'<div style="text-align:center;">'
+    +'<div style="font-size:.85rem;font-weight:700;color:#fff;margin-bottom:.2rem;">Shift closed successfully</div>'
+    +'<div style="font-size:.6rem;color:#8a9bb0;">Z-Read recorded and shift locked.</div>'
+    +'</div>'
+    +'<div style="background:rgba(30,45,69,.8);border-radius:8px;padding:.5rem .7rem;width:100%;display:flex;justify-content:space-between;align-items:center;">'
+    +'<span style="font-size:.65rem;color:#5eead4;">&#x1F4B0; To deposit in safe</span>'
+    +'<span style="font-size:.75rem;font-weight:700;color:#22c55e;">&#xa3;162.28</span>'
+    +'</div>'
+    +'<div style="width:100%;display:flex;flex-direction:column;gap:.25rem;">'
+    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.62rem;color:#fff;font-weight:600;">Total Sales</span><span style="font-size:.62rem;color:#3b6fd4;font-weight:700;">&#xa3;248.60</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Cash Counted</span><span style="font-size:.6rem;color:#fff;">&#xa3;222.28</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Float Kept</span><span style="font-size:.6rem;color:#fff;">&#x2013;&#xa3;60.00</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span style="font-size:.6rem;color:#8a9bb0;">Card Machine (PDQ)</span><span style="font-size:.6rem;color:#fff;">&#xa3;86.32</span></div>'
+    +'<div style="border-top:1px solid rgba(255,255,255,.1);margin-top:.1rem;padding-top:.25rem;display:flex;justify-content:space-between;">'
+    +'<span style="font-size:.6rem;color:#8a9bb0;">Variance</span><span style="font-size:.6rem;color:#22c55e;font-weight:600;">&#xa3;0.00</span>'
+    +'</div>'
+    +'</div>'
+    +'<div style="width:100%;display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.2rem;">'
+    +'<div class="mc" onclick="showCashUpReceiptMockup()" style="background:#1e2d45;border-radius:8px;padding:.5rem;text-align:center;color:#fff;font-size:.65rem;font-weight:600;cursor:pointer;">&#x1F5A8; Print Receipt</div>'
+    +'<div class="mc" onclick="closeCashOverlay()" style="background:#22c55e;border-radius:8px;padding:.5rem;text-align:center;color:#fff;font-size:.65rem;font-weight:700;cursor:pointer;">Done &#x2713;</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/cashandbank</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#f8f9fc;padding:1.2rem 1.5rem;opacity:.3;"></div></div>'+modal+'</div></div>';
+}
+function renderCashUpReceipt(){
+  var receipt='<div style="position:absolute;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:25;">'
+    +'<div style="background:#fff;border-radius:4px;width:80%;max-width:220px;font-family:\'Courier New\',monospace;padding:.6rem .7rem;box-shadow:0 4px 20px rgba(0,0,0,.4);position:relative;">'
+    +'<div class="mc" onclick="closeShiftMockup()" style="position:absolute;top:.3rem;right:.3rem;background:#eee;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:#666;font-size:.6rem;cursor:pointer;">&#x2715;</div>'
+    +'<div style="text-align:center;border-bottom:1px dashed #ccc;padding-bottom:.4rem;margin-bottom:.4rem;">'
+    +'<div style="font-size:.65rem;font-weight:700;letter-spacing:.05em;">ALLIED PHARMACIES</div>'
+    +'<div style="font-size:.55rem;color:#555;">Sample Pharmacy</div>'
+    +'<div style="font-size:.5rem;color:#888;">Z-READ REPORT</div>'
+    +'<div style="font-size:.5rem;color:#888;">25/06/2026 &nbsp; 17:32</div>'
+    +'<div style="font-size:.5rem;color:#888;">Terminal: AP-46 &nbsp; Cashier: Alex</div>'
+    +'</div>'
+    +'<div style="font-size:.55rem;margin-bottom:.3rem;">'
+    +'<div style="display:flex;justify-content:space-between;margin-bottom:.15rem;"><span style="font-weight:700;">SALES SUMMARY</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span>Total Sales</span><span>&#xa3;248.60</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span>NHS Items</span><span>&#xa3;162.28</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span>Retail</span><span>&#xa3;86.32</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span>Refunds</span><span>&#xa3;0.00</span></div>'
+    +'</div>'
+    +'<div style="border-top:1px dashed #ccc;padding-top:.3rem;font-size:.55rem;margin-bottom:.3rem;">'
+    +'<div style="display:flex;justify-content:space-between;margin-bottom:.15rem;"><span style="font-weight:700;">CASH RECONCILIATION</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span>Cash Counted</span><span>&#xa3;222.28</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span>Float Kept</span><span>-&#xa3;60.00</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span>To Deposit</span><span style="font-weight:700;">&#xa3;162.28</span></div>'
+    +'<div style="display:flex;justify-content:space-between;"><span>Card (PDQ)</span><span>&#xa3;86.32</span></div>'
+    +'<div style="display:flex;justify-content:space-between;border-top:1px solid #eee;margin-top:.15rem;padding-top:.15rem;"><span style="font-weight:700;">Variance</span><span style="font-weight:700;">&#xa3;0.00</span></div>'
+    +'</div>'
+    +'<div style="border-top:1px dashed #ccc;padding-top:.3rem;font-size:.55rem;text-align:center;color:#888;">'
+    +'<div>Shift ID: SH-20260625-046</div>'
+    +'<div style="margin-top:.2rem;">*** END OF Z-READ ***</div>'
+    +'</div>'
+    +'</div>'
+    +'</div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/cashandbank</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#f8f9fc;padding:1.2rem 1.5rem;opacity:.3;"></div></div>'+receipt+'</div></div>';
+}
 function labelsTabsHtml(active){
   var tabs=[{k:'search',l:'Search'},{k:'pricechanges',l:'Price Changes',badge:true},{k:'priceadj',l:'Price Adjustment'},{k:'submissions',l:'My Submissions'}];
   var h='<div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;gap:.1rem;">';
@@ -1961,6 +2036,8 @@ var steps=[
         tip:null,
         extraBtn:{label:'Jump to Cash Up Procedure',action:'goToStep(3)'},
         getMockup:function(i){
+          if(showCashUpReceipt)return renderCashUpReceipt();
+          if(showCashUpComplete)return renderCashUpComplete();
           if(i===1)return renderCashCount();
           if(i===2)return renderCashAndBankBanking();
           return renderCashAndBank();
@@ -2207,6 +2284,8 @@ var steps=[
     tip:'The Daily Till Skim should be done at least once every day to keep the drawer from overfilling. The Full Till Count is only required on your branch\'s designated count day.',
     tip3:null,
     getMockup:function(i){
+      if(showCashUpReceipt)return renderCashUpReceipt();
+      if(showCashUpComplete)return renderCashUpComplete();
       if(i===0)return renderCashAndBank();
       if(i===1)return renderTillSkim();
       if(i===2)return renderCashCount();
