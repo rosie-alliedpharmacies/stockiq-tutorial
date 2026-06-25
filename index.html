@@ -1276,16 +1276,127 @@ function renderDashboard(idx){
   return wrapMockup('epos.stockiq.uk/dashboard',inner);
 }
 function renderAccounts(idx){
-  var accs=[['Sunrise Care Home','Care Home','&#xa3;142.50','&#xa3;500.00',false],['J. Patel','Customer','&#xa3;28.40','&#xa3;100.00',false],['Maplewood Nursing','Care Home','&#xa3;389.00','&#xa3;350.00',true],['S. Thompson','Customer','&#xa3;0.00','&#xa3;50.00',false],['R. Okafor','Customer','&#xa3;15.90','&#xa3;100.00',false]];
-  var lH='';for(var i=0;i<accs.length;i++)lH+='<div style="background:'+(i===0?'#eef3ff':'#fff')+';border:1px solid '+(i===0?'#c7d7f9':'#e5e7eb')+';border-radius:7px;padding:.4rem .6rem;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.62rem;font-weight:700;color:#1a2e2d;">'+accs[i][0]+'</div><div style="font-size:.52rem;color:#aaa;">'+accs[i][1]+'</div></div><div style="text-align:right;"><div style="font-size:.62rem;font-weight:700;color:'+(accs[i][4]?'#e03535':'#1a2e2d')+'">'+accs[i][2]+'</div>'+(accs[i][4]?'<div style="font-size:.48rem;color:#e03535;">Over limit</div>':'')+'</div></div></div>';
-  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('accounts')+'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;">'+topNavHtml('Accounts')+'<div style="display:flex;justify-content:space-between;align-items:flex-start;"><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Charge Accounts</div><div class="mc" onclick="navToInstr(1,5,2)" style="background:#3b6fd4;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;color:#fff;font-weight:700;'+(idx===2?'outline:3px solid #14b8a6;outline-offset:2px;':'')+'">+ New Account</div></div>';
-  inner+='<div class="mc" onclick="navToInstr(1,5,0)" style="display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;'+hl(idx===0)+'"><div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F4CA;</span><div><div style="font-size:.52rem;color:#888;">Total Outstanding</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;575.80</div></div></div><div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F465;</span><div><div style="font-size:.52rem;color:#888;">Active Accounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">5</div></div></div><div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x26A0;&#xFE0F;</span><div><div style="font-size:.52rem;color:#888;">Over Credit Limit</div><div style="font-size:.8rem;font-weight:700;color:#e03535;">1</div></div></div><div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F5D3;&#xFE0F;</span><div><div style="font-size:.52rem;color:#888;">Total Accounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">5</div></div></div></div>';
-  inner+='<div class="mc" onclick="navToInstr(1,5,1)" style="display:grid;grid-template-columns:1fr 1.4fr;gap:.35rem;'+hl(idx===1)+'"><div style="display:flex;flex-direction:column;gap:.3rem;"><div style="background:#fff;border:1px solid #ddd;border-radius:7px;padding:.35rem .6rem;display:flex;align-items:center;gap:.35rem;"><span style="color:#aaa;">&#x1F50D;</span><span style="font-size:.6rem;color:#aaa;">Search accounts...</span></div>'+lH+'</div>';
-  inner+='<div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.4rem;"><div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">Sunrise Care Home</div><div style="font-size:.55rem;color:#888;">Care Home</div></div><span style="background:#dcfce7;color:#16a34a;font-size:.5rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;">ACTIVE</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:.3rem;"><div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.52rem;color:#888;">Outstanding</div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">&#xa3;142.50</div></div><div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.52rem;color:#888;">Credit Limit</div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">&#xa3;500.00</div></div></div><div style="font-size:.58rem;font-weight:700;color:#1a2e2d;margin-bottom:.3rem;">Recent Transactions</div>';
-  var tx=[['28 Mar','NHS Prescription x3','&#xa3;29.70'],['25 Mar','MDS Monthly','&#xa3;25.00'],['22 Mar','Delivery Charge','&#xa3;3.50']];
-  for(var i=0;i<tx.length;i++)inner+='<div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid #f0f2f7;"><div><div style="font-size:.55rem;color:#1a2e2d;">'+tx[i][1]+'</div><div style="font-size:.48rem;color:#aaa;">'+tx[i][0]+'</div></div><div style="font-size:.58rem;font-weight:600;color:#3b6fd4;">'+tx[i][2]+'</div></div>';
-  inner+='<div style="display:flex;gap:.3rem;margin-top:.2rem;"><div style="flex:1;background:#3b6fd4;border-radius:5px;padding:.3rem;text-align:center;font-size:.58rem;color:#fff;font-weight:600;">Take Payment</div><div style="flex:1;background:#f0f2f7;border-radius:5px;padding:.3rem;text-align:center;font-size:.58rem;color:#555;font-weight:600;">Edit Account</div></div></div></div></div></div>';
-  return wrapMockup('epos.stockiq.uk/accounts',inner);
+  var accs=[['Sunrise Care Home','ACC-SC001','Care Home','&#xa3;142.50','&#xa3;500.00',false],['J. Patel','ACC-JP002','Customer','&#xa3;28.40','&#xa3;100.00',false],['Maplewood Nursing','ACC-MN003','Care Home','&#xa3;389.00','&#xa3;350.00',true],['S. Thompson','ACC-ST004','Customer','&#xa3;0.00','&#xa3;50.00',false],['R. Okafor','ACC-RO005','Customer','&#xa3;15.90','&#xa3;100.00',false]];
+  var lH='';for(var i=0;i<accs.length;i++)lH+='<div style="background:'+(i===0?'#eef3ff':'#fff')+';border:1px solid '+(i===0?'#c7d7f9':'#e5e7eb')+';border-radius:7px;padding:.4rem .6rem;margin-bottom:.2rem;"><div style="display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:.62rem;font-weight:700;color:#1a2e2d;">'+accs[i][0]+'</div><div style="font-size:.48rem;color:#aaa;">'+accs[i][1]+' &middot; '+accs[i][2]+'</div></div><div style="text-align:right;"><div style="font-size:.62rem;font-weight:700;color:'+(accs[i][5]?'#e03535':'#1a2e2d')+'">'+accs[i][3]+'</div>'+(accs[i][5]?'<div style="font-size:.44rem;color:#e03535;">Over limit</div>':'')+'</div></div></div>';
+
+  var summaryCards='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;">'
+    +'<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F4CA;</span><div><div style="font-size:.52rem;color:#888;">Total Outstanding</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">&#xa3;575.80</div></div></div>'
+    +'<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F465;</span><div><div style="font-size:.52rem;color:#888;">Active Accounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">5</div></div></div>'
+    +'<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x26A0;&#xFE0F;</span><div><div style="font-size:.52rem;color:#888;">Over Credit Limit</div><div style="font-size:.8rem;font-weight:700;color:#e03535;">1</div></div></div>'
+    +'<div style="background:#fff;border-radius:7px;padding:.45rem .6rem;display:flex;align-items:center;gap:.4rem;"><span>&#x1F5D3;&#xFE0F;</span><div><div style="font-size:.52rem;color:#888;">Total Accounts</div><div style="font-size:.8rem;font-weight:700;color:#1a2e2d;">5</div></div></div>'
+    +'</div>';
+
+  var tx=[
+    ['12 Jun 2026','Charge','NHS Prescription x2','+&#xa3;19.80'],
+    ['10 Jun 2026','Charge','MDS Monthly','+&#xa3;25.00'],
+    ['07 Jun 2026','Payment','Cash payment','-&#xa3;50.00'],
+    ['03 Jun 2026','Charge','Delivery charge','+&#xa3;3.50'],
+    ['01 Jun 2026','Charge','Blister pack service','+&#xa3;45.00']
+  ];
+  var txH='';
+  for(var i=0;i<tx.length;i++){
+    var isPayment=tx[i][1]==='Payment';
+    txH+='<tr style="border-top:1px solid #f0f2f7;">'
+      +'<td style="padding:.28rem .4rem;font-size:.5rem;color:#888;">'+tx[i][0]+'</td>'
+      +'<td style="padding:.28rem .4rem;"><span style="background:'+(isPayment?'#dcfce7':'#fff7ed')+';color:'+(isPayment?'#15803d':'#c2410c')+';font-size:.44rem;font-weight:700;border-radius:4px;padding:.1rem .3rem;">'+tx[i][1]+'</span></td>'
+      +'<td style="padding:.28rem .4rem;font-size:.52rem;color:#1a2e2d;">'+tx[i][2]+'</td>'
+      +'<td style="padding:.28rem .4rem;font-size:.52rem;font-weight:600;color:'+(isPayment?'#15803d':'#1a2e2d')+';text-align:right;">'+tx[i][3]+'</td>'
+      +'</tr>';
+  }
+
+  var accountDetail='<div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.4rem;overflow:auto;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+    +'<div><div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">Sunrise Care Home</div>'
+    +'<div style="font-size:.5rem;color:#aaa;">ACC-SC001</div></div>'
+    +'<div style="display:flex;gap:.3rem;align-items:center;">'
+    +'<div class="mc" onclick="navToInstr(1,5,3)" style="background:#22c55e;border-radius:5px;padding:.25rem .5rem;font-size:.52rem;color:#fff;font-weight:700;cursor:pointer;">Record Payment</div>'
+    +'<div style="background:#f0f2f7;border-radius:5px;padding:.25rem .5rem;font-size:.52rem;color:#aaa;cursor:default;">Close account</div>'
+    +'</div></div>'
+    +'<div style="font-size:.55rem;font-weight:700;color:#555;letter-spacing:.04em;">ACCOUNT DETAILS</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.25rem .5rem;">'
+    +'<div><div style="font-size:.48rem;color:#aaa;">Contact</div><div style="font-size:.55rem;color:#1a2e2d;">Sarah Mitchell</div></div>'
+    +'<div><div style="font-size:.48rem;color:#aaa;">Phone</div><div style="font-size:.55rem;color:#1a2e2d;">01234 567890</div></div>'
+    +'<div><div style="font-size:.48rem;color:#aaa;">Email</div><div style="font-size:.55rem;color:#1a2e2d;">sarah@sunrisecare.co.uk</div></div>'
+    +'<div><div style="font-size:.48rem;color:#aaa;">Address</div><div style="font-size:.55rem;color:#1a2e2d;">12 Sunrise Lane, Leeds</div></div>'
+    +'<div><div style="font-size:.48rem;color:#aaa;">Payment Terms</div><div style="font-size:.55rem;color:#1a2e2d;">30 days</div></div>'
+    +'<div><div style="font-size:.48rem;color:#aaa;">Account Type</div><div style="font-size:.55rem;color:#1a2e2d;">Care Home</div></div>'
+    +'</div>'
+    +'<div style="font-size:.55rem;font-weight:700;color:#555;letter-spacing:.04em;">BALANCE SUMMARY</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;">'
+    +'<div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.48rem;color:#888;">Current Balance</div><div style="font-size:.68rem;font-weight:700;color:#1a2e2d;">&#xa3;142.50</div></div>'
+    +'<div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.48rem;color:#888;">Credit Limit</div><div style="font-size:.68rem;font-weight:700;color:#1a2e2d;">&#xa3;500.00</div></div>'
+    +'<div style="background:#f8f9fc;border-radius:6px;padding:.35rem .5rem;"><div style="font-size:.48rem;color:#888;">Available Credit</div><div style="font-size:.68rem;font-weight:700;color:#22c55e;">&#xa3;357.50</div></div>'
+    +'</div>'
+    +'<div style="font-size:.55rem;font-weight:700;color:#555;letter-spacing:.04em;">RECENT TRANSACTIONS</div>'
+    +'<table style="width:100%;border-collapse:collapse;">'+txH+'</table>'
+    +'</div>';
+
+  var newAccountModal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#fff;border-radius:10px;width:100%;max-width:360px;padding:.8rem;display:flex;flex-direction:column;gap:.45rem;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.1rem;">'
+    +'<div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">New Charge Account</div>'
+    +'<div style="color:#aaa;font-size:.75rem;cursor:pointer;">&#x2715;</div></div>'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Account Type</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.58rem;color:#1a2e2d;display:flex;justify-content:space-between;">Care Home<span style="color:#aaa;">&#x25BC;</span></div></div>'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Account Name</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.55rem;color:#aaa;">Enter account name</div></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Contact Name</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.55rem;color:#aaa;">Primary contact</div></div>'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Phone</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.55rem;color:#aaa;">Phone number</div></div>'
+    +'</div>'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Email</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.55rem;color:#aaa;">Email address</div></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;">'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Credit Limit (&#xa3;)</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.55rem;color:#aaa;">0.00</div></div>'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Payment Terms (days)</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;font-size:.58rem;color:#1a2e2d;display:flex;justify-content:space-between;">30<span style="color:#aaa;">&#x25BC;</span></div></div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:.4rem;margin-top:.2rem;">'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .7rem;font-size:.58rem;color:#555;cursor:pointer;">Cancel</div>'
+    +'<div style="background:#3b6fd4;border-radius:6px;padding:.3rem .7rem;font-size:.58rem;color:#fff;font-weight:700;cursor:pointer;">Create Account</div>'
+    +'</div></div></div>';
+
+  var recordPaymentModal='<div style="position:absolute;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#fff;border-radius:10px;width:100%;max-width:320px;padding:.8rem;display:flex;flex-direction:column;gap:.45rem;box-shadow:0 8px 32px rgba(0,0,0,.2);">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+    +'<div style="font-size:.72rem;font-weight:700;color:#1a2e2d;">Record Payment</div>'
+    +'<div style="color:#aaa;font-size:.75rem;cursor:pointer;">&#x2715;</div></div>'
+    +'<div style="background:#f8f9fc;border-radius:7px;padding:.4rem .6rem;text-align:center;">'
+    +'<div style="font-size:.62rem;font-weight:700;color:#1a2e2d;">Sunrise Care Home</div>'
+    +'<div style="font-size:.52rem;color:#888;">Balance: &#xa3;142.50</div></div>'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Payment Amount (&#xa3;)</div>'
+    +'<div style="border:1.5px solid #3b6fd4;border-radius:6px;padding:.35rem .55rem;font-size:.75rem;color:#aaa;font-weight:600;">0.00</div></div>'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Payment Method</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .55rem;font-size:.58rem;color:#1a2e2d;display:flex;justify-content:space-between;">Cash<span style="color:#aaa;">&#x25BC;</span></div></div>'
+    +'<div><div style="font-size:.52rem;color:#555;margin-bottom:.2rem;">Reference (optional)</div>'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .55rem;font-size:.55rem;color:#aaa;">Payment reference</div></div>'
+    +'<div style="display:flex;justify-content:flex-end;gap:.4rem;margin-top:.2rem;">'
+    +'<div style="border:1px solid #ddd;border-radius:6px;padding:.3rem .7rem;font-size:.58rem;color:#555;cursor:pointer;">Cancel</div>'
+    +'<div style="background:#3b6fd4;border-radius:6px;padding:.3rem .7rem;font-size:.58rem;color:#fff;font-weight:700;cursor:pointer;">Record Payment</div>'
+    +'</div></div></div>';
+
+  var showDetail=idx===1||idx===3, showNewAcc=idx===2, showRecPay=idx===3;
+  var inner='<div style="position:relative;display:grid;grid-template-columns:68px 1fr;min-height:320px;font-family:-apple-system,sans-serif;">'+sidebarHtml('accounts')
+    +'<div style="background:#f0f2f7;padding:.7rem .8rem;display:flex;flex-direction:column;gap:.5rem;overflow:hidden;">'
+    +topNavHtml('Accounts')
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+    +'<div><div style="font-size:.85rem;font-weight:700;color:#1a2e2d;">Charge Accounts</div>'
+    +'<div style="font-size:.55rem;color:#888;">Manage customer and care home accounts</div></div>'
+    +'<div class="mc" onclick="navToInstr(1,5,2)" style="background:#3b6fd4;border-radius:6px;padding:.3rem .65rem;font-size:.6rem;color:#fff;font-weight:700;'+(idx===2?'outline:3px solid #14b8a6;outline-offset:2px;':'')+'cursor:pointer;">+ New Account</div>'
+    +'</div>'
+    +summaryCards
+    +'<div style="display:grid;grid-template-columns:1fr 1.5fr;gap:.35rem;">'
+    +'<div style="display:flex;flex-direction:column;gap:.0rem;">'
+    +'<div style="background:#fff;border:1px solid #ddd;border-radius:7px;padding:.35rem .6rem;display:flex;align-items:center;gap:.35rem;margin-bottom:.3rem;"><span style="color:#aaa;">&#x1F50D;</span><span style="font-size:.6rem;color:#aaa;">Search accounts...</span></div>'
+    +lH+'</div>'
+    +(showDetail?accountDetail:'<div style="background:#fff;border:1px solid #e5e7eb;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:1rem;"><div style="font-size:.58rem;color:#aaa;text-align:center;">Select an account<br>to view details</div></div>')
+    +'</div></div></div>'
+    +(showNewAcc?newAccountModal:'')
+    +(showRecPay?recordPaymentModal:'');
+  return wrapMockup('epos.stockiq.uk/accounts','<div style="position:relative;">'+inner+'</div>');
 }
 function renderReports(idx){
   var tab=showReportsTab||'summary';
@@ -1756,10 +1867,11 @@ var steps=[
         title:'Accounts',icon:'&#x1F465;',subtitle:'Manage customer and care home charge accounts',
         instructions:[
           {icon:'&#x1F4CA;',title:'Summary cards',text:'The top row shows an overview of all charge accounts: Total Outstanding balance, Active Accounts, accounts Over Credit Limit, and Total Accounts registered.'},
-          {icon:'&#x1F50D;',title:'Search and account list',text:'Use the search bar to find an account by name. Click any account to view its full details, transaction history, and outstanding balance.'},
-          {icon:'&#x2795;',title:'Creating a new account',text:'Click the + New Account button in the top right to set up a new charge account for a customer or care home.'}
+          {icon:'&#x1F50D;',title:'Account details',text:'Click any account in the list to view its full details — contact information, balance summary, and a log of recent transactions showing the date, type, description, and amount of each charge or payment.'},
+          {icon:'&#x2795;',title:'Creating a new account',text:'Click the <strong>+ New Account</strong> button to set up a charge account. Enter the account type, name, contact details, credit limit, and payment terms, then click <strong>Create Account</strong>.'},
+          {icon:'&#x1F4B0;',title:'Recording a payment',text:'Open an account and click <strong>Record Payment</strong>. Enter the amount, select the payment method, add an optional reference, and click <strong>Record Payment</strong> to confirm. The balance will update immediately.'},
         ],
-        tip:'Accounts over their credit limit will be flagged automatically. Keep an eye on the Over Credit Limit card.',
+        tip:'The <strong>Close account</strong> button is only available when the account balance is £0.00. Settle any outstanding charges before closing.',
         getMockup:function(i){return renderAccounts(i);}
       },
       {
