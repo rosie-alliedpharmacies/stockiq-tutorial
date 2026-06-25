@@ -171,14 +171,15 @@ var doneSteps=[], doneSubs={};
 var showPriceCheck=false, showCashCount=false, showReconcile=false, showXRead=false;
 var showSalesHistory=false, showSalesReport=false, showCashOut=false, showRefund=false;
 var showClockIn=false, showClockedIn=false, showClockedOut=false;
+var showCashPayment=false, showCardPayment=false, showAccountPayment=false;
 var showSafe=false, showSafeBanking=false;
 var showNHS=false, showMiscItems=false, showPrivateServices=false;
 var showTillSkim=false, showCabBanking=false;
 var showSettingsTab='staff';
 var showReportsTab='summary';
 
-var BUG='<div class="bug-btn" title="Report a problem">&#x1F41B;</div>';
-var BUG_HL='<div class="bug-btn" style="box-shadow:0 0 0 4px #14b8a6,0 2px 8px rgba(0,0,0,.3);transform:scale(1.2);" title="Report a problem">&#x1F41B;</div>';
+var BUG='';
+var BUG_HL='';
 
 var SF_PANELS=[
   {key:'nhs',label:'NHS Services',icon:'&#x1F3E5;',color:'#1a3a6b',text:'Provides access to NHS-funded services including Prescription Forwarding (PF), Community Pharmacist Consultation Service (CPCS), and New Medicine Service (NMS).'},
@@ -379,7 +380,7 @@ function closeCashOverlay(){
 }
 
 // ── Navigation ──
-function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showTillSkim=false;showCabBanking=false;showClockIn=false;showClockedIn=false;showClockedOut=false;showSettingsTab='staff';showReportsTab='summary';}
+function resetFlags(){activeSFPanel=null;activeMiscPanel=null;showPriceCheck=false;showCashCount=false;showReconcile=false;showXRead=false;showSalesHistory=false;showSalesReport=false;showCashOut=false;showRefund=false;showSafe=false;showSafeBanking=false;showNHS=false;showMiscItems=false;showPrivateServices=false;showTillSkim=false;showCabBanking=false;showClockIn=false;showClockedIn=false;showClockedOut=false;showCashPayment=false;showCardPayment=false;showAccountPayment=false;showSettingsTab='staff';showReportsTab='summary';}
 function openTillSkim(){showTillSkim=true;showCabBanking=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderTillSkim();mk.style.display='block';}}
 function openCabBanking(){showCabBanking=true;showTillSkim=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderCashAndBankBanking();mk.style.display='block';}}
 function closeCabModal(){showTillSkim=false;showCabBanking=false;var mk=document.getElementById('stepMockup');if(mk){mk.innerHTML=renderCashAndBank();mk.style.display='block';}}
@@ -769,6 +770,74 @@ function renderTillRefund(){
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;padding:.6rem;opacity:.3;font-size:.55rem;color:#555;">Till</div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+BUG+'</div></div>';
 }
 
+function renderCashPayment(){
+  var denoms=['&#xa3;5','&#xa3;10','&#xa3;20','&#xa3;50','&#xa3;100','Card'];
+  var dH='';for(var i=0;i<denoms.length;i++)dH+='<div style="background:'+(denoms[i]==='Card'?'#3b6fd4':'rgba(255,255,255,.1)')+';border-radius:5px;padding:.28rem .2rem;text-align:center;font-size:.48rem;color:#fff;font-weight:600;">'+denoms[i]+'</div>';
+  var numpad='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.2rem;">';
+  var keys=['1','2','3','C','4','5','6','.','7','8','9','0'];
+  for(var k=0;k<keys.length;k++)numpad+='<div style="background:'+(keys[k]==='C'?'#8b1c1c':'rgba(255,255,255,.1)')+';border-radius:6px;padding:.35rem;text-align:center;font-size:.62rem;color:'+(keys[k]==='C'?'#ef4444':'#fff')+';font-weight:600;">'+keys[k]+'</div>';
+  numpad+='</div>';
+  var modal='<div onclick="event.stopPropagation()" style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:14px;width:100%;max-width:300px;padding:.8rem;display:flex;flex-direction:column;gap:.4rem;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+    +'<div style="font-size:.72rem;font-weight:700;color:#fff;">Cash Payment</div>'
+    +'<div class="mc" onclick="showCashPayment=false;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderTill(null);}" style="background:rgba(255,255,255,.1);border-radius:6px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.65rem;cursor:pointer;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:.2rem 0;">'
+    +'<div style="font-size:.55rem;color:#8a9bb0;">Amount Due</div>'
+    +'<div style="font-size:.72rem;font-weight:700;color:#22c55e;">&#xa3;9.90</div>'
+    +'</div>'
+    +'<div style="display:flex;gap:.3rem;">'
+    +'<div style="flex:1;background:rgba(255,255,255,.08);border-radius:7px;padding:.4rem .6rem;font-size:.8rem;font-weight:700;color:rgba(255,255,255,.3);">&#xa3;0.00</div>'
+    +'<div style="background:#8b1c1c;border-radius:7px;width:28px;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#ef4444;">&#x232B;</div>'
+    +'<div style="background:rgba(255,255,255,.1);border-radius:7px;width:28px;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:#aaa;">#</div>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:.2rem;">'+dH+'</div>'
+    +numpad
+    +'<div style="background:#22c55e;border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:700;color:#fff;">Exact Cash &#xa3;9.90</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;opacity:.3;"></div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+'</div></div>';
+}
+function renderCardPayment(){
+  var modal='<div onclick="event.stopPropagation()" style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:14px;width:100%;max-width:300px;padding:.8rem;display:flex;flex-direction:column;gap:.5rem;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+    +'<div style="font-size:.72rem;font-weight:700;color:#fff;">Card Payment</div>'
+    +'<div class="mc" onclick="showCardPayment=false;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderTill(null);}" style="background:rgba(255,255,255,.1);border-radius:6px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.65rem;cursor:pointer;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:.2rem 0;">'
+    +'<div style="font-size:.55rem;color:#8a9bb0;">Amount Due</div>'
+    +'<div style="font-size:.72rem;font-weight:700;color:#22c55e;">&#xa3;9.90</div>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.06);border-radius:10px;padding:1rem;display:flex;flex-direction:column;align-items:center;gap:.4rem;">'
+    +'<div style="font-size:1.4rem;">&#x1F4B3;</div>'
+    +'<div style="font-size:.6rem;color:#8a9bb0;">Present card on terminal</div>'
+    +'<div style="font-size:.9rem;font-weight:700;color:#22c55e;">&#xa3;9.90</div>'
+    +'</div>'
+    +'<div style="background:#22c55e;border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:700;color:#fff;">Complete Sale</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.4rem;text-align:center;font-size:.58rem;color:#aaa;">Switch to Cash</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;opacity:.3;"></div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+'</div></div>';
+}
+function renderAccountPayment(){
+  var modal='<div onclick="event.stopPropagation()" style="position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:.6rem;">'
+    +'<div style="background:#162032;border-radius:14px;width:100%;max-width:300px;padding:.8rem;display:flex;flex-direction:column;gap:.5rem;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+    +'<div style="font-size:.72rem;font-weight:700;color:#fff;">Charge to Account</div>'
+    +'<div class="mc" onclick="showAccountPayment=false;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderTill(null);}" style="background:rgba(255,255,255,.1);border-radius:6px;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:.65rem;cursor:pointer;">&#x2715;</div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:.2rem 0;">'
+    +'<div style="font-size:.55rem;color:#8a9bb0;">Amount Due</div>'
+    +'<div style="font-size:.72rem;font-weight:700;color:#22c55e;">&#xa3;9.90</div>'
+    +'</div>'
+    +'<div>'
+    +'<div style="font-size:.52rem;color:#8a9bb0;margin-bottom:.25rem;">Select Account</div>'
+    +'<div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.4rem .6rem;display:flex;justify-content:space-between;align-items:center;font-size:.58rem;color:#8a9bb0;">Choose an account...<span>&#x25BC;</span></div>'
+    +'</div>'
+    +'<div style="background:rgba(255,255,255,.15);border-radius:8px;padding:.45rem;text-align:center;font-size:.6rem;font-weight:600;color:#aaa;">Select an account</div>'
+    +'</div></div>';
+  return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+buildTillSidebar(false)+'<div style="background:#f0f2f7;opacity:.3;"></div><div style="background:#f8f9fc;opacity:.3;"></div></div>'+modal+'</div></div>';
+}
 function renderClockIn(){
   var numpad='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem;margin-bottom:.4rem;">';
   var keys=['1','2','3','4','5','6','7','8','9','Clear','0','&#x232B;'];
@@ -997,7 +1066,7 @@ function renderPin(){
 function renderTill(highlight){
   var sb=buildTillSidebar(highlight==='nav');
   var topS=highlight==='topbar'?'display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;outline:3px solid #14b8a6;border-radius:6px;padding:.3rem;background:rgba(20,184,166,.08);':'display:flex;align-items:center;gap:.4rem;margin-bottom:.6rem;';
-  var bugHtml=highlight==='bug'?BUG_HL:BUG;
+  var bugHtml='';
   var topClick=highlight==='topbar'?'':'onclick="navToInstrNoPC(1,0,1)"';
   var main='<div style="background:#f0f2f7;padding:.6rem;overflow:hidden;">';
   main+='<div class="mc" '+topClick+' style="'+topS+'"><div style="flex:1;background:#fff;border-radius:20px;padding:.3rem .7rem;font-size:.65rem;color:#aaa;border:1px solid #ddd;">&#x1F50D; Scan barcode or search...</div><div style="font-size:.6rem;color:#666;text-align:right;white-space:nowrap;">Logged in as<br><strong style="color:#111;">Staff Member</strong></div><div style="background:#1e2235;color:#fff;border-radius:6px;padding:.3rem .5rem;font-size:.65rem;font-weight:700;">12:02</div></div>';
@@ -1019,7 +1088,34 @@ function renderTill(highlight){
   var misc=[['#bdbdbd','&#x23F8;&#xFE0F;','PARK SALE','Hold',null],['#7b1fa2','&#x25B6;&#xFE0F;','RECALL','Parked',null],['#bdbdbd','&#x1F3F7;&#xFE0F;','DISCOUNT','Apply',null],['#0288d1','&#x1F4CB;','SALES HISTORY','Past Sales','openMiscPanel(\'history\')'],['#6a3fa0','&#x1F4CA;','SALES REPORT','Summary','openMiscPanel(\'report\')'],['#e65100','&#x1F4B5;','CASH OUT','Petty Cash','openMiscPanel(\'cashout\')'],['#c62828','&#x21A9;&#xFE0F;','REFUND','Return','openMiscPanel(\'refund\')'],['#1b7a3e','&#x1F550;','CLOCK IN/OUT','Attendance','openMiscPanel(\'clockin\')']];
   for(var i=0;i<misc.length;i++)main+='<div '+(misc[i][4]?'class="mc" onclick="'+misc[i][4]+'"':'')+' style="background:'+misc[i][0]+';border-radius:5px;padding:.25rem .2rem;text-align:center;font-size:.45rem;color:#fff;'+(misc[i][4]?'cursor:pointer;':'')+'"><div style="font-size:.7rem;">'+misc[i][1]+'</div>'+misc[i][2]+'<div style="opacity:.8;">'+misc[i][3]+'</div></div>';
   main+='</div></div>';
-  var basket='<div class="mc" onclick="navToInstrNoPC(1,1,3)" style="background:#f8f9fc;border-left:1px solid #dde;display:flex;flex-direction:column;padding:.5rem;"><div style="text-align:center;color:#aaa;font-size:.6rem;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;"><div style="font-size:1.4rem;">&#x1F6D2;</div><div style="font-weight:600;color:#555;font-size:.65rem;">Basket is empty</div></div><div style="border-top:1px solid #dde;padding-top:.4rem;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem;"><span style="font-size:.65rem;font-weight:700;">Total</span><span style="color:#1565c0;font-weight:700;font-size:.75rem;">&#xa3;0.00</span></div><div style="background:#e8f0fe;border-radius:5px;text-align:center;padding:.3rem;font-size:.55rem;margin-bottom:.3rem;color:#555;">&#x1F5A8;&#xFE0F; Print</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;"><div style="background:#e8f5e9;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B5;</div><div style="background:#e8eaf6;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4B3;</div><div style="background:#f3e5f5;border-radius:4px;padding:.3rem;text-align:center;font-size:.7rem;">&#x1F4CB;</div></div></div></div>';
+  var basket='<div style="background:#f8f9fc;border-left:1px solid #dde;display:flex;flex-direction:column;padding:.5rem;">'
+    +'<div style="flex:1;display:flex;flex-direction:column;gap:.3rem;margin-bottom:.3rem;">'
+    +'<div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:.35rem .45rem;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.2rem;">'
+    +'<div style="font-size:.52rem;color:#1a2e2d;font-weight:600;line-height:1.3;">NHS Prescription Levy</div>'
+    +'<div style="font-size:.55rem;color:#e03535;font-size:.48rem;">Remove</div>'
+    +'</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;">'
+    +'<div style="display:flex;align-items:center;gap:.25rem;">'
+    +'<div style="background:#f0f2f7;border-radius:4px;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:.55rem;color:#555;">-</div>'
+    +'<div style="font-size:.6rem;font-weight:700;color:#1a2e2d;">1</div>'
+    +'<div style="background:#f0f2f7;border-radius:4px;width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:.55rem;color:#555;">+</div>'
+    +'</div>'
+    +'<div style="font-size:.62rem;font-weight:700;color:#1565c0;">&#xa3;9.90</div>'
+    +'</div></div>'
+    +'</div>'
+    +'<div style="border-top:1px solid #dde;padding-top:.35rem;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;"><span style="font-size:.65rem;font-weight:700;color:#1a2e2d;">&#x1F6D2; Total</span><span style="color:#1565c0;font-weight:700;font-size:.75rem;">&#xa3;9.90</span></div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;margin-bottom:.3rem;">'
+    +'<div style="background:#f0f2f7;border-radius:4px;padding:.2rem;text-align:center;font-size:.48rem;color:#555;">&#x21A9; Void Last</div>'
+    +'<div style="background:#f0f2f7;border-radius:4px;padding:.2rem;text-align:center;font-size:.48rem;color:#e03535;">&#x2716; Void Sale</div>'
+    +'<div style="background:#f0f2f7;border-radius:4px;padding:.2rem;text-align:center;font-size:.48rem;color:#555;">&#x1F5A8; Print</div>'
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.2rem;">'
+    +'<div class="mc" onclick="showCashPayment=true;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderCashPayment();}" style="background:#22c55e;border-radius:5px;padding:.35rem .2rem;text-align:center;font-size:.5rem;font-weight:700;color:#fff;cursor:pointer;">&#x1F4B5;<br>Cash</div>'
+    +'<div class="mc" onclick="showCardPayment=true;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderCardPayment();}" style="background:#3b6fd4;border-radius:5px;padding:.35rem .2rem;text-align:center;font-size:.5rem;font-weight:700;color:#fff;cursor:pointer;">&#x1F4B3;<br>Card</div>'
+    +'<div class="mc" onclick="showAccountPayment=true;var el=document.getElementById(\'stepMockup\');if(el){el.innerHTML=renderAccountPayment();}" style="background:#7c3aed;border-radius:5px;padding:.35rem .2rem;text-align:center;font-size:.5rem;font-weight:700;color:#fff;cursor:pointer;">&#x1F4CB;<br>Account</div>'
+    +'</div></div></div>';
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/till</div></div><div class="mockup-inner"><div style="display:grid;grid-template-columns:68px 1fr 200px;min-height:280px;font-family:-apple-system,sans-serif;">'+sb+main+basket+'</div>'+bugHtml+'</div></div>';
 }
 function renderPriceCheck(){
@@ -1798,8 +1894,7 @@ var steps=[
         title:'Introduction',icon:'&#x1F44B;',subtitle:'Getting familiar with the StockIQ interface',
         instructions:[
           {icon:'&#x1F5C2;&#xFE0F;',title:'Left navigation panel',text:'The dark sidebar on the left lets you switch between modules - Till, Cash and Bank, Labels, Dashboard, Accounts, Reports, Settings, and Help. Your active module is highlighted in blue.'},
-          {icon:'&#x1F50D;',title:'Search and top bar',text:'The top bar shows your branch logo, current time, and logged-in staff member. Use the search bar to scan a barcode or search for a product by name without leaving the till screen.'},
-          {icon:'&#x1F41B;',title:'Report a problem',text:'If you ever experience an issue or something does not look right, click the green bug icon in the bottom-right corner of the screen. This will send a report directly to Head Office so we can look into it for you.'}
+          {icon:'&#x1F50D;',title:'Search and top bar',text:'The top bar shows your branch logo, current time, and logged-in staff member. Use the search bar to scan a barcode or search for a product by name without leaving the till screen.'}
         ],
         tip:null,
         getMockup:function(i){return renderTill(i===0?'nav':i===1?'topbar':i===2?'bug':null);}
@@ -1810,7 +1905,7 @@ var steps=[
           {icon:'&#x1F6E0;&#xFE0F;',title:'Services and Functions',text:'The coloured buttons at the top give quick access to common actions: NHS Services (PF, CPCS, NMS), Misc Items, Price Check, Reprint Last Receipt, and Void Sale. Click <strong>Price Check</strong> below to see how it works.'},
           {icon:'&#x26A1;',title:'Quick Keys',text:'Pre-configured shortcut buttons for your most frequent transactions - Flu Jab (&#xa3;20.00), NHS RX Charge (&#xa3;9.90), FP57 Refund, and more.'},
           {icon:'&#x1F48A;',title:'Private Services',text:'The Private Services quick key opens a menu of privately charged service categories — Minor Ailments, Sexual Health, Travel, Vaccinations, and Weight Management. Select a category to browse and charge for individual services.'},
-          {icon:'&#x1F6D2;',title:'Basket and payment panel',text:'The right-hand panel shows the current basket. Once items are added, the total updates here. Use the Cash, Card, or Account buttons to process payment.'},
+          {icon:'&#x1F6D2;',title:'Basket and payment panel',text:'The right-hand panel shows the current basket and total. Once items are added, use the <strong>Cash</strong>, <strong>Card</strong>, or <strong>Account</strong> buttons to process payment. Click each below to see how each payment method works.'},
           {icon:'&#x1F550;',title:'Clock In / Out',text:'Staff should clock in at the start of their shift and clock out at the end. Press the <strong>Clock In / Out</strong> button in the Misc section, enter your employee ID using the keypad, and press <strong>Clock In / Out</strong> to confirm.'}
         ],
         tip:'You can park a sale mid-transaction using the Park Sale button in the Misc section, then recall it later.',
@@ -1821,6 +1916,9 @@ var steps=[
           if(i===2){showPrivateServices=true;return renderTillPrivateServices();}
           if(showPrivateServices)return renderTillPrivateServices();
           if(i===4)return renderClockIn();
+          if(showCashPayment)return renderCashPayment();
+          if(showCardPayment)return renderCardPayment();
+          if(showAccountPayment)return renderAccountPayment();
           return renderTill(null);
         }
       },
@@ -2046,6 +2144,10 @@ var steps=[
           var clockBtn='<button onclick="navTo(1,2,4);setTimeout(function(){openMiscPanel(\'clockin\');},50);" style="background:#1b7a3e;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Clock In / Out</button>';
           return 'Press the '+clockBtn+' button in the Misc section on the Till page. Enter your employee ID using the keypad and press <strong>Clock In / Out</strong> to confirm. Do this at the start and end of every shift. If you do not know your employee ID, ask your manager.';
         })()
+      },
+      {
+        q:'How do I take a split payment (part cash, part card)?',
+        a:'Press <strong>Cash</strong> on the basket, then enter the cash amount the customer is paying using the keypad. An <strong>Apply &#xa3;X Cash — Pay Rest by Card</strong> button will appear above the Exact Cash button. Press it to apply the cash portion and move straight to the card payment screen for the remaining balance.'
       },
       {
         q:'My app is fullscreen — how do I exit?',
