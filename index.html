@@ -148,8 +148,21 @@ header{width:100%;background:var(--teal);padding:0 1.5rem;display:flex;align-ite
 <header>
   <span style="color:#fff;font-weight:800;font-size:1.2rem;">StockIQ</span>
   <div class="header-pill">Tutorial Mode</div>
-  <button onclick="openContactModal()" style="margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.8rem;font-weight:600;padding:.35rem .8rem;cursor:pointer;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">&#x1F4AC; Contact Us</button>
+  <button onclick="openSearch()" style="margin-left:auto;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.8rem;font-weight:600;padding:.35rem .9rem;cursor:pointer;transition:background .2s;display:flex;align-items:center;gap:.4rem;" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">&#x1F50D; Search</button>
+  <button onclick="openContactModal()" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;font-size:.8rem;font-weight:600;padding:.35rem .8rem;cursor:pointer;transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.25)'" onmouseout="this.style.background='rgba(255,255,255,.15)'">&#x1F4AC; Contact Us</button>
 </header>
+<div id="searchOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:flex-start;justify-content:center;padding-top:80px;">
+  <div style="background:#fff;border-radius:14px;width:90%;max-width:580px;box-shadow:0 12px 48px rgba(0,0,0,.25);overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:.6rem;padding:.8rem 1rem;border-bottom:1px solid #e5e7eb;">
+      <span style="color:#aaa;font-size:1.1rem;">&#x1F50D;</span>
+      <input id="searchInput" type="text" placeholder="Search instructions, FAQs, topics…" oninput="runSearch(this.value)" style="flex:1;border:none;outline:none;font-size:.9rem;color:#1a2e2d;background:transparent;" autocomplete="off">
+      <button onclick="closeSearch()" style="background:#f0f2f7;border:none;border-radius:6px;padding:.3rem .6rem;font-size:.75rem;color:#555;cursor:pointer;">✕ Close</button>
+    </div>
+    <div id="searchResults" style="max-height:420px;overflow-y:auto;padding:.5rem 0;">
+      <div style="padding:1.5rem;text-align:center;color:#aaa;font-size:.85rem;">Start typing to search…</div>
+    </div>
+  </div>
+</div>
 <div onclick="openWAModal()" class="wa-banner">
   <span style="font-size:1rem;">&#x1F4F2;</span>
   <span style="font-size:.85rem;color:#fff;font-weight:500;">Get live updates on issues, fixes, and new features — join the <strong>StockIQ Updates and Support</strong> WhatsApp group.</span>
@@ -1396,7 +1409,7 @@ function renderCashUpReceipt(){
   return '<div class="mockup" style="background:#e8eaf0;"><div class="mockup-bar"><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-dot"></div><div class="mockup-url">epos.stockiq.uk/cashandbank</div></div><div class="mockup-inner" style="position:relative;"><div style="display:grid;grid-template-columns:68px 1fr;min-height:280px;font-family:-apple-system,sans-serif;">'+sidebarHtml('xz')+'<div style="background:#f8f9fc;padding:1.2rem 1.5rem;opacity:.3;"></div></div>'+receipt+'</div></div>';
 }
 function labelsTabsHtml(active){
-  var tabs=[{k:'search',l:'Search'},{k:'pricechanges',l:'Price Changes',badge:true},{k:'priceadj',l:'Price Adjustment'},{k:'submissions',l:'My Submissions'}];
+  var tabs=[{k:'search',l:'Search'},{k:'pricechanges',l:'Price Changes',badge:true},{k:'priceadj',l:'Price Adjustment'},{k:'submissions',l:'My Submissions'},{k:'expiry',l:'Expiry / Shrinkage'}];
   var h='<div style="display:flex;background:#e0e4ee;border-radius:8px;padding:.2rem;width:fit-content;gap:.1rem;">';
   for(var i=0;i<tabs.length;i++){
     var t=tabs[i],isAct=t.k===active;
@@ -1405,6 +1418,7 @@ function labelsTabsHtml(active){
     else if(t.k==='pricechanges')onclick='navToInstr(1,3,0)';
     else if(t.k==='priceadj')onclick='navToInstr(1,3,3)';
     else if(t.k==='submissions')onclick='navToInstr(1,3,4)';
+    else if(t.k==='expiry')onclick='navToInstr(1,3,5)';
     h+='<div class="mc" onclick="'+onclick+'" style="'+(isAct?'background:#fff;border-radius:6px;font-weight:700;color:#1a2e2d;':'color:#666;')+'padding:.3rem .65rem;font-size:.6rem;display:flex;align-items:center;gap:.25rem;">';
     h+=t.l;
     if(t.badge)h+='<span style="background:#ef4444;color:#fff;font-size:.45rem;border-radius:999px;padding:.05rem .3rem;">99+</span>';
@@ -1461,6 +1475,51 @@ function renderLabelsMySubmissions(){
     +'</tr></thead><tbody>'+rowsHtml+'</tbody></table></div>'
     +'</div></div>';
   return wrapMockup('epos.stockiq.uk/labels/submissions',inner);
+}
+function renderLabelsExpiryShrinkage(){
+  var items=[
+    ['Paracetamol 500mg Tabs 32','5000158119276',2],
+    ['Ibuprofen 400mg Caps 24','5000158070560',1],
+    ['Pholcodine Linctus 200ml','5000613011118',3]
+  ];
+  var qRows='';
+  for(var i=0;i<items.length;i++){
+    var it=items[i];
+    qRows+='<div style="display:flex;align-items:center;gap:.5rem;padding:.35rem .6rem;border-bottom:1px solid #f0f2f7;">'
+      +'<div style="flex:1;"><div style="font-size:.6rem;font-weight:600;color:#1a2e2d;">'+it[0]+'</div><div style="font-size:.5rem;color:#aaa;">'+it[1]+'</div></div>'
+      +'<div style="background:#fef3c7;color:#92400e;font-size:.58rem;font-weight:700;border-radius:4px;padding:.15rem .4rem;">x'+it[2]+'</div>'
+      +'<div style="color:#d1d5db;font-size:.65rem;cursor:pointer;">&#x2715;</div>'
+      +'</div>';
+  }
+  var inner='<div style="display:grid;grid-template-columns:68px 1fr;min-height:300px;font-family:-apple-system,sans-serif;">'+sidebarHtml('labels')
+    +'<div style="background:#f0f2f7;padding:.8rem 1rem;display:flex;flex-direction:column;gap:.6rem;">'
+    +'<div><div style="font-size:.9rem;font-weight:700;color:#1a2e2d;">Shelf Edge Labels</div><div style="font-size:.6rem;color:#888;">Search products and print price labels</div></div>'
+    +labelsTabsHtml('expiry')
+    // Scan input
+    +'<div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:.6rem .7rem;display:flex;flex-direction:column;gap:.4rem;">'
+    +'<div style="font-size:.6rem;font-weight:700;color:#1a2e2d;">Scan Expired Item</div>'
+    +'<div style="font-size:.55rem;color:#888;">Scan a barcode or type it below. Each scan records one unit.</div>'
+    +'<div style="display:flex;gap:.4rem;align-items:center;">'
+    +'<div style="flex:1;display:flex;align-items:center;gap:.4rem;background:#f8f9fc;border:1px solid #ddd;border-radius:6px;padding:.3rem .5rem;">'
+    +'<span style="color:#aaa;font-size:.75rem;">&#x1F4F7;</span>'
+    +'<span style="font-size:.6rem;color:#aaa;">Scan or enter barcode...</span>'
+    +'</div>'
+    +'<div style="background:#1a2e2d;color:#fff;border-radius:6px;padding:.3rem .6rem;font-size:.6rem;font-weight:700;white-space:nowrap;">+ Add</div>'
+    +'</div>'
+    +'</div>'
+    // Queue
+    +'<div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;flex:1;">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;border-bottom:1px solid #f0f2f7;">'
+    +'<div style="font-size:.6rem;font-weight:700;color:#1a2e2d;">Expiry Queue</div>'
+    +'<div style="background:#fee2e2;color:#dc2626;font-size:.52rem;font-weight:700;border-radius:4px;padding:.1rem .35rem;">6 units</div>'
+    +'</div>'
+    +qRows
+    +'<div style="padding:.5rem .6rem;">'
+    +'<div style="background:#22c55e;border-radius:8px;padding:.45rem;text-align:center;color:#fff;font-size:.65rem;font-weight:700;">&#x2713; Submit to Head Office</div>'
+    +'</div>'
+    +'</div>'
+    +'</div></div>';
+  return wrapMockup('epos.stockiq.uk/labels/expiry',inner);
 }
 function renderLabelsSearch(highlight){
   var qS=highlight==='queue'?'display:grid;grid-template-columns:1fr 160px;gap:.6rem;outline:3px solid #14b8a6;border-radius:10px;padding:.3rem;background:rgba(20,184,166,.05);':'display:grid;grid-template-columns:1fr 160px;gap:.6rem;';
@@ -2105,13 +2164,15 @@ var steps=[
           {icon:'&#x1F50D;',title:'Search tab',text:'Use the Search tab to find any product by name or barcode. Located items are added to the Label Queue. Once your queue is ready, click Print All in the top right to send them to your thermal printer. A Test Print button is also available to check your printer connection.'},
           {icon:'&#x1F3F7;&#xFE0F;',title:'Label Queue and Preview',text:'The Label Queue shows all products queued for printing. Select a product to see a preview of its label on the right-hand side. If a price is showing as &#xa3;0.00, click it to edit before printing.'},
           {icon:'&#x1F4B2;',title:'Price Adjustment tab',text:'If a product price looks incorrect on the system, use the Price Adjustment tab to submit a correction. Scan or enter the barcode, enter the suggested price and an optional reason, then click Submit for Approval. Head Office will review it and apply any necessary changes.'},
-          {icon:'&#x1F4CB;',title:'My Submissions tab',text:'My Submissions shows a history of all the price adjustments you have submitted, along with their current status \u2014 Pending, Approved, or Rejected. Approved submissions will be reflected in a future C&D Sync.'}
+          {icon:'&#x1F4CB;',title:'My Submissions tab',text:'My Submissions shows a history of all the price adjustments you have submitted, along with their current status \u2014 Pending, Approved, or Rejected. Approved submissions will be reflected in a future C&D Sync.'},
+          {icon:'&#x1F6AB;',title:'Expiry / Shrinkage tab',text:'Use the Expiry / Shrinkage tab to record any products that have expired. Scan the barcode (or type it and press <strong>+ Add</strong>) \u2014 each scan adds one unit, so scan the same item once per box. Build up the full list in the Expiry Queue, then press the green <strong>Submit</strong> button to send it to Head Office. No forms or paperwork needed. Do this every month as part of your expiry check, and any time you take an expired product off the shelf.'}
         ],
         tip:'Labels print via ESC/POS to a thermal printer. If nothing prints, check your printer connection in Settings.',
         getMockup:function(i){
           if(i===0)return renderLabelsPriceChanges();
           if(i===3)return renderLabelsPriceAdjustment();
           if(i===4)return renderLabelsMySubmissions();
+          if(i===5)return renderLabelsExpiryShrinkage();
           return renderLabelsSearch(i===2?'queue':null);
         }
       },
@@ -2243,6 +2304,13 @@ var steps=[
         })()
       },
       {
+        q:'What do I do with expired products?',
+        a:(function(){
+          var expiryBtn='<button onclick="navTo(1,3);setTimeout(function(){switchMockup(5);},50);" style="background:#0d9488;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Expiry / Shrinkage</button>';
+          return 'Go to the '+expiryBtn+' tab on the Labels page. Scan the barcode of each expired product — one scan per unit, so scan the same item once for each box. The Expiry Queue at the bottom shows your running total. When you have scanned everything, press the green <strong>Submit</strong> button to send the list to Head Office. Do this every month as part of your expiry check, and any time you take an expired product off the shelf.';
+        })()
+      },
+      {
         q:'How do I take out petty cash for expenses?',
         a:(function(){
           var cashOutBtn='<button onclick="navTo(1,1);setTimeout(function(){openMiscPanel(\'cashout\');},50);" style="background:#e65100;color:#fff;border:none;border-radius:6px;padding:.2rem .6rem;font-size:.85rem;font-weight:600;cursor:pointer;">Cash Out</button>';
@@ -2359,6 +2427,74 @@ var steps=[
     ]
   }
 ];
+
+// ── Search ──
+var searchIndex=null;
+function buildSearchIndex(){
+  if(searchIndex)return;
+  searchIndex=[];
+  for(var si=0;si<steps.length;si++){
+    var s=steps[si];
+    if(s.isFAQ){
+      for(var fi=0;fi<s.faqs.length;fi++){
+        var f=s.faqs[fi];
+        searchIndex.push({type:'faq',q:f.q,text:f.q,crumb:'FAQs',action:'goToStep('+si+')'});
+      }
+      continue;
+    }
+    if(s.isVideos)continue;
+    if(s.subSteps){
+      for(var sj=0;sj<s.subSteps.length;sj++){
+        var sub=s.subSteps[sj];
+        if(!sub.instructions)continue;
+        for(var ii=0;ii<sub.instructions.length;ii++){
+          var instr=sub.instructions[ii];
+          searchIndex.push({type:'instr',text:instr.title+' '+instr.text,title:instr.title,crumb:s.title+' › '+sub.title,action:'navTo('+si+','+(sj+1)+','+ii+')'});
+        }
+      }
+    } else if(s.instructions){
+      for(var ii=0;ii<s.instructions.length;ii++){
+        var instr=s.instructions[ii];
+        searchIndex.push({type:'instr',text:instr.title+' '+instr.text,title:instr.title,crumb:s.title,action:'navTo('+si+',0,'+ii+')'});
+      }
+    }
+  }
+}
+function openSearch(){
+  buildSearchIndex();
+  var ov=document.getElementById('searchOverlay');
+  ov.style.display='flex';
+  setTimeout(function(){document.getElementById('searchInput').focus();},50);
+  document.addEventListener('keydown',searchKeyHandler);
+}
+function closeSearch(){
+  document.getElementById('searchOverlay').style.display='none';
+  document.getElementById('searchInput').value='';
+  document.getElementById('searchResults').innerHTML='<div style="padding:1.5rem;text-align:center;color:#aaa;font-size:.85rem;">Start typing to search…</div>';
+  document.removeEventListener('keydown',searchKeyHandler);
+}
+function searchKeyHandler(e){if(e.key==='Escape')closeSearch();}
+function runSearch(q){
+  var res=document.getElementById('searchResults');
+  q=q.trim().toLowerCase();
+  if(!q){res.innerHTML='<div style="padding:1.5rem;text-align:center;color:#aaa;font-size:.85rem;">Start typing to search…</div>';return;}
+  var matches=searchIndex.filter(function(r){return r.text.toLowerCase().replace(/<[^>]*>/g,'').indexOf(q)!==-1;});
+  if(!matches.length){res.innerHTML='<div style="padding:1.5rem;text-align:center;color:#aaa;font-size:.85rem;">No results for <strong>'+q+'</strong></div>';return;}
+  var html='';
+  for(var i=0;i<Math.min(matches.length,20);i++){
+    var m=matches[i];
+    var label=m.type==='faq'?m.q:m.title;
+    var icon=m.type==='faq'?'&#x2753;':'&#x1F4D6;';
+    var action=m.action;
+    html+='<div class="mc" onclick="closeSearch();'+action+'" style="display:flex;align-items:flex-start;gap:.75rem;padding:.7rem 1rem;border-bottom:1px solid #f0f2f7;cursor:pointer;" onmouseover="this.style.background=\'#f8f9fc\'" onmouseout="this.style.background=\'#fff\'">'
+      +'<span style="font-size:1rem;margin-top:.05rem;">'+icon+'</span>'
+      +'<div><div style="font-size:.85rem;font-weight:600;color:#1a2e2d;">'+label+'</div>'
+      +'<div style="font-size:.72rem;color:#888;margin-top:.15rem;">'+m.crumb+'</div></div>'
+      +'</div>';
+  }
+  if(matches.length>20)html+='<div style="padding:.6rem 1rem;font-size:.72rem;color:#aaa;text-align:center;">+'+(matches.length-20)+' more results — try a more specific term</div>';
+  res.innerHTML=html;
+}
 
 // ── Render ──
 function renderNav(){
